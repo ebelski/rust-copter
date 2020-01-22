@@ -1,0 +1,21 @@
+[package]
+name = "teensy4-rs-mpu9250"
+version = "0.1.0"
+authors = ["Ian McIntyre <ianpmcintyre@gmail.com>", "Eric Belski <belski.eric@gmail.com>"]
+edition = "2018"
+description = "Demonstration of interfacing an MPU9250 with the Teensy 4"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+embedded-hal = "0.2.3"
+log = "0.4.8"
+panic-halt = "0.2.0"
+
+[dependencies.mpu9250]
+version = "0.20.0"
+features = ["i2c"]
+
+[dependencies.teensy4-bsp]
+git = "https://github.com/mciantyre/teensy4-rs.git"
+branch = "feature/i2c"
