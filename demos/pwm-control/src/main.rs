@@ -37,7 +37,7 @@ mod parser;
 extern crate panic_halt;
 
 use bsp::rt::entry;
-use embedded_hal::PwmPin;
+use embedded_hal::{digital::v2::ToggleableOutputPin, timer::CountDown, PwmPin};
 use parser::{Command, Output, Parser};
 use teensy4_bsp as bsp;
 
@@ -52,6 +52,7 @@ fn percent_to_duty(pct: f64) -> u16 {
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
+    let mut led = peripherals.led;
 
     // Initialize the ARM and IPG clocks. The PWM module runs on the IPG clock.
     let (_, ipg_hz) = peripherals.ccm.pll1.set_arm_clock(
@@ -59,6 +60,14 @@ fn main() -> ! {
         &mut peripherals.ccm.handle,
         &mut peripherals.dcdc,
     );
+
+    // Use one of the PIT timers to blink the LED at 1Hz
+    let pit_cfg = peripherals.ccm.perclk.configure(
+        &mut peripherals.ccm.handle,
+        bsp::hal::ccm::perclk::PODF::DIVIDE_3,
+        bsp::hal::ccm::perclk::CLKSEL::IPG(ipg_hz),
+    );
+    let (mut led_timer, _, _, _) = peripherals.pit.clock(pit_cfg);
 
     // Enable clocks to the PWM2 module
     let mut pwm2 = peripherals.pwm2.clock(&mut peripherals.ccm.handle);
@@ -88,7 +97,12 @@ fn main() -> ! {
     let usb_reader = peripherals.usb.init(Default::default());
     let mut parser = Parser::new(usb_reader);
 
+    led_timer.start(core::time::Duration::from_millis(500));
     loop {
+        if let Ok(()) = led_timer.wait() {
+            led.toggle().unwrap();
+        }
+
         match parser.parse() {
             Ok(None) => {
                 // No command available
