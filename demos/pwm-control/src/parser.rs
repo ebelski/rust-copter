@@ -47,6 +47,8 @@ pub enum ParserError {
     InvalidSeparator(char),
     /// Not a number
     InvalidNumber(num::ParseFloatError),
+    /// Invalid percentage (value must be bound by [0, 100])
+    InvalidPercentage(f64),
     /// String parsing error
     Invalid(str::Utf8Error),
 }
@@ -140,14 +142,10 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
         return Ok(None);
     }
 
-    let pct: f64 = str::parse(pct_str.trim())?;
-    // TODO figure out where fmax and fmin are...
-    let percent = if pct < 0.0f64 {
-        0.0f64
-    } else if pct > 100.0f64 {
-        100.0f64
+    let percent: f64 = str::parse(pct_str.trim())?;
+    if 0.0f64 <= percent && percent <= 100.0f64 {
+        Ok(Some(Command::SetDuty { output, percent }))
     } else {
-        pct
-    };
-    Ok(Some(Command::SetDuty { output, percent }))
+        Err(ParserError::InvalidPercentage(percent))
+    }
 }
