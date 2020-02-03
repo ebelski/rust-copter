@@ -29,6 +29,8 @@ use delay::SystickDelay;
 use mpu9250::Mpu9250;
 use teensy4_bsp as bsp; // Aliasing teensy4_bsp as bsp for convenience
 
+use bsp::hal::i2c::ClockSpeed;
+
 /// System initialization
 ///
 /// This is the fist thing that runs. By this point, the processor
@@ -56,11 +58,27 @@ fn main() -> ! {
     });
 
     // Run the main clock at 600MHz
-    peripherals.ccm.pll1.set_arm_clock(
+    let (_, ipg_hz) = peripherals.ccm.pll1.set_arm_clock(
         bsp::hal::ccm::PLL1::ARM_HZ, // <-- 600MHz constant
         &mut peripherals.ccm.handle, // Handle to the clock control module (CCM)
         &mut peripherals.dcdc,       // Handle to the power control module (DCDC)
     );
+
+    // Configure the clocks for the periodic interrupt timers (PIT)
+    //
+    // Given the configurations of the clock (above) and the prescalar selection (below),
+    // the timers have a 20ns resolution (150MHz divide by 3, inverse, in nanoseconds).
+    let perclk_cfg = peripherals.ccm.perclk.configure(
+        &mut peripherals.ccm.handle,
+        bsp::hal::ccm::perclk::PODF::DIVIDE_3, // Divide the input clock by 3,
+        bsp::hal::ccm::perclk::CLKSEL::IPG(ipg_hz), // Use the IPG clock as the PIT input clock (probably 150MHz)
+    );
+
+    // Set the configuration for the PIT timers.
+    // There are four timers, but we only need one of them.
+    // We use underscores '_' to ignore the other three.
+    // The timer selection was arbitrary.
+    let (_, _, _, mut timer) = peripherals.pit.clock(perclk_cfg);
 
     // ---------
     // I2C setup
@@ -68,13 +86,28 @@ fn main() -> ! {
     let (_, _, i2c3_builder, _) = peripherals.i2c.clock(
         &mut peripherals.ccm.handle,
         bsp::hal::ccm::i2c::ClockSelect::OSC, // Use the 24MHz oscillator as the peripheral clock source
-        bsp::hal::ccm::i2c::PrescalarSelect::DIVIDE_1, // Divide that 24MHz clock by 1
+        bsp::hal::ccm::i2c::PrescalarSelect::DIVIDE_3, // Divide that 24MHz clock by 3
     );
 
     // Instantiate an I2C peripheral on pins 16 and 17.
     // The alt1() means that we're configuring the pin to be
     // used specifically for I2C functions.
-    let i2c3 = i2c3_builder.build(peripherals.pins.p16.alt1(), peripherals.pins.p17.alt1());
+    let mut i2c3 = i2c3_builder.build(peripherals.pins.p16.alt1(), peripherals.pins.p17.alt1());
+    // Set the I2C clock speed. If this returns an error, log it and stop.
+    match i2c3.set_clock_speed(control::I2C_CLOCK_SPEED) {
+        Ok(_) => (),
+        Err(err) => {
+            log::error!(
+                "Unable to set I2C clock speed to {:?}: {:?}",
+                control::I2C_CLOCK_SPEED,
+                err
+            );
+            loop {
+                // Nothing more to do
+                core::sync::atomic::spin_loop_hint();
+            }
+        }
+    }
 
     // ---------
     // MPU setup
@@ -110,17 +143,19 @@ fn main() -> ! {
     loop {
         bsp::delay(control::SAMPLING_DELAY_MILLISECONDS);
         // Get the reading from the MPU
-        let marg: mpu9250::MargMeasurements<control::Triplet<f32>> = match mpu.all() {
-            // Ahh, something bad happened! Let's try again after waiting no less than
-            // 1 second...
-            Err(err) => {
-                log::warn!("Error when querying for MPU 9DOF reading: {:?}", err);
-                bsp::delay(1_000.max(control::SAMPLING_DELAY_MILLISECONDS));
-                continue;
-            }
-            // Got eeeeemmmmmmm
-            Ok(marg) => marg,
-        };
+        let (marg, timing): (mpu9250::MargMeasurements<control::Triplet<f32>>, _) =
+            // Time how long the `all()` call takes...
+            match timer.time(|| mpu.all()) {
+                // Ahh, something bad happened! Let's try again after waiting no less than
+                // 1 second...
+                (Err(err), _) => {
+                    log::warn!("Error when querying for MPU 9DOF reading: {:?}", err);
+                    bsp::delay(1_000.max(control::SAMPLING_DELAY_MILLISECONDS));
+                    continue;
+                }
+                // Got eeeeemmmmmmm!
+                (Ok(marg), timing) => (marg, timing),
+            };
         // Convert their readings into our readings
         let reading = control::Readings {
             acc: marg.accel,
@@ -129,6 +164,6 @@ fn main() -> ! {
             temp: marg.temp,
         };
         // Do things with those readings.
-        control::on_reading(&reading);
+        control::on_reading(&reading, timing);
     }
 }

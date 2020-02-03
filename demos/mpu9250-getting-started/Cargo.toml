@@ -18,4 +18,4 @@ features = ["i2c"]
 
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"
-branch = "feature/i2c"
+branch = "feature/async-support"
