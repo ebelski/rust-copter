@@ -19,7 +19,7 @@
 //! where
 //!
 //! - `O` is one of the four PWM output letters
-//! - `ppp` is a percentage from 0 to 100. The software will clamp the percentage to this range.
+//! - `ppp` is a percentage from 0 to 100. The software will require inputs within this range.
 //! - `\r` is a carriage return character
 //!
 //! Example: to set the duty cycle of PWM output `C` to 37%, type `C.37`, then press `ENTER` on your
@@ -27,7 +27,7 @@
 //!
 //! If you start to enter an invalid number, just press ENTER to submit it, and let the parser fail.
 //!
-//! To read back the duty cycles for all PWM outputs, send 'r'.
+//! To read back the duty cycles for all PWM outputs, send 'r' (lower case 'R').
 
 #![no_std]
 #![no_main]
@@ -37,17 +37,13 @@ mod parser;
 extern crate panic_halt;
 
 use bsp::rt::entry;
+use core::time::Duration;
 use embedded_hal::{digital::v2::ToggleableOutputPin, timer::CountDown, PwmPin};
 use parser::{Command, Output, Parser};
 use teensy4_bsp as bsp;
 
 /// Change me to modify the PWM switching frequency.
 const SWITCHING_FREQUENCY_HZ: u64 = 1_000;
-
-/// Converts a percentage to a 16-bit duty cycle
-fn percent_to_duty(pct: f64) -> u16 {
-    ((u16::max_value() as f64) * (pct / 100.0f64)) as u16
-}
 
 #[entry]
 fn main() -> ! {
@@ -69,12 +65,12 @@ fn main() -> ! {
     );
     let (mut led_timer, _, _, _) = peripherals.pit.clock(pit_cfg);
 
-    // Enable clocks to the PWM2 module
+    // Enable clocks to the PWM modules
+    let mut pwm1 = peripherals.pwm1.clock(&mut peripherals.ccm.handle);
     let mut pwm2 = peripherals.pwm2.clock(&mut peripherals.ccm.handle);
 
     // Compute the switching period from the user-configurable SWITCHING_FREQUENCY_HZ.
-    let switching_period =
-        core::time::Duration::from_nanos(1_000_000_000u64 / SWITCHING_FREQUENCY_HZ);
+    let switching_period = Duration::from_nanos(1_000_000_000u64 / SWITCHING_FREQUENCY_HZ);
 
     // Configure pins 6 and 9 as PWM outputs
     let (mut output_a, mut output_d) = pwm2
@@ -90,44 +86,92 @@ fn main() -> ! {
         .unwrap()
         .split();
 
+    // Configure pins 7 and 8 as PWM outputs
+    let (mut output_c, mut output_b) = pwm1
+        .outputs(
+            peripherals.pins.p8.alt6(),
+            peripherals.pins.p7.alt6(),
+            bsp::hal::pwm::Timing {
+                clock_select: bsp::hal::ccm::pwm::ClockSelect::IPG(ipg_hz),
+                prescalar: bsp::hal::ccm::pwm::Prescalar::PRSC_5,
+                switching_period,
+            },
+        )
+        .unwrap()
+        .split();
+
     output_a.enable();
+    output_b.enable();
+    output_c.enable();
     output_d.enable();
 
     // Set up the USB stack, and use the USB reader for parsing commands
     let usb_reader = peripherals.usb.init(Default::default());
     let mut parser = Parser::new(usb_reader);
 
-    led_timer.start(core::time::Duration::from_millis(500));
+    let blink_period = pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
+    led_timer.start(blink_period);
+
     loop {
         if let Ok(()) = led_timer.wait() {
             led.toggle().unwrap();
         }
 
         match parser.parse() {
-            Ok(None) => {
-                // No command available
-                bsp::delay(10);
-            }
+            // Parser has not found any command; it needs more inputs
+            Ok(None) => bsp::delay(10),
+            // User wants to read all the duty cycles
             Ok(Some(Command::ReadDuty)) => {
-                log::warn!("NOT IMPLEMENTED");
+                log::info!("'A' = {}", duty_to_percent(output_a.get_duty()));
+                log::info!("'B' = {}", duty_to_percent(output_b.get_duty()));
+                log::info!("'C' = {}", duty_to_percent(output_c.get_duty()));
+                log::info!("'D' = {}", duty_to_percent(output_d.get_duty()));
             }
+            // User has set a duty cycle for an output PWM
             Ok(Some(Command::SetDuty { output, percent })) => {
                 let pwm: &mut dyn PwmPin<Duty = u16> = match output {
                     Output::A => &mut output_a,
+                    Output::B => &mut output_b,
+                    Output::C => &mut output_c,
                     Output::D => &mut output_d,
-                    _ => {
-                        log::warn!("OUTPUT B AND C NOT IMPLEMENTED");
-                        continue;
-                    }
                 };
 
                 log::info!("SETTING '{:?}' = {}% duty cycle", output, percent);
                 let duty = percent_to_duty(percent);
                 pwm.set_duty(duty);
+
+                let blink_period =
+                    pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
+                led_timer.start(blink_period);
             }
+            // Parser detected an error
             Err(err) => {
                 log::warn!("{:?}", err);
             }
         };
+    }
+}
+
+/// Converts a percentage to a 16-bit duty cycle
+fn percent_to_duty(pct: f64) -> u16 {
+    ((u16::max_value() as f64) * (pct / 100.0f64)) as u16
+}
+
+/// Converts a 16-bit duty cycle to a percentage
+fn duty_to_percent(duty: u16) -> f64 {
+    ((duty as f64) * 100.0f64) / (u16::max_value() as f64)
+}
+
+/// Compute the rate at which we should blink the LED based on the
+/// PWM duty cycles. Defines a duration based on the highest PWM
+/// duty cycle.
+fn pwm_to_blink_period(pwms: &[&dyn PwmPin<Duty = u16>]) -> Duration {
+    const SLOWEST_BLINK_NS: i64 = 2_000_000_000;
+    const FASTEST_BLINK_NS: i64 = SLOWEST_BLINK_NS / 100;
+    if let Some(duty) = pwms.iter().map(|pwm| pwm.get_duty()).max() {
+        let ns = (duty as i64) * (FASTEST_BLINK_NS - SLOWEST_BLINK_NS) / 0xFFFF + SLOWEST_BLINK_NS;
+        Duration::from_nanos(ns as u64)
+    } else {
+        Duration::from_nanos(SLOWEST_BLINK_NS as u64)
     }
 }

@@ -89,7 +89,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-adc-etc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -97,7 +97,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-adc1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -105,7 +105,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-aipstz1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -113,7 +113,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-aoi1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -121,7 +121,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-bee"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -129,7 +129,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-can1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -137,7 +137,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-can3"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -145,7 +145,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-ccm"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -153,7 +153,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-ccm-analog"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -161,7 +161,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-cmp1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -169,7 +169,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-core"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "bare-metal 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -179,7 +179,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-csi"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -187,7 +187,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-csu"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -195,7 +195,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-dcdc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -203,7 +203,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-dcp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -211,7 +211,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-dma0"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -219,7 +219,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-dmamux"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -227,7 +227,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-enc1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -235,7 +235,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-enet"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -243,7 +243,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-ewm"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -251,12 +251,12 @@ dependencies = [
 [[package]]
 name = "imxrt1062-fcb-gen"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 
 [[package]]
 name = "imxrt1062-flexio1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -264,7 +264,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-flexram"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -272,7 +272,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-flexspi"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -280,7 +280,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-gpc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -288,7 +288,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-gpio1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -296,7 +296,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-gpt1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -304,7 +304,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-hal"
 version = "0.2.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -318,7 +318,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-iomuxc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -326,7 +326,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-iomuxc-gpr"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -334,7 +334,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-iomuxc-snvs"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -342,7 +342,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-iomuxc-snvs-gpr"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -350,7 +350,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-kpp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -358,7 +358,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-lcdif"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -366,7 +366,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-lpi2c1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -374,7 +374,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-lpspi1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -382,7 +382,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-lpuart1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -390,7 +390,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-ocotp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -398,7 +398,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-pac"
 version = "0.2.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "cortex-m 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "imxrt1062-adc-etc 0.1.0 (git+https://github.com/mciantyre/teensy4-rs.git)",
@@ -468,7 +468,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-pgc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -476,7 +476,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-pit"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -484,7 +484,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-pmu"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -492,7 +492,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-pwm1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -500,7 +500,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-pxp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -508,7 +508,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-romc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -516,7 +516,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-rt"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "cc 1.0.50 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -526,7 +526,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-rtwdog"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -534,7 +534,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-sai1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -542,7 +542,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-semc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -550,7 +550,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-snvs"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -558,7 +558,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-spdif"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -566,7 +566,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-src"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -574,7 +574,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-system-control"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -582,7 +582,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-tempmon"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -590,7 +590,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-tmr1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -598,7 +598,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-trng"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -606,7 +606,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-tsc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -614,7 +614,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-usb-analog"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -622,7 +622,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-usb1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -630,7 +630,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-usbnc1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -638,7 +638,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-usbphy1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -646,7 +646,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-usdhc1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -654,7 +654,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-wdog1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -662,7 +662,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-xbara1"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -670,7 +670,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-xbarb2"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -678,7 +678,7 @@ dependencies = [
 [[package]]
 name = "imxrt1062-xtalosc24m"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "vcell 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -767,7 +767,7 @@ dependencies = [
 [[package]]
 name = "teensy4-bsp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "cortex-m 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "imxrt1062-hal 0.2.0 (git+https://github.com/mciantyre/teensy4-rs.git)",
@@ -780,7 +780,7 @@ dependencies = [
 [[package]]
 name = "teensy4-fcb"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "imxrt1062-fcb-gen 0.1.0 (git+https://github.com/mciantyre/teensy4-rs.git)",
 ]
@@ -788,7 +788,7 @@ dependencies = [
 [[package]]
 name = "teensy4-usb-sys"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#24fd59ae241b25966218d252b9eda5201741ac6c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#c2dfc42a7924a3ae8f8c523ae717ec53c604965d"
 dependencies = [
  "cc 1.0.50 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
