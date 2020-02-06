@@ -1,0 +1,21 @@
+[package]
+name = "pwm-control"
+version = "0.1.0"
+authors = ["Ian McIntyre <ianpmcintyre@gmail.com>", "Eric Belski <belski.eric@gmail.com>"]
+edition = "2018"
+description = "Demonstrates PWM duty cycle control. Useful for testing PWM outputs."
+
+[dependencies]
+panic-halt = "0.2.0"
+cortex-m = "0.6.2"
+embedded-hal = "0.2.3"
+log = "0.4.8"
+
+[dependencies.teensy4-bsp]
+git = "https://github.com/mciantyre/teensy4-rs.git"
+
+[[bin]]
+name = "pwm_control"
+path = "src/main.rs"
+bench = false  # Disable RLS warnings about 'no bench crate found'
+test = false  # Disable RLS warnings about 'no test crate found'
