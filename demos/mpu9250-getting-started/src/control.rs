@@ -61,7 +61,7 @@ pub fn on_reading(readings: &Readings, reading_duration: Option<Duration>) {
     );
 
     if let Some(duration) = reading_duration {
-        log::trace!("Took {:?} to query for all readings", duration);
+        log::info!("Took {:?} to query for all readings", duration);
     }
 }
 

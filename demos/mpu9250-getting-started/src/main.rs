@@ -46,7 +46,7 @@ fn main() -> ! {
     // to print things out. See the usb demo in the teensy4-rs
     // repo for the five different log levels we can use:
     // https://github.com/mciantyre/teensy4-rs/blob/master/teensy4-examples/src/usb.rs
-    peripherals.log.init(bsp::log::Config {
+    peripherals.usb.init(bsp::usb::LoggingConfig {
         // Only keep log messages from this executable.
         // The HAL and BSP might print debug log messages,
         // but we're not interested in those here.

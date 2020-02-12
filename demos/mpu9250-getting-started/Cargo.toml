@@ -9,13 +9,15 @@ description = "Demonstration of interfacing an MPU9250 with the Teensy 4"
 
 [dependencies]
 embedded-hal = "0.2.3"
-log = "0.4.8"
 panic-halt = "0.2.0"
 
 [dependencies.mpu9250]
 version = "0.20.0"
 features = ["i2c"]
 
+[dependencies.log]
+version = "0.4.8"
+features = ["release_max_level_info"]
+
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"
-branch = "feature/async-support"
