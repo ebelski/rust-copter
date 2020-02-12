@@ -28,6 +28,8 @@
 //! If you start to enter an invalid number, just press ENTER to submit it, and let the parser fail.
 //!
 //! To read back the duty cycles for all PWM outputs, send 'r' (lower case 'R').
+//! 
+//! Press the SPACE bar to reset all PWM outputs to 0% duty cycle. Use this in case of emergency...
 
 #![no_std]
 #![no_main]
@@ -120,6 +122,17 @@ fn main() -> ! {
         match parser.parse() {
             // Parser has not found any command; it needs more inputs
             Ok(None) => bsp::delay(10),
+            // User wants to reset all duty cycles
+            Ok(Some(Command::ResetDuty)) => {
+                output_a.set_duty(0);
+                output_b.set_duty(0);
+                output_c.set_duty(0);
+                output_d.set_duty(0);
+                log::info!("Reset all duty cycles");
+                let blink_period =
+                    pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
+                led_timer.start(blink_period);
+            }
             // User wants to read all the duty cycles
             Ok(Some(Command::ReadDuty)) => {
                 log::info!("'A' = {}", duty_to_percent(output_a.get_duty()));

@@ -36,6 +36,8 @@ pub enum Command {
     SetDuty { output: Output, percent: f64 },
     /// Read all duty cycle values
     ReadDuty,
+    /// Reset all duty cycles
+    ResetDuty,
 }
 
 /// Things that could go wrong when parsing commands
@@ -115,6 +117,7 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
             b'C' => Output::C,
             b'D' => Output::D,
             b'r' => return Ok(Some(Command::ReadDuty)),
+            b' ' => return Ok(Some(Command::ResetDuty)),
             _ => return Err(ParserError::InvalidPrefix(*output as char)),
         }
     } else {
