@@ -28,12 +28,12 @@
 //! If you start to enter an invalid number, just press ENTER to submit it, and let the parser fail.
 //!
 //! To read back the throttle for all outputs, send 'r' (lower case 'R').
-//! 
+//!
 //! Press the SPACE bar to reset all throttles to 0%. Use this in case of emergency...
-//! 
+//!
 //! The demo implements a basic electronic speed control (ESC) PWM driver. The PWM duty cycle varies between
 //! 1000us for 0% throttle to 2000us for 100% throttle speed.
-//! 
+//!
 //! ```text
 //!      1000us              2000us      1000us          1000us          1000us      
 //!     +-------+       +--------------++-------+       +-------+       +-------+    
@@ -42,9 +42,9 @@
 //!     |       |       |              ||       |       |       |       |       |    
 //! ----+       +-------+              ++       +-------+       +-------+       +---...
 //! ```
-//! 
+//!
 //! _(Above) a quick pulse to 100% throttle in between commands to hold 0% throttle_
-//! 
+//!
 //! Given that we need to hold a 2000us pulse to represent 100% throttle, the fastest switching frequency
 //! is 1 / 2000us == 500Hz. At 500Hz switching frequency, 100% throttle maps to 100% duty cycle. Therefore,
 //! 50% duty cycle represents 0% throttle. We're assuming that the ESC
@@ -201,7 +201,7 @@ fn percent_to_duty(pct: f64) -> u16 {
 
 /// Converts a 16-bit duty cycle that implements the ESC PWM protocol to a percentage
 fn duty_to_percent(duty: u16) -> f64 {
-    (((duty - MINIMUM_DUTY_CYCLE) as f64) * 100.0f64) / (MINIMUM_DUTY_CYCLE as f64)
+    ((duty.saturating_sub(MINIMUM_DUTY_CYCLE) as f64) * 100.0f64) / (MINIMUM_DUTY_CYCLE as f64)
 }
 
 /// Compute the rate at which we should blink the LED based on the
