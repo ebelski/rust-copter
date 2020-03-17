@@ -10,7 +10,7 @@
 //! |     C      |      8       |  `PWM1_3_A`  |
 //! |     D      |      9       |  `PWM2_2_B`  |
 //!
-//! To set the duty cycle of a PWM output, use the addressing schema
+//! To set the throttle commanded by a PWM output, use the addressing schema
 //!
 //! ```text
 //! O.ppp\r
@@ -18,18 +18,38 @@
 //!
 //! where
 //!
-//! - `O` is one of the four PWM output letters
-//! - `ppp` is a percentage from 0 to 100. The software will require inputs within this range.
+//! - `O` is one of the four output letters
+//! - `ppp` is a throttle percentage from 0 to 100. The software will require inputs within this range.
 //! - `\r` is a carriage return character
 //!
-//! Example: to set the duty cycle of PWM output `C` to 37%, type `C.37`, then press `ENTER` on your
+//! Example: to set the throttle for output `C` to 37%, type `C.37`, then press `ENTER` on your
 //! keyboard.
 //!
 //! If you start to enter an invalid number, just press ENTER to submit it, and let the parser fail.
 //!
-//! To read back the duty cycles for all PWM outputs, send 'r' (lower case 'R').
-//! 
-//! Press the SPACE bar to reset all PWM outputs to 0% duty cycle. Use this in case of emergency...
+//! To read back the throttle for all outputs, send 'r' (lower case 'R').
+//!
+//! Press the SPACE bar to reset all throttles to 0%. Use this in case of emergency...
+//!
+//! The demo implements a basic electronic speed control (ESC) PWM driver. The PWM duty cycle varies between
+//! 1000us for 0% throttle to 2000us for 100% throttle speed.
+//!
+//! ```text
+//!      1000us              2000us      1000us          1000us          1000us      
+//!     +-------+       +--------------++-------+       +-------+       +-------+    
+//!     |       |       |              ||       |       |       |       |       |    
+//!     |       |       |              ||       |       |       |       |       |    
+//!     |       |       |              ||       |       |       |       |       |    
+//! ----+       +-------+              ++       +-------+       +-------+       +---...
+//! ```
+//!
+//! _(Above) a quick pulse to 100% throttle in between commands to hold 0% throttle_
+//!
+//! Given that we need to hold a 2000us pulse to represent 100% throttle, the fastest switching frequency
+//! is 1 / 2000us == 500Hz. At 500Hz switching frequency, 100% throttle maps to 100% duty cycle. Therefore,
+//! 50% duty cycle represents 0% throttle. We're assuming that the ESC
+//! can perfectly detect a 2000us pulse followed immediately by another 2000us pulse, where there may be
+//! no delay between the two pulses.
 
 #![no_std]
 #![no_main]
@@ -44,8 +64,7 @@ use embedded_hal::{digital::v2::ToggleableOutputPin, timer::CountDown, PwmPin};
 use parser::{Command, Output, Parser};
 use teensy4_bsp as bsp;
 
-/// Change me to modify the PWM switching frequency.
-const SWITCHING_FREQUENCY_HZ: u64 = 1_000;
+const SWITCHING_FREQUENCY_HZ: u64 = 500;
 
 #[entry]
 fn main() -> ! {
@@ -107,6 +126,11 @@ fn main() -> ! {
     output_c.enable();
     output_d.enable();
 
+    output_a.set_duty(percent_to_duty(0.0));
+    output_b.set_duty(percent_to_duty(0.0));
+    output_c.set_duty(percent_to_duty(0.0));
+    output_d.set_duty(percent_to_duty(0.0));
+
     // Set up the USB stack, and use the USB reader for parsing commands
     let usb_reader = peripherals.usb.init(Default::default());
     let mut parser = Parser::new(usb_reader);
@@ -165,14 +189,19 @@ fn main() -> ! {
     }
 }
 
-/// Converts a percentage to a 16-bit duty cycle
+/// The minimum duty cycle for the ESC PWM protocol is 50% duty cycle.
+/// Since the underlying PWM duty cycle spans all `u16` values, the minimum
+/// duty cycle is half of that.
+const MINIMUM_DUTY_CYCLE: u16 = u16::max_value() >> 1;
+
+/// Converts a percentage to a 16-bit duty cycle that implements the ESC PWM protocol
 fn percent_to_duty(pct: f64) -> u16 {
-    ((u16::max_value() as f64) * (pct / 100.0f64)) as u16
+    ((MINIMUM_DUTY_CYCLE as f64) * (pct / 100.0f64)) as u16 + MINIMUM_DUTY_CYCLE
 }
 
-/// Converts a 16-bit duty cycle to a percentage
+/// Converts a 16-bit duty cycle that implements the ESC PWM protocol to a percentage
 fn duty_to_percent(duty: u16) -> f64 {
-    ((duty as f64) * 100.0f64) / (u16::max_value() as f64)
+    ((duty.saturating_sub(MINIMUM_DUTY_CYCLE) as f64) * 100.0f64) / (MINIMUM_DUTY_CYCLE as f64)
 }
 
 /// Compute the rate at which we should blink the LED based on the
