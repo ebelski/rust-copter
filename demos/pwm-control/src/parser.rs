@@ -38,6 +38,12 @@ pub enum Command {
     ReadThrottle,
     /// Reset all throttle values
     ResetThrottle,
+    /// Kill switch
+    ///
+    /// Pressing the kill switch sets all duty cycles to 0%, so there
+    /// is no output signal. The software will stop responding, and it
+    /// will require a reset to fix.
+    KillSwitch,
 }
 
 /// Things that could go wrong when parsing commands
@@ -118,6 +124,7 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
             b'D' => Output::D,
             b'r' => return Ok(Some(Command::ReadThrottle)),
             b' ' => return Ok(Some(Command::ResetThrottle)),
+            b'\\' => return Ok(Some(Command::KillSwitch)),
             _ => return Err(ParserError::InvalidPrefix(*output as char)),
         }
     } else {

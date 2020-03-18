@@ -60,7 +60,11 @@ extern crate panic_halt;
 
 use bsp::rt::entry;
 use core::time::Duration;
-use embedded_hal::{digital::v2::ToggleableOutputPin, timer::CountDown, PwmPin};
+use embedded_hal::{
+    digital::v2::{OutputPin, ToggleableOutputPin},
+    timer::CountDown,
+    PwmPin,
+};
 use parser::{Command, Output, Parser};
 use teensy4_bsp as bsp;
 
@@ -180,6 +184,25 @@ fn main() -> ! {
                 let blink_period =
                     pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
                 led_timer.start(blink_period);
+            }
+            Ok(Some(Command::KillSwitch)) => {
+                output_a.set_duty(0);
+                output_b.set_duty(0);
+                output_c.set_duty(0);
+                output_d.set_duty(0);
+
+                log::warn!("------------------------------------");
+                log::warn!("USER PRESSED THE KILL SWITCH");
+                log::warn!("I've stopped all PWM outputs,");
+                log::warn!("and I've stopped accepting commands.");
+                log::warn!("Reset your system to start over.");
+                log::warn!("------------------------------------");
+
+                led.set_high().unwrap();
+                loop {
+                    bsp::delay(1_000);
+                    cortex_m::asm::wfe();
+                }
             }
             // Parser detected an error
             Err(err) => {
