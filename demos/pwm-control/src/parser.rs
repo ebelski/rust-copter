@@ -29,15 +29,15 @@ pub enum Output {
 /// A user command
 #[derive(Debug)]
 pub enum Command {
-    /// Set the duty cycle of the provided output to the
+    /// Set the throttle of the provided output to the
     /// specified percent.
     ///
     /// `percent` is bound from the closed range `[0, 100]`
-    SetDuty { output: Output, percent: f64 },
-    /// Read all duty cycle values
-    ReadDuty,
-    /// Reset all duty cycles
-    ResetDuty,
+    SetThrottle { output: Output, percent: f64 },
+    /// Read and report all throttle values
+    ReadThrottle,
+    /// Reset all throttle values
+    ResetThrottle,
 }
 
 /// Things that could go wrong when parsing commands
@@ -116,8 +116,8 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
             b'B' => Output::B,
             b'C' => Output::C,
             b'D' => Output::D,
-            b'r' => return Ok(Some(Command::ReadDuty)),
-            b' ' => return Ok(Some(Command::ResetDuty)),
+            b'r' => return Ok(Some(Command::ReadThrottle)),
+            b' ' => return Ok(Some(Command::ResetThrottle)),
             _ => return Err(ParserError::InvalidPrefix(*output as char)),
         }
     } else {
@@ -147,7 +147,7 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
 
     let percent: f64 = str::parse(pct_str.trim())?;
     if 0.0f64 <= percent && percent <= 100.0f64 {
-        Ok(Some(Command::SetDuty { output, percent }))
+        Ok(Some(Command::SetThrottle { output, percent }))
     } else {
         Err(ParserError::InvalidPercentage(percent))
     }
