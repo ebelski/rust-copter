@@ -159,10 +159,10 @@ fn main() -> ! {
             }
             // User wants to read all the duty cycles
             Ok(Some(Command::ReadDuty)) => {
-                log::info!("'A' = {}", duty_to_percent(output_a.get_duty()));
-                log::info!("'B' = {}", duty_to_percent(output_b.get_duty()));
-                log::info!("'C' = {}", duty_to_percent(output_c.get_duty()));
-                log::info!("'D' = {}", duty_to_percent(output_d.get_duty()));
+                print_duty('A', &output_a);
+                print_duty('B', &output_b);
+                print_duty('C', &output_c);
+                print_duty('D', &output_d);
             }
             // User has set a duty cycle for an output PWM
             Ok(Some(Command::SetDuty { output, percent })) => {
@@ -215,5 +215,14 @@ fn pwm_to_blink_period(pwms: &[&dyn PwmPin<Duty = u16>]) -> Duration {
         Duration::from_nanos(ns as u64)
     } else {
         Duration::from_nanos(SLOWEST_BLINK_NS as u64)
+    }
+}
+
+fn print_duty(label: char, pwm: &dyn PwmPin<Duty = u16>) {
+    let duty = pwm.get_duty();
+    if duty == 0 {
+        log::info!("'{}' = DISABLED", label);
+    } else {
+        log::info!("'{}' = {}", label, duty_to_percent(duty));
     }
 }
