@@ -60,7 +60,11 @@ extern crate panic_halt;
 
 use bsp::rt::entry;
 use core::time::Duration;
-use embedded_hal::{digital::v2::ToggleableOutputPin, timer::CountDown, PwmPin};
+use embedded_hal::{
+    digital::v2::{OutputPin, ToggleableOutputPin},
+    timer::CountDown,
+    PwmPin,
+};
 use parser::{Command, Output, Parser};
 use teensy4_bsp as bsp;
 
@@ -147,25 +151,25 @@ fn main() -> ! {
             // Parser has not found any command; it needs more inputs
             Ok(None) => bsp::delay(10),
             // User wants to reset all duty cycles
-            Ok(Some(Command::ResetDuty)) => {
-                output_a.set_duty(0);
-                output_b.set_duty(0);
-                output_c.set_duty(0);
-                output_d.set_duty(0);
-                log::info!("Reset all duty cycles");
+            Ok(Some(Command::ResetThrottle)) => {
+                output_a.set_duty(percent_to_duty(0.0));
+                output_b.set_duty(percent_to_duty(0.0));
+                output_c.set_duty(percent_to_duty(0.0));
+                output_d.set_duty(percent_to_duty(0.0));
+                log::info!("Reset all outputs to 0% throttle");
                 let blink_period =
                     pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
                 led_timer.start(blink_period);
             }
-            // User wants to read all the duty cycles
-            Ok(Some(Command::ReadDuty)) => {
+            // User wants to read all the throttle settings
+            Ok(Some(Command::ReadThrottle)) => {
                 print_duty('A', &output_a);
                 print_duty('B', &output_b);
                 print_duty('C', &output_c);
                 print_duty('D', &output_d);
             }
-            // User has set a duty cycle for an output PWM
-            Ok(Some(Command::SetDuty { output, percent })) => {
+            // User has set a throttle for an output
+            Ok(Some(Command::SetThrottle { output, percent })) => {
                 let pwm: &mut dyn PwmPin<Duty = u16> = match output {
                     Output::A => &mut output_a,
                     Output::B => &mut output_b,
@@ -180,6 +184,25 @@ fn main() -> ! {
                 let blink_period =
                     pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
                 led_timer.start(blink_period);
+            }
+            Ok(Some(Command::KillSwitch)) => {
+                output_a.set_duty(0);
+                output_b.set_duty(0);
+                output_c.set_duty(0);
+                output_d.set_duty(0);
+
+                log::warn!("------------------------------------");
+                log::warn!("USER PRESSED THE KILL SWITCH");
+                log::warn!("I've stopped all PWM outputs,");
+                log::warn!("and I've stopped accepting commands.");
+                log::warn!("Reset your system to start over.");
+                log::warn!("------------------------------------");
+
+                led.set_high().unwrap();
+                loop {
+                    bsp::delay(1_000);
+                    cortex_m::asm::wfe();
+                }
             }
             // Parser detected an error
             Err(err) => {
@@ -218,6 +241,9 @@ fn pwm_to_blink_period(pwms: &[&dyn PwmPin<Duty = u16>]) -> Duration {
     }
 }
 
+/// Prints the duty cycle to the log channel
+///
+/// If the duty cycle is zero, print 'DISABLED'.
 fn print_duty(label: char, pwm: &dyn PwmPin<Duty = u16>) {
     let duty = pwm.get_duty();
     if duty == 0 {
