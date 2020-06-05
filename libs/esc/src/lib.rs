@@ -28,7 +28,7 @@ pub trait ESC {
     /// - `1.0` is 100% throttle
     ///
     /// Implementations will never return anything out of that range.
-    fn get_throttle(&self, motor: Self::Motor) -> f32;
+    fn throttle(&self, motor: Self::Motor) -> f32;
 
     /// Set the throttle percentage for a motor
     ///
@@ -43,7 +43,7 @@ pub trait ESC {
     /// The default implementation simply calls `throttle()` for each `(motor, percent)` pair in
     /// the collection. But, implementations may opt to set the PWM duty cycle for each output
     /// in a single transaction.
-    fn throttle_group(&mut self, percents: &[(Self::Motor, f32)]) {
+    fn set_throttle_group(&mut self, percents: &[(Self::Motor, f32)]) {
         percents
             .iter()
             .for_each(|(motor, percent)| self.set_throttle(*motor, *percent))

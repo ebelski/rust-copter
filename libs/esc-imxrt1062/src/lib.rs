@@ -62,11 +62,15 @@ where
         mut pins_cd: Pins<C, D>,
         period: Duration,
     ) -> Self {
-        let mut xctrl = pins_ab.control(&mut handle_ab);
-        xctrl.set_period(period);
+        let mut ab = pins_ab.control(&mut handle_ab);
+        ab.set_period(period);
+        ab.enable(Channel::A);
+        ab.enable(Channel::B);
 
-        let mut yctrl = pins_cd.control(&mut handle_cd);
-        yctrl.set_period(period);
+        let mut cd = pins_cd.control(&mut handle_cd);
+        cd.set_period(period);
+        cd.enable(Channel::A);
+        cd.enable(Channel::B);
 
         let mut module = Module {
             handle_ab,
@@ -125,6 +129,12 @@ where
             }
         }
     }
+
+    fn kill(&mut self) {
+        for motor in &[QuadMotor::A, QuadMotor::B, QuadMotor::C, QuadMotor::D] {
+            self.set_duty(*motor, 0)
+        }
+    }
 }
 
 /// Implements the "slow" ESC protocol
@@ -155,6 +165,11 @@ where
             Duration::from_micros(2000),
         )))
     }
+
+    /// Kill all PWM outputs
+    pub fn kill(&mut self) {
+        self.0.get_mut().kill();
+    }
 }
 
 /// The minimum duty cycle for the ESC PWM protocol is 50% duty cycle.
@@ -181,12 +196,19 @@ where
 {
     type Motor = QuadMotor;
 
-    fn get_throttle(&self, motor: Self::Motor) -> f32 {
+    fn throttle(&self, motor: Self::Motor) -> f32 {
         let mut this = self.0.borrow_mut();
         duty_to_percent(this.get_duty(motor))
     }
 
     fn set_throttle(&mut self, motor: Self::Motor, percent: f32) {
+        let percent = if percent < 0.0 {
+            0.0
+        } else if percent >= 1.0 {
+            1.0
+        } else {
+            percent
+        };
         self.0.get_mut().set_duty(motor, percent_to_duty(percent))
     }
 }

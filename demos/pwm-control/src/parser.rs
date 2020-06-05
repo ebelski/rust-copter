@@ -5,6 +5,8 @@ use crate::bsp::usb;
 use core::num;
 use core::str;
 
+use esc::QuadMotor;
+
 /// A generalized read trait, letting us switch our command input
 /// source from USB to serial, if desired
 pub trait Read {
@@ -17,15 +19,6 @@ impl Read for usb::Reader {
     }
 }
 
-/// The four available PWM outputs
-#[derive(Debug)]
-pub enum Output {
-    A,
-    B,
-    C,
-    D,
-}
-
 /// A user command
 #[derive(Debug)]
 pub enum Command {
@@ -33,7 +26,7 @@ pub enum Command {
     /// specified percent.
     ///
     /// `percent` is bound from the closed range `[0, 100]`
-    SetThrottle { output: Output, percent: f64 },
+    SetThrottle { output: QuadMotor, percent: f32 },
     /// Read and report all throttle values
     ReadThrottle,
     /// Reset all throttle values
@@ -56,7 +49,7 @@ pub enum ParserError {
     /// Not a number
     InvalidNumber(num::ParseFloatError),
     /// Invalid percentage (value must be bound by [0, 100])
-    InvalidPercentage(f64),
+    InvalidPercentage(f32),
     /// String parsing error
     Invalid(str::Utf8Error),
 }
@@ -118,10 +111,10 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
     // Match a valid output immediately
     let output = if let Some(output) = buffer.get(0) {
         match *output {
-            b'A' => Output::A,
-            b'B' => Output::B,
-            b'C' => Output::C,
-            b'D' => Output::D,
+            b'A' => QuadMotor::A,
+            b'B' => QuadMotor::B,
+            b'C' => QuadMotor::C,
+            b'D' => QuadMotor::D,
             b'r' => return Ok(Some(Command::ReadThrottle)),
             b' ' => return Ok(Some(Command::ResetThrottle)),
             b'\\' => return Ok(Some(Command::KillSwitch)),
@@ -152,8 +145,8 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
         return Ok(None);
     }
 
-    let percent: f64 = str::parse(pct_str.trim())?;
-    if 0.0f64 <= percent && percent <= 100.0f64 {
+    let percent: f32 = str::parse(pct_str.trim())?;
+    if 0.0f32 <= percent && percent <= 100.0f32 {
         Ok(Some(Command::SetThrottle { output, percent }))
     } else {
         Err(ParserError::InvalidPercentage(percent))

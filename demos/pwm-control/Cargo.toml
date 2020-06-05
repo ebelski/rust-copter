@@ -14,6 +14,12 @@ log = "0.4.8"
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"
 
+[dependencies.esc]
+path = "../../libs/esc"
+
+[dependencies.esc-imxrt1062]
+path = "../../libs/esc-imxrt1062"
+
 [[bin]]
 name = "pwm_control"
 path = "src/main.rs"
