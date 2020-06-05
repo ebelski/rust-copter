@@ -1,0 +1,15 @@
+[package]
+name = "esc"
+version = "0.1.0"
+authors = ["Ian McIntyre <ianpmcintyre@gmail.com>"]
+edition = "2018"
+description = "Interface for electronic speed controls (ESC)"
+
+[dependencies]
+num-traits = "0.2.11"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.embedded-hal]
+version = "0.2.3"
+features = ["unproven"]

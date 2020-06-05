@@ -1,0 +1,16 @@
+[package]
+name = "esc-imxrt1062"
+version = "0.1.0"
+authors = ["Ian McIntyre <ianpmcintyre@gmail.com>"]
+edition = "2018"
+
+[dependencies.embedded-hal]
+version = "0.2.3"
+features = ["unproven"]
+
+[dependencies.esc]
+path = "../esc"
+
+[dependencies.imxrt-hal]
+features = ["imxrt1062"]
+version = "0.2.1"
