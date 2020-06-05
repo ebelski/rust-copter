@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "demos/mpu9250",
+    "demos/pwm-control",
+    "libs/esc",
+    "libs/esc-imxrt1062",
+]
