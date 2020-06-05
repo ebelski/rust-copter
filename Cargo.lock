@@ -78,6 +78,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "demo-mpu9250"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "log",
+ "mpu9250",
+ "panic-halt",
+ "teensy4-bsp",
+]
+
+[[package]]
+name = "demo-pwm-control"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "embedded-hal",
+ "esc",
+ "esc-imxrt1062",
+ "log",
+ "panic-halt",
+ "teensy4-bsp",
+]
+
+[[package]]
 name = "embedded-hal"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -204,19 +228,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pwm-control"
-version = "0.1.0"
-dependencies = [
- "cortex-m",
- "embedded-hal",
- "esc",
- "esc-imxrt1062",
- "log",
- "panic-halt",
- "teensy4-bsp",
-]
-
-[[package]]
 name = "quote"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -285,17 +296,6 @@ version = "0.2.0"
 source = "git+https://github.com/mciantyre/teensy4-rs.git#81cbe7cf06a74ea332bd3b757d6d0c5fd2926c8c"
 dependencies = [
  "imxrt-boot-gen",
-]
-
-[[package]]
-name = "teensy4-rs-mpu9250"
-version = "0.1.0"
-dependencies = [
- "embedded-hal",
- "log",
- "mpu9250",
- "panic-halt",
- "teensy4-bsp",
 ]
 
 [[package]]
