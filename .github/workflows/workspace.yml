@@ -1,0 +1,42 @@
+# Quality checks that can happen across the whole workspace
+
+name: Workspace
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  
+jobs:
+
+  # Run clippy, which builds and lints the code
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install build dependencies
+        run: sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            components: clippy
+            target: thumbv7em-none-eabihf
+            override: true
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --verbose --target thumbv7em-none-eabihf -- -D warnings
+          name: Run clippy
+
+  # Ensure code is formatted
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: rustup component add rustfmt
+    - name: Check code formatting
+      uses: actions-rs/cargo@v1
+      with:
+          command: fmt
+          args: --verbose --all -- --check

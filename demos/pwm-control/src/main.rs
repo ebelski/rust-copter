@@ -5,9 +5,9 @@
 //!
 //! | PWM Output | Teensy 4 Pin | PWM instance |
 //! | ---------- | ------------ | ------------ |
-//! |     A      |      6       |  `PWM2_2_A`  |
+//! |     C      |      6       |  `PWM2_2_A`  |
 //! |     B      |      7       |  `PWM1_3_B`  |
-//! |     C      |      8       |  `PWM1_3_A`  |
+//! |     A      |      8       |  `PWM1_3_A`  |
 //! |     D      |      9       |  `PWM2_2_B`  |
 //!
 //! To set the throttle commanded by a PWM output, use the addressing schema
@@ -63,17 +63,19 @@ use core::time::Duration;
 use embedded_hal::{
     digital::v2::{OutputPin, ToggleableOutputPin},
     timer::CountDown,
-    PwmPin,
 };
-use parser::{Command, Output, Parser};
+use parser::{Command, Parser};
 use teensy4_bsp as bsp;
+
+use esc::{QuadMotor, ESC};
+use esc_imxrt1062::Slow as SlowESC;
 
 const SWITCHING_FREQUENCY_HZ: u64 = 500;
 
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
-    let mut led = peripherals.led;
+    let mut led = bsp::configure_led(&mut peripherals.gpr, peripherals.pins.p13);
 
     // Initialize the ARM and IPG clocks. The PWM module runs on the IPG clock.
     let (_, ipg_hz) = peripherals.ccm.pll1.set_arm_clock(
@@ -98,8 +100,10 @@ fn main() -> ! {
     let switching_period = Duration::from_nanos(1_000_000_000u64 / SWITCHING_FREQUENCY_HZ);
 
     // Configure pins 6 and 9 as PWM outputs
-    let (mut output_a, mut output_d) = pwm2
+    let sm2 = pwm2
+        .sm2
         .outputs(
+            &mut pwm2.handle,
             peripherals.pins.p6.alt2(),
             peripherals.pins.p9.alt2(),
             bsp::hal::pwm::Timing {
@@ -108,12 +112,13 @@ fn main() -> ! {
                 switching_period,
             },
         )
-        .unwrap()
-        .split();
+        .unwrap();
 
     // Configure pins 7 and 8 as PWM outputs
-    let (mut output_c, mut output_b) = pwm1
+    let sm3 = pwm1
+        .sm3
         .outputs(
+            &mut pwm1.handle,
             peripherals.pins.p8.alt6(),
             peripherals.pins.p7.alt6(),
             bsp::hal::pwm::Timing {
@@ -122,24 +127,15 @@ fn main() -> ! {
                 switching_period,
             },
         )
-        .unwrap()
-        .split();
+        .unwrap();
 
-    output_a.enable();
-    output_b.enable();
-    output_c.enable();
-    output_d.enable();
-
-    output_a.set_duty(percent_to_duty(0.0));
-    output_b.set_duty(percent_to_duty(0.0));
-    output_c.set_duty(percent_to_duty(0.0));
-    output_d.set_duty(percent_to_duty(0.0));
+    let mut esc = SlowESC::new(pwm1.handle, sm3, pwm2.handle, sm2);
 
     // Set up the USB stack, and use the USB reader for parsing commands
     let usb_reader = peripherals.usb.init(Default::default());
     let mut parser = Parser::new(usb_reader);
 
-    let blink_period = pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
+    let blink_period = pwm_to_blink_period(&esc);
     led_timer.start(blink_period);
 
     loop {
@@ -152,44 +148,33 @@ fn main() -> ! {
             Ok(None) => bsp::delay(10),
             // User wants to reset all duty cycles
             Ok(Some(Command::ResetThrottle)) => {
-                output_a.set_duty(percent_to_duty(0.0));
-                output_b.set_duty(percent_to_duty(0.0));
-                output_c.set_duty(percent_to_duty(0.0));
-                output_d.set_duty(percent_to_duty(0.0));
+                esc.set_throttle_group(&[
+                    (QuadMotor::A, 0.0),
+                    (QuadMotor::B, 0.0),
+                    (QuadMotor::C, 0.0),
+                    (QuadMotor::D, 0.0),
+                ]);
                 log::info!("Reset all outputs to 0% throttle");
-                let blink_period =
-                    pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
+                let blink_period = pwm_to_blink_period(&esc);
                 led_timer.start(blink_period);
             }
             // User wants to read all the throttle settings
             Ok(Some(Command::ReadThrottle)) => {
-                print_duty('A', &output_a);
-                print_duty('B', &output_b);
-                print_duty('C', &output_c);
-                print_duty('D', &output_d);
+                log::info!("A = {}", esc.throttle(QuadMotor::A) * 100.0);
+                log::info!("B = {}", esc.throttle(QuadMotor::B) * 100.0);
+                log::info!("C = {}", esc.throttle(QuadMotor::C) * 100.0);
+                log::info!("D = {}", esc.throttle(QuadMotor::D) * 100.0);
             }
             // User has set a throttle for an output
             Ok(Some(Command::SetThrottle { output, percent })) => {
-                let pwm: &mut dyn PwmPin<Duty = u16> = match output {
-                    Output::A => &mut output_a,
-                    Output::B => &mut output_b,
-                    Output::C => &mut output_c,
-                    Output::D => &mut output_d,
-                };
+                log::info!("SETTING '{:?}' = {}% throttle", output, percent);
+                esc.set_throttle(output, percent / 100.0);
 
-                log::info!("SETTING '{:?}' = {}% duty cycle", output, percent);
-                let duty = percent_to_duty(percent);
-                pwm.set_duty(duty);
-
-                let blink_period =
-                    pwm_to_blink_period(&[&output_a, &output_b, &output_c, &output_d]);
+                let blink_period = pwm_to_blink_period(&esc);
                 led_timer.start(blink_period);
             }
             Ok(Some(Command::KillSwitch)) => {
-                output_a.set_duty(0);
-                output_b.set_duty(0);
-                output_c.set_duty(0);
-                output_d.set_duty(0);
+                esc.kill();
 
                 log::warn!("------------------------------------");
                 log::warn!("USER PRESSED THE KILL SWITCH");
@@ -222,33 +207,21 @@ fn percent_to_duty(pct: f64) -> u16 {
     ((MINIMUM_DUTY_CYCLE as f64) * (pct / 100.0f64)) as u16 + MINIMUM_DUTY_CYCLE
 }
 
-/// Converts a 16-bit duty cycle that implements the ESC PWM protocol to a percentage
-fn duty_to_percent(duty: u16) -> f64 {
-    ((duty.saturating_sub(MINIMUM_DUTY_CYCLE) as f64) * 100.0f64) / (MINIMUM_DUTY_CYCLE as f64)
-}
-
 /// Compute the rate at which we should blink the LED based on the
 /// PWM duty cycles. Defines a duration based on the highest PWM
 /// duty cycle.
-fn pwm_to_blink_period(pwms: &[&dyn PwmPin<Duty = u16>]) -> Duration {
+fn pwm_to_blink_period(esc: &dyn ESC<Motor = QuadMotor>) -> Duration {
     const SLOWEST_BLINK_NS: i64 = 2_000_000_000;
     const FASTEST_BLINK_NS: i64 = SLOWEST_BLINK_NS / 100;
-    if let Some(duty) = pwms.iter().map(|pwm| pwm.get_duty()).max() {
+    const MOTORS: [QuadMotor; 4] = [QuadMotor::A, QuadMotor::B, QuadMotor::C, QuadMotor::D];
+    if let Some(duty) = MOTORS
+        .iter()
+        .map(|motor| percent_to_duty(100f64 * esc.throttle(*motor) as f64))
+        .max()
+    {
         let ns = (duty as i64) * (FASTEST_BLINK_NS - SLOWEST_BLINK_NS) / 0xFFFF + SLOWEST_BLINK_NS;
         Duration::from_nanos(ns as u64)
     } else {
         Duration::from_nanos(SLOWEST_BLINK_NS as u64)
-    }
-}
-
-/// Prints the duty cycle to the log channel
-///
-/// If the duty cycle is zero, print 'DISABLED'.
-fn print_duty(label: char, pwm: &dyn PwmPin<Duty = u16>) {
-    let duty = pwm.get_duty();
-    if duty == 0 {
-        log::info!("'{}' = DISABLED", label);
-    } else {
-        log::info!("'{}' = {}", label, duty_to_percent(duty));
     }
 }

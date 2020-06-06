@@ -1,5 +1,5 @@
 [package]
-name = "teensy4-rs-mpu9250"
+name = "demo-mpu9250"
 version = "0.1.0"
 authors = ["Ian McIntyre <ianpmcintyre@gmail.com>", "Eric Belski <belski.eric@gmail.com>"]
 edition = "2018"
