@@ -22,12 +22,13 @@ jobs:
         run: ./task.py --verbose release
       - name: Create prerelease
         id: create_release
-        uses: actions/create-release@v1
+        # See https://github.com/actions/create-release/pull/32
+        uses: fleskesvor/create-release@feature/support-target-commitish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: demo-prerelease-${{ github.run_number }}
-          release_name: Demos at ${{ github.sha }}
+          tag_name: demo-prerelease
+          release_name: Demo Prerelease
           draft: false
           prerelease: true
       - name: Upload demos
