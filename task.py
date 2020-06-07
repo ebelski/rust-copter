@@ -18,6 +18,10 @@ Run arbitrary tasks in the repo
   If the command-line Teensy flashing tool isn't available, `demo` will print
   the location of the hex file on the command-line. If it is available, `demo`
   will call the flashing tool to load the program onto the Teensy.
+
+- Create a release (used in CI)
+
+    ./task.py release
 """
 
 import argparse
@@ -27,10 +31,17 @@ import pathlib
 import subprocess
 import shutil
 
+from typing import Optional
+from zipfile import ZipFile
+
 RUSTFLAGS = "-C link-arg=-Tlink.x"
 TARGET = "thumbv7em-none-eabihf"
 OBJCOPY = "arm-none-eabi-objcopy"
 TEENSY_LOADER = "teensy_loader_cli"
+DEMOS = [
+    "demo-mpu9250",
+    "demo-pwm-control",
+]
 
 
 def _flash(program: pathlib.Path) -> bool:
@@ -63,7 +74,7 @@ def _bin2hex(binary: pathlib.Path) -> pathlib.Path:
     return hex_file
 
 
-def _cargo_build(crate: str, release: bool) -> pathlib.Path:
+def _cargo_build(crate: Optional[str], release: bool) -> pathlib.Path:
     """Run cargo build, building the provided crate
 
     If `release` is True, build a release build
@@ -77,16 +88,16 @@ def _cargo_build(crate: str, release: bool) -> pathlib.Path:
     env["RUSTFLAGS"] = RUSTFLAGS
     logging.debug("Extended environment with RUSTFLAGS='%s'", RUSTFLAGS)
 
-    cmd = f"cargo build --target {TARGET} {mode} --package {crate}"
+    cmd = f"cargo build --target {TARGET} {mode}"
+    if crate:
+        cmd += " --package {crate}"
+
     logging.debug("Running '%s'", cmd)
     subprocess.run(cmd, shell=True, check=True, env=env)
 
-    return (
-        pathlib.Path("target")
-        / TARGET
-        / ("release" if args.release else "debug")
-        / crate
-    )
+    target_dir = pathlib.Path("target") / TARGET / ("release" if release else "debug")
+
+    return target_dir / crate if crate else target_dir
 
 
 def demo(args):
@@ -106,9 +117,27 @@ def demo(args):
         print(str(hex_file))
 
 
+def release(args):
+    """Handler for the "release" task
+    """
+    logging.debug("Building workspace...")
+    target = _cargo_build(None, True)
+    logging.debug("Converting all demos %s to hex files...", DEMOS)
+    hex_files = [_bin2hex(target / demo) for demo in DEMOS]
+    demos_name = target / "demos.zip"
+    with ZipFile(demos_name, "w") as demo_zip:
+        for hex_file in hex_files:
+            logging.debug("Adding %s to zip file...", hex_file)
+            demo_zip.write(hex_file, hex_file.name)
+        logging.debug("Wrote all demos to %s", demos_name)
+    print(str(demos_name))
+
+
 parser = argparse.ArgumentParser(description="rust-copter task runner")
 parser.add_argument("-v", "--verbose", help="verbose logging", action="store_true")
-subparsers = parser.add_subparsers(title="tasks", description="valid tasks",)
+subparsers = parser.add_subparsers(
+    title="tasks", description="valid tasks", dest="task"
+)
 
 parser_demo = subparsers.add_parser("demo", help="build and deploy a demo")
 parser_demo.add_argument("crate", help="the demo crate name")
@@ -126,6 +155,9 @@ parser_demo.add_argument(
     dest="flash",
 )
 parser_demo.set_defaults(func=demo)
+
+parser_release = subparsers.add_parser("release", help="create a release")
+parser_release.set_defaults(func=release)
 
 args = parser.parse_args()
 if args.verbose:
