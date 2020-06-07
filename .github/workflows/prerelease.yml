@@ -26,8 +26,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tag_name: demo-prerelease-${{ github.run_number }}
           release_name: Demos at ${{ github.sha }}
-          draft: true
+          draft: false
           prerelease: true
       - name: Upload demos
         id: upload-release-asset 
