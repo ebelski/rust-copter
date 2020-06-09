@@ -1,0 +1,43 @@
+on:
+  push:
+    branches: [master]
+
+name: Create demo prereleases
+
+jobs:
+  prerelease:
+    name: Build and upload demo prereleases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install build dependencies
+        run: sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: thumbv7em-none-eabihf
+          override: true
+      - name: Run release task
+        run: ./task.py --verbose release
+      - name: Create prerelease
+        id: create_release
+        # See https://github.com/actions/create-release/pull/32
+        uses: fleskesvor/create-release@feature/support-target-commitish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: demo-prerelease
+          release_name: Demo Prerelease
+          draft: false
+          prerelease: true
+      - name: Upload demos
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/thumbv7em-none-eabihf/release/demos.zip
+          asset_name: demos.zip
+          asset_content_type: application/zip
