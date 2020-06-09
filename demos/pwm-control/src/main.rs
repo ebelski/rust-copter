@@ -161,6 +161,7 @@ fn main() -> ! {
             }
             // User wants to read all the throttle settings
             Ok(Some(Command::ReadThrottle)) => {
+                log::info!("ESC_PROTOCOL = {:?}", ESC_PROTOCOL);
                 log::info!("A = {}", esc.throttle(QuadMotor::A) * 100.0);
                 log::info!("B = {}", esc.throttle(QuadMotor::B) * 100.0);
                 log::info!("C = {}", esc.throttle(QuadMotor::C) * 100.0);
