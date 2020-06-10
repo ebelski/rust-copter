@@ -25,3 +25,14 @@ jobs:
         run: ./task.py --verbose demo pwm-control --skip-flash
       - name: Run task for pwm-control demo ('demo-' prefix)
         run: ./task.py --verbose demo demo-pwm-control --skip-flash
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install formatter
+        run: |
+          python -m pip install --upgrade pip
+          pip install black
+      - uses: actions/checkout@v2
+      - name: Check formatting of tasks.py
+        run: black --check tasks.py
