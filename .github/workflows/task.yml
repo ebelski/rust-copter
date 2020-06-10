@@ -1,6 +1,6 @@
 # Smoke tests on the tasks.py script
 
-name: Tasks
+name: Task testing
 
 on:
   push:
@@ -39,4 +39,4 @@ jobs:
           pip install black
       - uses: actions/checkout@v2
       - name: Check formatting of tasks.py
-        run: black --check tasks.py
+        run: black --check task.py
