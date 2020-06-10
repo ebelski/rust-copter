@@ -46,7 +46,7 @@ DEMOS = [
 
 def _flash(program: pathlib.Path) -> bool:
     """Calls the command-line Teensy loader to flash the program.
-    
+
     Returns True if the flashing succeeded, or False if there was
     a flashing error.
     """
@@ -90,7 +90,7 @@ def _cargo_build(crate: Optional[str], release: bool) -> pathlib.Path:
 
     cmd = f"cargo build --target {TARGET} {mode}"
     if crate:
-        cmd += " --package {crate}"
+        cmd += f" --package {crate}"
 
     logging.debug("Running '%s'", cmd)
     subprocess.run(cmd, shell=True, check=True, env=env)
