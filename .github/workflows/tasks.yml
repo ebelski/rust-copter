@@ -23,3 +23,5 @@ jobs:
             override: true
       - name: Run task for pwm-control demo
         run: ./task.py --verbose demo pwm-control --skip-flash
+      - name: Run task for pwm-control demo ('demo-' prefix)
+        run: ./task.py --verbose demo demo-pwm-control --skip-flash
