@@ -20,6 +20,8 @@ pub enum QuadMotor {
 /// An electronic speed control
 pub trait ESC {
     /// Identifiers for motors
+    ///
+    /// `QuadMotor` is an example of a possible `Motor` type.
     type Motor: Copy;
 
     /// Returns the current throttle value for `motor`
@@ -48,4 +50,10 @@ pub trait ESC {
             .iter()
             .for_each(|(motor, percent)| self.set_throttle(*motor, *percent))
     }
+
+    /// Kill all PWM output
+    ///
+    /// `kill()` implies "stop all signal generation, which may be different than
+    /// `set_throttle(my_motor, 0.0f32)`.
+    fn kill(&mut self);
 }

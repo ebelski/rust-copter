@@ -68,9 +68,10 @@ use parser::{Command, Parser};
 use teensy4_bsp as bsp;
 
 use esc::{QuadMotor, ESC};
-use esc_imxrt1062::Slow as SlowESC;
+use esc_imxrt1062::{Protocol, ESC as imxrtESC};
 
-const SWITCHING_FREQUENCY_HZ: u64 = 500;
+/// CHANGE ME to vary the ESC protocol
+const ESC_PROTOCOL: Protocol = Protocol::OneShot125;
 
 #[entry]
 fn main() -> ! {
@@ -96,8 +97,8 @@ fn main() -> ! {
     let mut pwm1 = peripherals.pwm1.clock(&mut peripherals.ccm.handle);
     let mut pwm2 = peripherals.pwm2.clock(&mut peripherals.ccm.handle);
 
-    // Compute the switching period from the user-configurable SWITCHING_FREQUENCY_HZ.
-    let switching_period = Duration::from_nanos(1_000_000_000u64 / SWITCHING_FREQUENCY_HZ);
+    // Dummy value; will be reconfigured by the ESC implementation
+    let switching_period = Duration::from_micros(5_000);
 
     // Configure pins 6 and 9 as PWM outputs
     let sm2 = pwm2
@@ -129,7 +130,7 @@ fn main() -> ! {
         )
         .unwrap();
 
-    let mut esc = SlowESC::new(pwm1.handle, sm3, pwm2.handle, sm2);
+    let mut esc = imxrtESC::new(ESC_PROTOCOL, pwm1.handle, sm3, pwm2.handle, sm2);
 
     // Set up the USB stack, and use the USB reader for parsing commands
     let usb_reader = peripherals.usb.init(Default::default());
@@ -160,6 +161,7 @@ fn main() -> ! {
             }
             // User wants to read all the throttle settings
             Ok(Some(Command::ReadThrottle)) => {
+                log::info!("ESC_PROTOCOL = {:?}", ESC_PROTOCOL);
                 log::info!("A = {}", esc.throttle(QuadMotor::A) * 100.0);
                 log::info!("B = {}", esc.throttle(QuadMotor::B) * 100.0);
                 log::info!("C = {}", esc.throttle(QuadMotor::C) * 100.0);

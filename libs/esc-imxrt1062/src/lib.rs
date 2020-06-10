@@ -8,9 +8,10 @@
 //! If there's a need to change the four PWM pins, you'll need to change the
 //! `XMod`, `YMod`, `XSub`, and `YSub` types inside of this crate, then recompile.
 //!
-//! (We could generalize over the `XMod` and `YMod` types. But there's little point, since
-//! users still can't generalize over the *submodules*. This is a limitation imposed by
-//! the `imxrt-hal` crate.)
+//! # ESC Protocols
+//!
+//! We've derived specifications for the various ESC protocols from
+//! [this guy's blog](https://quadmeup.com/pwm-oneshot125-oneshot42-and-multishot-comparison/).
 
 // Ian's notes about why this isn't the best...
 //
@@ -24,7 +25,7 @@
 
 #![no_std]
 
-use esc::{QuadMotor, ESC};
+use esc::{self, QuadMotor};
 
 use imxrt_hal::{
     iomuxc::pwm::Pin,
@@ -41,7 +42,46 @@ type XSub = submodule::_3;
 pub type YMod = module::_2;
 type YSub = submodule::_2;
 
-pub struct Module<A, B, C, D> {
+/// ESC protocol selection
+///
+/// Implementations may or may not use these protocol values. If `Protocol` is
+/// part of an implementation's API, an implementation does not have to implement
+/// all of the described protocols.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum Protocol {
+    /// The standard PWM signal
+    ///
+    /// - 500Hz PWM frequency
+    /// - 50% duty == 0% throttle
+    /// - 100% duty == 100% throttle
+    Standard,
+    /// OneShot125 protocol:
+    ///
+    /// - 4KHz PWM frequency
+    /// - 50% duty == 0% throttle
+    /// - 100% duty == 100% throttle
+    OneShot125,
+    /// OneShot42 protocol:
+    ///
+    /// - 12KHz PWM frequency
+    /// - 50% duty cycle == 0% throttle
+    /// - 100% duty cycle == 100% throttle
+    OneShot42,
+}
+
+impl Protocol {
+    fn into_duration(self) -> Duration {
+        match self {
+            Protocol::Standard => Duration::from_micros(2000),
+            Protocol::OneShot125 => Duration::from_micros(250),
+            Protocol::OneShot42 => Duration::from_nanos(83333),
+        }
+    }
+}
+
+/// i.MX RT-specific ESC implementation
+struct Module<A, B, C, D> {
     handle_ab: Handle<XMod>,
     handle_cd: Handle<YMod>,
     pins_ab: Pins<A, B>,
@@ -55,7 +95,7 @@ where
     C: Pin<Module = YMod, Output = output::A, Submodule = YSub>,
     D: Pin<Module = YMod, Output = output::B, Submodule = <C as Pin>::Submodule>,
 {
-    pub fn new(
+    fn new(
         mut handle_ab: Handle<XMod>,
         mut pins_ab: Pins<A, B>,
         mut handle_cd: Handle<YMod>,
@@ -137,14 +177,10 @@ where
     }
 }
 
-/// Implements the "slow" ESC protocol
-///
-/// - 2ms PWM period
-/// - 0% throttle => 50% PWM duty cycle
-/// - 100% throttle => 100% PWM duty cycle
-pub struct Slow<A, B, C, D>(RefCell<Module<A, B, C, D>>);
+/// i.MX RT-specific ESC implementation
+pub struct ESC<A, B, C, D>(RefCell<Module<A, B, C, D>>);
 
-impl<A, B, C, D> Slow<A, B, C, D>
+impl<A, B, C, D> ESC<A, B, C, D>
 where
     A: Pin<Module = XMod, Output = output::A, Submodule = XSub>,
     B: Pin<Module = XMod, Output = output::B, Submodule = <A as Pin>::Submodule>,
@@ -152,23 +188,19 @@ where
     D: Pin<Module = YMod, Output = output::B, Submodule = <C as Pin>::Submodule>,
 {
     pub fn new(
+        protocol: Protocol,
         handle_ab: Handle<XMod>,
         pins_ab: Pins<A, B>,
         handle_cd: Handle<YMod>,
         pins_cd: Pins<C, D>,
     ) -> Self {
-        Slow(RefCell::new(Module::new(
+        Self(RefCell::new(Module::new(
             handle_ab,
             pins_ab,
             handle_cd,
             pins_cd,
-            Duration::from_micros(2000),
+            protocol.into_duration(),
         )))
-    }
-
-    /// Kill all PWM outputs
-    pub fn kill(&mut self) {
-        self.0.get_mut().kill();
     }
 }
 
@@ -187,7 +219,7 @@ fn duty_to_percent(duty: u16) -> f32 {
     (duty.saturating_sub(MINIMUM_DUTY_CYCLE) as f32) / (MINIMUM_DUTY_CYCLE as f32)
 }
 
-impl<A, B, C, D> ESC for Slow<A, B, C, D>
+impl<A, B, C, D> esc::ESC for ESC<A, B, C, D>
 where
     A: Pin<Module = XMod, Output = output::A, Submodule = XSub>,
     B: Pin<Module = XMod, Output = output::B, Submodule = <A as Pin>::Submodule>,
@@ -210,5 +242,9 @@ where
             percent
         };
         self.0.get_mut().set_duty(motor, percent_to_duty(percent))
+    }
+
+    fn kill(&mut self) {
+        self.0.get_mut().kill();
     }
 }
