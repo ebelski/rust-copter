@@ -1,0 +1,27 @@
+# Smoke tests on the tasks.py script
+
+name: Tasks
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  
+jobs:
+
+  demos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install build dependencies
+        run: sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            target: thumbv7em-none-eabihf
+            override: true
+      - name: Run demo pwm-control task
+        run: ./task.py --verbose demo pwm-control --skip-flash
+      - name: Run demo mpu9250 task
+        run: ./task.py --verbose demo mpu9250 --skip-flash
