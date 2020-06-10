@@ -29,14 +29,6 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-      - name: Install formatter
-        run: |
-          python -m pip install --upgrade pip
-          pip install black
       - uses: actions/checkout@v2
-      - name: Check formatting of tasks.py
-        run: black --check task.py
+      - uses: actions/setup-python@v2
+      - uses: psf/black@stable
