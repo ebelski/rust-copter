@@ -200,6 +200,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mpu9250-regs"
+version = "0.1.0"
+dependencies = [
+ "bitflags",
+]
+
+[[package]]
 name = "nb"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -4,6 +4,7 @@ members = [
     "demos/pwm-control",
     "libs/esc",
     "libs/esc-imxrt1062",
+    "libs/mpu9250-regs",
 ]
 
 [patch.crates-io.cortex-m-rt]
