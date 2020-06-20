@@ -1,9 +1,12 @@
 [workspace]
 members = [
     "demos/mpu9250",
+    "demos/mpu9250-spi",
     "demos/pwm-control",
     "libs/esc",
     "libs/esc-imxrt1062",
+    "libs/invensense-mpu",
+    "libs/motion-sensor",
     "libs/mpu9250-regs",
 ]
 

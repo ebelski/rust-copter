@@ -1,0 +1,18 @@
+[package]
+name = "demo-mpu9250-spi"
+version = "0.1.0"
+authors = ["Ian McIntyre <ianpmcintyre@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+embedded-hal = "0.2.4"
+panic-halt = "0.2.0"
+motion-sensor = { path = "../../libs/motion-sensor" }
+invensense-mpu = { path = "../../libs/invensense-mpu" }
+
+[dependencies.log]
+version = "0.4.8"
+features = ["release_max_level_info"]
+
+[dependencies.teensy4-bsp]
+git = "https://github.com/mciantyre/teensy4-rs.git"

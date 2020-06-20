@@ -8,126 +8,128 @@
 pub const I2C_ADDRESS: u8 = 0x68;
 
 /// MPU9250 register addresses
-pub mod regs {
-    pub const SELF_TEST_X_GYRO: u8 = 0x00;
-    pub const SELF_TEST_Y_GYRO: u8 = 0x01;
-    pub const SELF_TEST_Z_GYRO: u8 = 0x02;
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum Regs {
+    SELF_TEST_X_GYRO = 0x00,
+    SELF_TEST_Y_GYRO = 0x01,
+    SELF_TEST_Z_GYRO = 0x02,
 
-    pub const SELF_TEST_X_ACCEL: u8 = 0x0D;
-    pub const SELF_TEST_Y_ACCEL: u8 = 0x0E;
-    pub const SELF_TEST_Z_ACCEL: u8 = 0x0F;
+    SELF_TEST_X_ACCEL = 0x0D,
+    SELF_TEST_Y_ACCEL = 0x0E,
+    SELF_TEST_Z_ACCEL = 0x0F,
 
-    pub const XG_OFFSET_H: u8 = 0x13;
-    pub const XG_OFFSET_L: u8 = 0x14;
-    pub const YG_OFFSET_H: u8 = 0x15;
-    pub const YG_OFFSET_L: u8 = 0x16;
-    pub const ZG_OFFSET_H: u8 = 0x17;
-    pub const ZG_OFFSET_L: u8 = 0x18;
+    XG_OFFSET_H = 0x13,
+    XG_OFFSET_L = 0x14,
+    YG_OFFSET_H = 0x15,
+    YG_OFFSET_L = 0x16,
+    ZG_OFFSET_H = 0x17,
+    ZG_OFFSET_L = 0x18,
 
-    pub const SMPLRT_DIV: u8 = 0x19;
-    pub const CONFIG: u8 = 0x1A;
-    pub const GYRO_CONFIG: u8 = 0x1B;
-    pub const ACCEL_CONFIG: u8 = 0x1C;
-    pub const ACCEL_CONFIG_2: u8 = 0x1D;
-    pub const LP_ACCEL_ODR: u8 = 0x1F;
-    pub const WOM_THR: u8 = 0x1E;
-    pub const FIFO_EN: u8 = 0x23;
+    SMPLRT_DIV = 0x19,
+    CONFIG = 0x1A,
+    GYRO_CONFIG = 0x1B,
+    ACCEL_CONFIG = 0x1C,
+    ACCEL_CONFIG_2 = 0x1D,
+    LP_ACCEL_ODR = 0x1F,
+    WOM_THR = 0x1E,
+    FIFO_EN = 0x23,
 
-    pub const I2C_MST_CTRL: u8 = 0x24;
+    I2C_MST_CTRL = 0x24,
 
-    pub const I2C_SLV0_ADDR: u8 = 0x25;
-    pub const I2C_SLV0_REG: u8 = 0x26;
-    pub const I2C_SLV0_CTRL: u8 = 0x27;
+    I2C_SLV0_ADDR = 0x25,
+    I2C_SLV0_REG = 0x26,
+    I2C_SLV0_CTRL = 0x27,
 
-    pub const I2C_SLV1_ADDR: u8 = 0x28;
-    pub const I2C_SLV1_REG: u8 = 0x29;
-    pub const I2C_SLV1_CTRL: u8 = 0x2A;
+    I2C_SLV1_ADDR = 0x28,
+    I2C_SLV1_REG = 0x29,
+    I2C_SLV1_CTRL = 0x2A,
 
-    pub const I2C_SLV2_ADDR: u8 = 0x2B;
-    pub const I2C_SLV2_REG: u8 = 0x2C;
-    pub const I2C_SLV2_CTRL: u8 = 0x2D;
+    I2C_SLV2_ADDR = 0x2B,
+    I2C_SLV2_REG = 0x2C,
+    I2C_SLV2_CTRL = 0x2D,
 
-    pub const I2C_SLV3_ADDR: u8 = 0x2E;
-    pub const I2C_SLV3_REG: u8 = 0x2F;
-    pub const I2C_SLV3_CTRL: u8 = 0x30;
+    I2C_SLV3_ADDR = 0x2E,
+    I2C_SLV3_REG = 0x2F,
+    I2C_SLV3_CTRL = 0x30,
 
-    pub const I2C_SLV4_ADDR: u8 = 0x31;
-    pub const I2C_SLV4_REG: u8 = 0x32;
-    pub const I2C_SLV4_DO: u8 = 0x33;
-    pub const I2C_SLV4_CTRL: u8 = 0x34;
-    pub const I2C_SLV4_DI: u8 = 0x35;
+    I2C_SLV4_ADDR = 0x31,
+    I2C_SLV4_REG = 0x32,
+    I2C_SLV4_DO = 0x33,
+    I2C_SLV4_CTRL = 0x34,
+    I2C_SLV4_DI = 0x35,
 
-    pub const I2C_MST_STATUS: u8 = 0x36;
+    I2C_MST_STATUS = 0x36,
 
-    pub const INT_PIN_CFG: u8 = 0x37;
-    pub const INT_ENABLE: u8 = 0x38;
-    pub const INT_STATUS: u8 = 0x3A;
+    INT_PIN_CFG = 0x37,
+    INT_ENABLE = 0x38,
+    INT_STATUS = 0x3A,
 
-    pub const ACCEL_XOUT_H: u8 = 0x3B;
-    pub const ACCEL_XOUT_L: u8 = 0x3C;
-    pub const ACCEL_YOUT_H: u8 = 0x3D;
-    pub const ACCEL_YOUT_L: u8 = 0x3E;
-    pub const ACCEL_ZOUT_H: u8 = 0x3F;
-    pub const ACCEL_ZOUT_L: u8 = 0x40;
+    ACCEL_XOUT_H = 0x3B,
+    ACCEL_XOUT_L = 0x3C,
+    ACCEL_YOUT_H = 0x3D,
+    ACCEL_YOUT_L = 0x3E,
+    ACCEL_ZOUT_H = 0x3F,
+    ACCEL_ZOUT_L = 0x40,
 
-    pub const TEMP_OUT_H: u8 = 0x41;
-    pub const TEMP_OUT_L: u8 = 0x42;
+    TEMP_OUT_H = 0x41,
+    TEMP_OUT_L = 0x42,
 
-    pub const GYRO_XOUT_H: u8 = 0x43;
-    pub const GYRO_XOUT_L: u8 = 0x44;
-    pub const GYRO_YOUT_H: u8 = 0x45;
-    pub const GYRO_YOUT_L: u8 = 0x46;
-    pub const GYRO_ZOUT_H: u8 = 0x47;
-    pub const GYRO_ZOUT_L: u8 = 0x48;
+    GYRO_XOUT_H = 0x43,
+    GYRO_XOUT_L = 0x44,
+    GYRO_YOUT_H = 0x45,
+    GYRO_YOUT_L = 0x46,
+    GYRO_ZOUT_H = 0x47,
+    GYRO_ZOUT_L = 0x48,
 
-    pub const EXT_SENS_DATA_00: u8 = 0x49;
-    pub const EXT_SENS_DATA_01: u8 = 0x4A;
-    pub const EXT_SENS_DATA_02: u8 = 0x4B;
-    pub const EXT_SENS_DATA_03: u8 = 0x4C;
-    pub const EXT_SENS_DATA_04: u8 = 0x4D;
-    pub const EXT_SENS_DATA_05: u8 = 0x4E;
-    pub const EXT_SENS_DATA_06: u8 = 0x4F;
-    pub const EXT_SENS_DATA_07: u8 = 0x50;
-    pub const EXT_SENS_DATA_08: u8 = 0x51;
-    pub const EXT_SENS_DATA_09: u8 = 0x52;
-    pub const EXT_SENS_DATA_10: u8 = 0x53;
-    pub const EXT_SENS_DATA_11: u8 = 0x54;
-    pub const EXT_SENS_DATA_12: u8 = 0x55;
-    pub const EXT_SENS_DATA_13: u8 = 0x56;
-    pub const EXT_SENS_DATA_14: u8 = 0x57;
-    pub const EXT_SENS_DATA_15: u8 = 0x58;
-    pub const EXT_SENS_DATA_16: u8 = 0x59;
-    pub const EXT_SENS_DATA_17: u8 = 0x5A;
-    pub const EXT_SENS_DATA_18: u8 = 0x5B;
-    pub const EXT_SENS_DATA_19: u8 = 0x5C;
-    pub const EXT_SENS_DATA_20: u8 = 0x5D;
-    pub const EXT_SENS_DATA_21: u8 = 0x5E;
-    pub const EXT_SENS_DATA_22: u8 = 0x5F;
-    pub const EXT_SENS_DATA_23: u8 = 0x60;
+    EXT_SENS_DATA_00 = 0x49,
+    EXT_SENS_DATA_01 = 0x4A,
+    EXT_SENS_DATA_02 = 0x4B,
+    EXT_SENS_DATA_03 = 0x4C,
+    EXT_SENS_DATA_04 = 0x4D,
+    EXT_SENS_DATA_05 = 0x4E,
+    EXT_SENS_DATA_06 = 0x4F,
+    EXT_SENS_DATA_07 = 0x50,
+    EXT_SENS_DATA_08 = 0x51,
+    EXT_SENS_DATA_09 = 0x52,
+    EXT_SENS_DATA_10 = 0x53,
+    EXT_SENS_DATA_11 = 0x54,
+    EXT_SENS_DATA_12 = 0x55,
+    EXT_SENS_DATA_13 = 0x56,
+    EXT_SENS_DATA_14 = 0x57,
+    EXT_SENS_DATA_15 = 0x58,
+    EXT_SENS_DATA_16 = 0x59,
+    EXT_SENS_DATA_17 = 0x5A,
+    EXT_SENS_DATA_18 = 0x5B,
+    EXT_SENS_DATA_19 = 0x5C,
+    EXT_SENS_DATA_20 = 0x5D,
+    EXT_SENS_DATA_21 = 0x5E,
+    EXT_SENS_DATA_22 = 0x5F,
+    EXT_SENS_DATA_23 = 0x60,
 
-    pub const I2C_SLV0_DO: u8 = 0x63;
-    pub const I2C_SLV1_DO: u8 = 0x64;
-    pub const I2C_SLV2_DO: u8 = 0x65;
-    pub const I2C_SLV3_DO: u8 = 0x66;
-    pub const I2C_MST_DELAY_CTRL: u8 = 0x67;
-    pub const SIGNAL_PATH_RESET: u8 = 0x68;
-    pub const ACCEL_INTEL_CTRL: u8 = 0x69;
+    I2C_SLV0_DO = 0x63,
+    I2C_SLV1_DO = 0x64,
+    I2C_SLV2_DO = 0x65,
+    I2C_SLV3_DO = 0x66,
+    I2C_MST_DELAY_CTRL = 0x67,
+    SIGNAL_PATH_RESET = 0x68,
+    ACCEL_INTEL_CTRL = 0x69,
 
-    pub const USER_CTRL: u8 = 0x6A;
-    pub const PWR_MGMT_1: u8 = 0x6B;
-    pub const PWR_MGMT_2: u8 = 0x6C;
+    USER_CTRL = 0x6A,
+    PWR_MGMT_1 = 0x6B,
+    PWR_MGMT_2 = 0x6C,
 
-    pub const FIFO_COUNTL: u8 = 0x73;
-    pub const FIFO_R_W: u8 = 0x74;
+    FIFO_COUNTL = 0x73,
+    FIFO_R_W = 0x74,
 
-    pub const WHO_AM_I: u8 = 0x75;
+    WHO_AM_I = 0x75,
 
-    pub const XA_OFFSET_H: u8 = 0x77;
-    pub const XA_OFFSET_L: u8 = 0x78;
-    pub const YA_OFFSET_H: u8 = 0x7A;
-    pub const YA_OFFSET_L: u8 = 0x7B;
-    pub const ZA_OFFSET_H: u8 = 0x7D;
-    pub const ZA_OFFSET_L: u8 = 0x7E;
+    XA_OFFSET_H = 0x77,
+    XA_OFFSET_L = 0x78,
+    YA_OFFSET_H = 0x7A,
+    YA_OFFSET_L = 0x7B,
+    ZA_OFFSET_H = 0x7D,
+    ZA_OFFSET_L = 0x7E,
 }
 
 /// MPU9250 flags and register values
@@ -346,9 +348,9 @@ pub mod flags {
 
     #[derive(Clone, Copy, Default)]
     pub struct GYRO_CONFIG {
-        self_test: GYRO_SELF_TEST,
-        full_scale: GYRO_FS_SEL,
-        fchoice: FCHOICE,
+        pub self_test: GYRO_SELF_TEST,
+        pub full_scale: GYRO_FS_SEL,
+        pub fchoice: FCHOICE,
     }
 
     impl From<GYRO_CONFIG> for u8 {
@@ -407,8 +409,8 @@ pub mod flags {
 
     #[derive(Clone, Copy, Default)]
     pub struct ACCEL_CONFIG {
-        self_test: ACCEL_SELF_TEST,
-        full_scale: ACCEL_FS_SEL,
+        pub self_test: ACCEL_SELF_TEST,
+        pub full_scale: ACCEL_FS_SEL,
     }
 
     impl From<ACCEL_CONFIG> for u8 {
@@ -506,17 +508,17 @@ pub mod flags {
             /// Enable reading data from this slave at the sample rate
             /// and storing data at the first available EXT_SENS_DATA
             /// register
-            const I2C_SLVX_EN       = 1 << 7;
+            const EN       = 1 << 7;
             /// 1 – Swap bytes when reading both the low and high byte of
             /// a word. Note there is nothing to swap after reading the first
             /// byte if I2C_SLV1_REG[0] = 1, or if the last byte read has a
             /// register address lsb = 0.
             ///
             /// 0 – no swapping occurs, bytes are written in order read.
-            const I2C_SLVX_BYTE_SW  = 1 << 6;
+            const BYTE_SW  = 1 << 6;
             /// When set, the transaction does not write a register value, it
             /// will only read data, or write data.
-            const I2C_SLVX_REG_DIS  = 1 << 5;
+            const REG_DIS  = 1 << 5;
             /// External sensor data typically comes in as groups of two bytes. This
             /// bit is used to determine if the groups are from the slave’s register
             /// address 0 and 1, 2 and 3, etc.., or if the groups are address 1 and 2, 3
@@ -527,7 +529,7 @@ pub mod flags {
             /// addresses 1 and 2 are grouped together (even numbered register ends
             /// the group). This allows byte swapping of registers that are grouped
             /// starting at any address.
-            const I2C_SLVX_GRP      = 1 << 4;
+            const GRP      = 1 << 4;
         }
     }
 

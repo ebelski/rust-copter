@@ -11,27 +11,29 @@
 pub const I2C_ADDRESS: u8 = 0x0C;
 
 /// AK8963 register addresses
-pub mod regs {
-    pub const WIA: u8 = 0x00;
-    pub const INFO: u8 = 0x01;
-    pub const ST1: u8 = 0x02;
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum Regs {
+    WIA = 0x00,
+    INFO = 0x01,
+    ST1 = 0x02,
 
-    pub const HXL: u8 = 0x03;
-    pub const HXH: u8 = 0x04;
-    pub const HYL: u8 = 0x05;
-    pub const HYH: u8 = 0x06;
-    pub const HZL: u8 = 0x07;
-    pub const HZH: u8 = 0x08;
-    pub const ST2: u8 = 0x09;
+    HXL = 0x03,
+    HXH = 0x04,
+    HYL = 0x05,
+    HYH = 0x06,
+    HZL = 0x07,
+    HZH = 0x08,
+    ST2 = 0x09,
 
-    pub const CNTL1: u8 = 0x0A;
-    pub const CNTL2: u8 = 0x0B;
-    pub const ASTC: u8 = 0x0C;
+    CNTL1 = 0x0A,
+    CNTL2 = 0x0B,
+    ASTC = 0x0C,
 
-    pub const I2CDIS: u8 = 0x0F;
-    pub const ASAX: u8 = 0x10;
-    pub const ASAY: u8 = 0x11;
-    pub const ASAZ: u8 = 0x12;
+    I2CDIS = 0x0F,
+    ASAX = 0x10,
+    ASAY = 0x11,
+    ASAZ = 0x12,
 }
 
 /// AK8963 flags and register values
@@ -63,9 +65,14 @@ pub mod flags {
     #[repr(u8)]
     pub enum CNTL1_MODE {
         POWER_DOWN = 0b0000,
+        /// Take one measurement, then power down
         SINGLE_MEASUREMENT = 0b0001,
+        /// Sample at 8Hz
         CONTINUOUS_1 = 0b0010,
+        /// Sample at 100Hz
         CONTINUOUS_2 = 0b0110,
+        /// Sample on rising-edge on TRG pin
+        EXTERNAL_TRG = 0b0100,
         SELF_TEST = 0b1000,
         FUSE_ROM_ACCESS = 0b1111,
     }
@@ -86,8 +93,8 @@ pub mod flags {
 
     #[derive(Default, Clone, Copy)]
     pub struct CNTL1 {
-        mode: CNTL1_MODE,
-        output: CNTL1_OUTPUT,
+        pub mode: CNTL1_MODE,
+        pub output: CNTL1_OUTPUT,
     }
 
     impl From<CNTL1> for u8 {
@@ -103,6 +110,7 @@ pub mod flags {
                 0b0001 => CNTL1_MODE::SINGLE_MEASUREMENT,
                 0b0010 => CNTL1_MODE::CONTINUOUS_1,
                 0b0110 => CNTL1_MODE::CONTINUOUS_2,
+                0b0100 => CNTL1_MODE::EXTERNAL_TRG,
                 0b1000 => CNTL1_MODE::SELF_TEST,
                 0b1111 => CNTL1_MODE::FUSE_ROM_ACCESS,
                 _ => unreachable!("found unexepected value when handling CNTL1 byte"),
