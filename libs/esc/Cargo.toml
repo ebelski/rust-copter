@@ -8,5 +8,5 @@ description = "Interface for electronic speed controls (ESC)"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies.embedded-hal]
-version = "0.2.3"
+version = "0.2.4"
 features = ["unproven"]

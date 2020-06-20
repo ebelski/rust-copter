@@ -45,12 +45,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cc"
-version = "1.0.54"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bbb73db36c1246e9034e307d0fba23f9a2e251faa47ade70c1bd252220c8311"
-
-[[package]]
 name = "cfg-if"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -103,9 +97,9 @@ dependencies = [
 
 [[package]]
 name = "embedded-hal"
-version = "0.2.3"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee4908a155094da7723c2d60d617b820061e3b4efcc3d9e293d206a5a76c170b"
+checksum = "fa998ce59ec9765d15216393af37a58961ddcefb14c753b4816ba2191d865fcb"
 dependencies = [
  "nb",
  "void",
@@ -153,10 +147,11 @@ checksum = "3991722c78672e5006f670da9a374a2af5c944a2a25fa2652346bf74aa1acf57"
 
 [[package]]
 name = "imxrt-hal"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0141c0eaa0c7276b51c4b422b66853a92d1e8917f2d6df4cd1537c34d610b8e9"
+checksum = "b2ee5a782b624980c24de5f82cddf19c9220313c51e75904c21e3a88a5d6c930"
 dependencies = [
+ "as-slice",
  "bitflags",
  "cortex-m",
  "embedded-hal",
@@ -168,22 +163,12 @@ dependencies = [
 
 [[package]]
 name = "imxrt-ral"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd6aab6aee9cd975defa8776996395c4bf6eeb29817f4584faddd745e8d3b1a7"
+checksum = "3ba0977a2c5a0f1a80783049627e2ea754c9c61ee2c936f748596ef6ad2282b7"
 dependencies = [
  "bare-metal",
  "cortex-m",
-]
-
-[[package]]
-name = "imxrt1062-rt"
-version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#81cbe7cf06a74ea332bd3b757d6d0c5fd2926c8c"
-dependencies = [
- "cc",
- "cortex-m",
- "cortex-m-rt-macros",
 ]
 
 [[package]]
@@ -197,9 +182,9 @@ dependencies = [
 
 [[package]]
 name = "mpu9250"
-version = "0.20.0"
+version = "0.22.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "587f98014056933f4f2326b0eb90da3d788e61525f82330867b0f15a79d57f02"
+checksum = "f8917520dcbed869b54abdfe913b5275ab59d55989b1331753bcc0150b0bc250"
 dependencies = [
  "bitflags",
  "cast",
@@ -229,9 +214,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.6"
+version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54a21852a652ad6f610c9510194f398ff6f8692e334fd1145fed931f7fbe44ea"
+checksum = "aa563d17ecb180e500da1cfd2b028310ac758de548efdd203e18f283af693f37"
 dependencies = [
  "proc-macro2",
 ]
@@ -268,9 +253,9 @@ checksum = "dba1a27d3efae4351c8051072d619e3ade2820635c3958d826bfea39d59b54c8"
 
 [[package]]
 name = "syn"
-version = "1.0.30"
+version = "1.0.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93a56fabc59dce20fe48b6c832cc249c713e7ed88fa28b0ee0a3bfcaae5fe4e2"
+checksum = "b5304cfdf27365b7585c25d4af91b35016ed21ef88f17ced89c7093b43dba8b6"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -280,31 +265,37 @@ dependencies = [
 [[package]]
 name = "teensy4-bsp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#81cbe7cf06a74ea332bd3b757d6d0c5fd2926c8c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#a1569e406d8e69ccf3508203d6e75d89da2f8fd7"
 dependencies = [
  "cortex-m",
  "imxrt-hal",
- "imxrt1062-rt",
  "log",
  "teensy4-fcb",
+ "teensy4-rt",
  "teensy4-usb-sys",
 ]
 
 [[package]]
 name = "teensy4-fcb"
 version = "0.2.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#81cbe7cf06a74ea332bd3b757d6d0c5fd2926c8c"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#a1569e406d8e69ccf3508203d6e75d89da2f8fd7"
 dependencies = [
  "imxrt-boot-gen",
 ]
 
 [[package]]
+name = "teensy4-rt"
+version = "0.1.0"
+source = "git+https://github.com/mciantyre/teensy4-rs.git#a1569e406d8e69ccf3508203d6e75d89da2f8fd7"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt-macros",
+]
+
+[[package]]
 name = "teensy4-usb-sys"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs.git#81cbe7cf06a74ea332bd3b757d6d0c5fd2926c8c"
-dependencies = [
- "cc",
-]
+source = "git+https://github.com/mciantyre/teensy4-rs.git#a1569e406d8e69ccf3508203d6e75d89da2f8fd7"
 
 [[package]]
 name = "typenum"
