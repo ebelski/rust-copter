@@ -68,7 +68,7 @@ fn main() -> ! {
     //
     // Given the configurations of the clock (above) and the prescalar selection (below),
     // the timers have a 20ns resolution (150MHz divide by 3, inverse, in nanoseconds).
-    let perclk_cfg = peripherals.ccm.perclk.configure(
+    let mut perclk_cfg = peripherals.ccm.perclk.configure(
         &mut peripherals.ccm.handle,
         bsp::hal::ccm::perclk::PODF::DIVIDE_3, // Divide the input clock by 3,
         bsp::hal::ccm::perclk::CLKSEL::IPG(ipg_hz), // Use the IPG clock as the PIT input clock (probably 150MHz)
@@ -78,7 +78,7 @@ fn main() -> ! {
     // There are four timers, but we only need one of them.
     // We use underscores '_' to ignore the other three.
     // The timer selection was arbitrary.
-    let (_, _, _, mut timer) = peripherals.pit.clock(perclk_cfg);
+    let (_, _, _, mut timer) = peripherals.pit.clock(&mut perclk_cfg);
 
     // ---------
     // I2C setup
