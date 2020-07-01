@@ -19,13 +19,11 @@
 // Modules
 // -------
 mod control;
-mod delay;
 
 // -------
 // Imports
 // -------
 extern crate panic_halt;
-use delay::SystickDelay;
 use mpu9250::Mpu9250;
 use teensy4_bsp as bsp; // Aliasing teensy4_bsp as bsp for convenience
 
@@ -116,8 +114,7 @@ fn main() -> ! {
     // Create an MPU object that will use the SYSTICK as its
     // delay implementation. It will interface an MPU9250 over
     // I2C.
-    let mut systick_delay = SystickDelay;
-    let mut mpu = match Mpu9250::marg_default(i2c3, &mut systick_delay) {
+    let mut mpu = match Mpu9250::marg_default(i2c3, &mut peripherals.systick) {
         // Damn, something went wrong when connecting to the MPU!
         Err(err) => {
             log::error!("Unable to create MPU9250: {:?}", err);
@@ -132,16 +129,18 @@ fn main() -> ! {
 
     // A brief delay, before we start logging things.
     // Gives you a chance to open up your terminal...
-    bsp::delay(7_000); // 7 seconds
+    peripherals.systick.delay(7_000); // 7 seconds
 
     // Sanity check: log WHO_AM_I. Should see 0x71.
     let who_am_i = mpu.who_am_i().unwrap();
     log::info!("WHO_AM_I = 0x{:X}", who_am_i);
 
     log::trace!("Starting poll and control loop...");
-    bsp::delay(1_000);
+    peripherals.systick.delay(1_000);
     loop {
-        bsp::delay(control::SAMPLING_DELAY_MILLISECONDS);
+        peripherals
+            .systick
+            .delay(control::SAMPLING_DELAY_MILLISECONDS);
         // Get the reading from the MPU
         let (marg, timing): (mpu9250::MargMeasurements<control::Triplet<f32>>, _) =
             // Time how long the `all()` call takes...
@@ -150,7 +149,7 @@ fn main() -> ! {
                 // 1 second...
                 (Err(err), _) => {
                     log::warn!("Error when querying for MPU 9DOF reading: {:?}", err);
-                    bsp::delay(1_000.max(control::SAMPLING_DELAY_MILLISECONDS));
+                    peripherals.systick.delay(1_000.max(control::SAMPLING_DELAY_MILLISECONDS));
                     continue;
                 }
                 // Got eeeeemmmmmmm!

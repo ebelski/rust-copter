@@ -146,7 +146,7 @@ fn main() -> ! {
 
         match parser.parse() {
             // Parser has not found any command; it needs more inputs
-            Ok(None) => bsp::delay(10),
+            Ok(None) => peripherals.systick.delay(10),
             // User wants to reset all duty cycles
             Ok(Some(Command::ResetThrottle)) => {
                 esc.set_throttle_group(&[
@@ -187,7 +187,7 @@ fn main() -> ! {
 
                 led.set_high().unwrap();
                 loop {
-                    bsp::delay(1_000);
+                    peripherals.systick.delay(1_000);
                     cortex_m::asm::wfe();
                 }
             }
