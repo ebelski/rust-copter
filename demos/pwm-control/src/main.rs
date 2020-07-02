@@ -86,12 +86,12 @@ fn main() -> ! {
     );
 
     // Use one of the PIT timers to blink the LED at 1Hz
-    let pit_cfg = peripherals.ccm.perclk.configure(
+    let mut pit_cfg = peripherals.ccm.perclk.configure(
         &mut peripherals.ccm.handle,
         bsp::hal::ccm::perclk::PODF::DIVIDE_3,
         bsp::hal::ccm::perclk::CLKSEL::IPG(ipg_hz),
     );
-    let (mut led_timer, _, _, _) = peripherals.pit.clock(pit_cfg);
+    let (mut led_timer, _, _, _) = peripherals.pit.clock(&mut pit_cfg);
 
     // Enable clocks to the PWM modules
     let mut pwm1 = peripherals.pwm1.clock(&mut peripherals.ccm.handle);
@@ -146,7 +146,7 @@ fn main() -> ! {
 
         match parser.parse() {
             // Parser has not found any command; it needs more inputs
-            Ok(None) => bsp::delay(10),
+            Ok(None) => peripherals.systick.delay(10),
             // User wants to reset all duty cycles
             Ok(Some(Command::ResetThrottle)) => {
                 esc.set_throttle_group(&[
@@ -187,7 +187,7 @@ fn main() -> ! {
 
                 led.set_high().unwrap();
                 loop {
-                    bsp::delay(1_000);
+                    peripherals.systick.delay(1_000);
                     cortex_m::asm::wfe();
                 }
             }

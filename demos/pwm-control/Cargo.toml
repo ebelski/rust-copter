@@ -8,7 +8,7 @@ description = "Demonstrates PWM duty cycle control. Useful for testing PWM outpu
 [dependencies]
 panic-halt = "0.2.0"
 cortex-m = "0.6.2"
-embedded-hal = "0.2.3"
+embedded-hal = "0.2.4"
 log = "0.4.8"
 
 [dependencies.teensy4-bsp]

@@ -5,3 +5,7 @@ members = [
     "libs/esc",
     "libs/esc-imxrt1062",
 ]
+
+[patch.crates-io.cortex-m-rt]
+git = "https://github.com/mciantyre/teensy4-rs"
+branch = "master"
