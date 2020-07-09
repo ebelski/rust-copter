@@ -16,14 +16,6 @@ use teensy4_bsp as bsp;
 
 const SPI_BAUD_RATE_HZ: u32 = 1_000_000;
 
-pub struct SystickDelay;
-
-impl embedded_hal::blocking::delay::DelayMs<u8> for SystickDelay {
-    fn delay_ms(&mut self, ms: u8) {
-        bsp::delay(ms as _);
-    }
-}
-
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
@@ -35,7 +27,7 @@ fn main() -> ! {
         &mut peripherals.dcdc,
     );
 
-    bsp::delay(5000);
+    peripherals.systick.delay(5000);
     log::info!("Initializing SPI4 clocks...");
 
     let (_, _, _, spi4_builder) = peripherals.spi.clock(
@@ -69,9 +61,9 @@ fn main() -> ! {
 
     spi4.enable_chip_select_0(peripherals.pins.p10.alt3());
     log::info!("Waiting a few seconds before querying MPU9250...");
-    bsp::delay(4000);
+    peripherals.systick.delay(4000);
 
-    let mut sensor = match invensense_mpu::spi::SPI::new(spi4, &mut SystickDelay) {
+    let mut sensor = match invensense_mpu::spi::SPI::new(spi4, &mut peripherals.systick) {
         Ok(sensor) => sensor,
         Err(err) => {
             log::error!("Error when constructing MP9250: {:?}", err);
@@ -92,6 +84,6 @@ fn main() -> ! {
         log::info!("GYRO {:?}", sensor.gyroscope().unwrap());
         log::info!("MAG {:?}", sensor.magnetometer().unwrap());
 
-        bsp::delay(250);
+        peripherals.systick.delay(250);
     }
 }
