@@ -28,12 +28,12 @@ impl<P> From<P> for Error<P> {
 trait Transport {
     type Error;
     fn mpu9250_read(&mut self, register: regs::mpu9250::Regs) -> Result<u8, Error<Self::Error>>;
-    fn mpu9250_write<B: Into<u8>>(
+    fn mpu9250_write<B: Copy + Into<u8>>(
         &mut self,
         register: regs::mpu9250::Regs,
         value: B,
     ) -> Result<(), Error<Self::Error>>;
-    fn mpu9250_modify<F: FnOnce(u8) -> Option<B>, B: Into<u8>>(
+    fn mpu9250_modify<F: FnOnce(u8) -> Option<B>, B: Copy + Into<u8>>(
         &mut self,
         register: regs::mpu9250::Regs,
         func: F,
@@ -46,7 +46,7 @@ trait Transport {
     }
 
     fn ak8963_read(&mut self, register: regs::ak8963::Regs) -> Result<u8, Error<Self::Error>>;
-    fn ak8963_write<B: Into<u8>>(
+    fn ak8963_write<B: Copy + Into<u8>>(
         &mut self,
         register: regs::ak8963::Regs,
         value: B,

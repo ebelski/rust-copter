@@ -5,6 +5,8 @@ use embedded_hal::{blocking::delay::DelayMs, blocking::spi::Transfer};
 use motion_sensor::{Accelerometer, Gyroscope, Magnetometer, Triplet};
 use mpu9250_regs as regs;
 
+use core::fmt::Debug;
+
 const fn read(address: regs::mpu9250::Regs) -> u16 {
     ((address as u16) | (1 << 7)) << 8
 }
@@ -16,31 +18,64 @@ const fn write(address: regs::mpu9250::Regs, value: u8) -> u16 {
 impl<S> Transport for SPI<S>
 where
     S: Transfer<u16>,
+    S::Error: Debug,
 {
     type Error = S::Error;
     fn mpu9250_read(&mut self, register: regs::mpu9250::Regs) -> Result<u8, Error<Self::Error>> {
         let mut buffer = [read(register)];
-        self.0.transfer(&mut buffer)?;
-        Ok((buffer[0] & 0xFF) as u8)
+        self.0
+            .transfer(&mut buffer)
+            .map(|buffer| {
+                let value = (buffer[0] & 0xFF) as u8;
+                log::trace!("READ {:?} => {:#04X}", register, value);
+                value
+            })
+            .map_err(|err| {
+                log::error!("READ {:?}: {:?}", register, err);
+                err.into()
+            })
     }
-    fn mpu9250_write<B: Into<u8>>(
+    fn mpu9250_write<B: Copy + Into<u8>>(
         &mut self,
         register: regs::mpu9250::Regs,
         value: B,
     ) -> Result<(), Error<Self::Error>> {
-        let mut buffer = [write(register, value.into())];
-        self.0.transfer(&mut buffer)?;
-        Ok(())
+        let value = value.into();
+        let mut buffer = [write(register, value)];
+        self.0
+            .transfer(&mut buffer)
+            .map(|_| {
+                log::trace!("WRITE {:?} <= {:#04X}", register, value);
+            })
+            .map_err(|err| {
+                log::error!("WRITE {:?}: {:?}", register, err);
+                err.into()
+            })
     }
     fn ak8963_read(&mut self, register: regs::ak8963::Regs) -> Result<u8, Error<Self::Error>> {
         ak8963_read(&mut self.0, register)
+            .map(|value| {
+                log::trace!("READ {:?} => {:#04X}", register, value);
+                value
+            })
+            .map_err(|err| {
+                log::error!("READ {:?}: {:?}", register, err);
+                err.into()
+            })
     }
-    fn ak8963_write<B: Into<u8>>(
+    fn ak8963_write<B: Copy + Into<u8>>(
         &mut self,
         register: regs::ak8963::Regs,
         value: B,
     ) -> Result<(), Error<Self::Error>> {
         ak8963_write(&mut self.0, register, value.into())
+            .map(|_| {
+                log::trace!("WRITE {:?} <= {:#04X}", register, value.into());
+            })
+            .map_err(|err| {
+                log::error!("WRITE {:?}: {:?}", register, err);
+                err.into()
+            })
     }
 }
 
@@ -49,6 +84,7 @@ pub struct SPI<S>(S);
 impl<S> SPI<S>
 where
     S: Transfer<u16>,
+    S::Error: Debug,
 {
     pub fn new(spi: S, delay: &mut dyn DelayMs<u8>) -> Result<Self, Error<S::Error>> {
         use regs::ak8963::flags::{CNTL1, CNTL1_MODE, CNTL1_OUTPUT};
@@ -56,7 +92,7 @@ where
         use regs::ak8963::I2C_ADDRESS as AK8963_I2C_ADDRESS;
         use regs::mpu9250::flags::{
             ACCEL_CONFIG, ACCEL_FS_SEL, FCHOICE, GYRO_CONFIG, GYRO_FS_SEL, I2C_SLVX_CTRL,
-            PWR_MGMT_1, USER_CTRL,
+            I2C_SLVX_CTRL_FLAGS, PWR_MGMT_1, USER_CTRL,
         };
         use regs::mpu9250::Regs::*;
 
@@ -110,9 +146,6 @@ where
             delay.delay_ms(100);
         }
 
-        // 400KHz I2C clock
-        spi.mpu9250_write(I2C_MST_CTRL, 0x0D)?;
-
         // TODO get magnetomter biases, calibration values?
 
         // Power-down the magnetometer, then bring it back up for
@@ -125,18 +158,26 @@ where
             Regs::CNTL1,
             CNTL1 {
                 mode: CNTL1_MODE::CONTINUOUS_2,
-                output: CNTL1_OUTPUT::SIXTEEN_BIT_EN,
+                output: Default::default(),
             },
         )?;
+        delay.delay_ms(10);
+
+        // 400KHz I2C clock
+        spi.mpu9250_write(I2C_MST_CTRL, 0x0D)?;
         delay.delay_ms(10);
 
         // Configure magnetometer sampling
         spi.mpu9250_write(I2C_SLV0_ADDR, AK8963_I2C_ADDRESS | (1 << 7))?;
         spi.mpu9250_write(I2C_SLV0_REG, Regs::HXL as u8)?;
         // TODO figure out the grouping and byte swapping; the docs aren't clear...
-        let i2c_slv0_ctrl: I2C_SLVX_CTRL = I2C_SLVX_CTRL::EN;
-        const I2C_SLV0_LEN: u8 = 7;
-        spi.mpu9250_write(I2C_SLV0_CTRL, i2c_slv0_ctrl.bits() | I2C_SLV0_LEN)?;
+        spi.mpu9250_write(
+            I2C_SLV0_CTRL,
+            I2C_SLVX_CTRL {
+                flags: I2C_SLVX_CTRL_FLAGS::EN,
+                length: 7,
+            },
+        )?;
         delay.delay_ms(100);
 
         Ok(spi)

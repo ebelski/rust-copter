@@ -196,6 +196,7 @@ name = "invensense-mpu"
 version = "0.1.0"
 dependencies = [
  "embedded-hal",
+ "log",
  "motion-sensor",
  "mpu9250-regs",
 ]

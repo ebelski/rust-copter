@@ -19,7 +19,10 @@ const SPI_BAUD_RATE_HZ: u32 = 1_000_000;
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
-    peripherals.usb.init(Default::default());
+    peripherals.usb.init(bsp::usb::LoggingConfig {
+        filters: &[],
+        ..Default::default()
+    });
 
     peripherals.ccm.pll1.set_arm_clock(
         bsp::hal::ccm::PLL1::ARM_HZ,
@@ -78,6 +81,7 @@ fn main() -> ! {
         sensor.mpu9250_who_am_i().unwrap()
     );
     log::info!("AK8963 WHO_AM_I = {:#X}", sensor.ak8963_who_am_i().unwrap());
+    peripherals.systick.delay(5000);
     loop {
         core::sync::atomic::spin_loop_hint();
         log::info!("ACC {:?}", sensor.accelerometer().unwrap());

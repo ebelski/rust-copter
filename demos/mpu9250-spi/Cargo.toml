@@ -12,7 +12,7 @@ invensense-mpu = { path = "../../libs/invensense-mpu" }
 
 [dependencies.log]
 version = "0.4.8"
-features = ["release_max_level_info"]
+features = ["release_max_level_trace"]
 
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"

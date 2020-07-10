@@ -504,7 +504,7 @@ pub mod flags {
         /// I2C slave 0 through 3 control flags
         ///
         /// Note that there is a separate control flag group for I2C4 slave.
-        pub struct I2C_SLVX_CTRL: u8 {
+        pub struct I2C_SLVX_CTRL_FLAGS: u8 {
             /// Enable reading data from this slave at the sample rate
             /// and storing data at the first available EXT_SENS_DATA
             /// register
@@ -530,6 +530,18 @@ pub mod flags {
             /// the group). This allows byte swapping of registers that are grouped
             /// starting at any address.
             const GRP      = 1 << 4;
+        }
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct I2C_SLVX_CTRL {
+        pub flags: I2C_SLVX_CTRL_FLAGS,
+        pub length: u8,
+    }
+
+    impl From<I2C_SLVX_CTRL> for u8 {
+        fn from(ctrl: I2C_SLVX_CTRL) -> u8 {
+            ctrl.flags.bits() | ctrl.length
         }
     }
 
