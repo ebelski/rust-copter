@@ -59,7 +59,7 @@ where
             })
             .map_err(|err| {
                 log::error!("READ {:?}: {:?}", register, err);
-                err.into()
+                err
             })
     }
     fn ak8963_write<B: Copy + Into<u8>>(
@@ -73,7 +73,7 @@ where
             })
             .map_err(|err| {
                 log::error!("WRITE {:?}: {:?}", register, err);
-                err.into()
+                err
             })
     }
 }
