@@ -187,13 +187,12 @@ where
     Ok(MPU::new(spi, &config, &sensitivity))
 }
 
-impl<S> Accelerometer for MPU<SPI<S>>
+impl<S> Accelerometer<f64> for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = f64;
     type Error = Error<S::Error>;
-    fn accelerometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
+    fn accelerometer(&mut self) -> Result<Triplet<f64>, Self::Error> {
         const COMMANDS: [u16; 6] = [
             read(MPU9250::ACCEL_XOUT_H),
             read(MPU9250::ACCEL_XOUT_L),
@@ -212,13 +211,12 @@ where
     }
 }
 
-impl<S> Gyroscope for MPU<SPI<S>>
+impl<S> Gyroscope<f64> for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = f64;
     type Error = Error<S::Error>;
-    fn gyroscope(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
+    fn gyroscope(&mut self) -> Result<Triplet<f64>, Self::Error> {
         const COMMANDS: [u16; 6] = [
             read(MPU9250::GYRO_XOUT_H),
             read(MPU9250::GYRO_XOUT_L),
@@ -237,13 +235,12 @@ where
     }
 }
 
-impl<S> Magnetometer for MPU<SPI<S>>
+impl<S> Magnetometer<f64> for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = f64;
     type Error = Error<S::Error>;
-    fn magnetometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
+    fn magnetometer(&mut self) -> Result<Triplet<f64>, Self::Error> {
         const COMMANDS: [u16; 6] = [
             read(MPU9250::EXT_SENS_DATA_00),
             read(MPU9250::EXT_SENS_DATA_01),

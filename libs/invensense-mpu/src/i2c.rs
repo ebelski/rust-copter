@@ -7,9 +7,7 @@
 use crate::{regs::*, Config, Error, Handle, Transport, MPU};
 use core::convert::TryInto;
 use embedded_hal::blocking::{delay::DelayMs, i2c};
-use motion_sensor::{
-    Accelerometer, DOF6Readings, Gyroscope, MARGReadings, Magnetometer, Triplet, DOF6, MARG,
-};
+use motion_sensor::{Accelerometer, Gyroscope, Magnetometer, Triplet, DOF6, MARG};
 
 /// Bypass I2C mode
 ///
@@ -136,14 +134,13 @@ where
     }
 }
 
-impl<I> Accelerometer for MPU<Bypass<I>>
+impl<I> Accelerometer<f64> for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
-    type Value = f64;
     type Error = I::Error;
 
-    fn accelerometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
+    fn accelerometer(&mut self) -> Result<Triplet<f64>, Self::Error> {
         let mut buffer = [0; 6];
         self.transport.0.write_read(
             MPU9250_I2C_ADDRESS,
@@ -158,14 +155,13 @@ where
     }
 }
 
-impl<I> Gyroscope for MPU<Bypass<I>>
+impl<I> Gyroscope<f64> for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
-    type Value = f64;
     type Error = I::Error;
 
-    fn gyroscope(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
+    fn gyroscope(&mut self) -> Result<Triplet<f64>, Self::Error> {
         let mut buffer = [0; 6];
         self.transport.0.write_read(
             MPU9250_I2C_ADDRESS,
@@ -180,14 +176,13 @@ where
     }
 }
 
-impl<I> Magnetometer for MPU<Bypass<I>>
+impl<I> Magnetometer<f64> for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
-    type Value = f64;
     type Error = I::Error;
 
-    fn magnetometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
+    fn magnetometer(&mut self) -> Result<Triplet<f64>, Self::Error> {
         // Need to read 7 bytes here
         //
         // We need to touch ST2 in order to reset the magnetomter readings.
@@ -203,13 +198,13 @@ where
     }
 }
 
-impl<I> DOF6 for MPU<Bypass<I>>
+impl<I> DOF6<f64, f64> for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
     fn dof6(
         &mut self,
-    ) -> Result<DOF6Readings<<Self as Accelerometer>::Value>, <Self as Accelerometer>::Error> {
+    ) -> Result<(Triplet<f64>, Triplet<f64>), <Self as Accelerometer<f64>>::Error> {
         // Read through the temperature values to acquire the 6DOF readings in one I2C transaction
         let mut buffer = [0; 14];
         self.transport.0.write_read(
@@ -217,30 +212,31 @@ where
             &[MPU9250::ACCEL_XOUT_H as u8],
             &mut buffer,
         )?;
-        Ok(DOF6Readings {
-            accel: self.scale_acc(Triplet {
+        Ok((
+            self.scale_acc(Triplet {
                 x: i16::from_be_bytes(buffer[0..2].try_into().unwrap()),
                 y: i16::from_be_bytes(buffer[2..4].try_into().unwrap()),
                 z: i16::from_be_bytes(buffer[4..6].try_into().unwrap()),
             }), // buffer[6..8] is temperature...
-            gyro: self.scale_gyro(Triplet {
+            self.scale_gyro(Triplet {
                 x: i16::from_be_bytes(buffer[8..10].try_into().unwrap()),
                 y: i16::from_be_bytes(buffer[10..12].try_into().unwrap()),
                 z: i16::from_be_bytes(buffer[12..14].try_into().unwrap()),
             }),
-        })
+        ))
     }
 }
 
-impl<I> MARG for MPU<Bypass<I>>
+impl<I> MARG<f64, f64, f64> for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
     fn marg(
         &mut self,
-    ) -> Result<MARGReadings<<Self as Accelerometer>::Value>, <Self as Accelerometer>::Error> {
-        let DOF6Readings { accel, gyro } = self.dof6()?;
+    ) -> Result<(Triplet<f64>, Triplet<f64>, Triplet<f64>), <Self as Accelerometer<f64>>::Error>
+    {
+        let (acc, gyro) = self.dof6()?;
         let mag = self.magnetometer()?;
-        Ok(MARGReadings { accel, gyro, mag })
+        Ok((acc, gyro, mag))
     }
 }

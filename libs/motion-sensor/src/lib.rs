@@ -5,61 +5,63 @@
 mod triplet;
 pub use triplet::Triplet;
 
-pub trait Accelerometer {
+/// An accelerometer reading
+pub type Acc<V> = Triplet<V>;
+
+/// An accelerometer
+pub trait Accelerometer<V> {
     type Error;
-    type Value;
-    fn accelerometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error>;
+    /// Query the accelerometer values
+    fn accelerometer(&mut self) -> Result<Acc<V>, Self::Error>;
 }
 
-pub trait Gyroscope {
+/// A gyroscope reading
+pub type Gyro<V> = Triplet<V>;
+
+/// A gyroscope
+pub trait Gyroscope<V> {
     type Error;
-    type Value;
-    fn gyroscope(&mut self) -> Result<Triplet<Self::Value>, Self::Error>;
+    /// Query the gyroscope values
+    fn gyroscope(&mut self) -> Result<Gyro<V>, Self::Error>;
 }
 
-pub trait Magnetometer {
+/// A magnetometer reading
+pub type Mag<V> = Triplet<V>;
+
+/// A magnetometer
+pub trait Magnetometer<V> {
     type Error;
-    type Value;
-    fn magnetometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error>;
+    /// Query the magnetometer values
+    fn magnetometer(&mut self) -> Result<Mag<V>, Self::Error>;
 }
 
-pub struct DOF6Readings<T> {
-    pub accel: Triplet<T>,
-    pub gyro: Triplet<T>,
-}
-
-pub trait DOF6:
-    Accelerometer
-    + Gyroscope<Value = <Self as Accelerometer>::Value, Error = <Self as Accelerometer>::Error>
+/// A combination of an accelerometer and a gyroscope
+///
+/// The default implementation simply queries the accelerometer, then queries the
+/// gyroscope. Implementations that can perform a more efficient query should do
+/// so.
+pub trait DOF6<A, G>:
+    Accelerometer<A> + Gyroscope<G, Error = <Self as Accelerometer<A>>::Error>
 {
-    fn dof6(
-        &mut self,
-    ) -> Result<DOF6Readings<<Self as Accelerometer>::Value>, <Self as Accelerometer>::Error> {
-        Ok(DOF6Readings {
-            accel: self.accelerometer()?,
-            gyro: self.gyroscope()?,
-        })
+    fn dof6(&mut self) -> Result<(Acc<A>, Gyro<G>), <Self as Accelerometer<A>>::Error> {
+        Ok((self.accelerometer()?, self.gyroscope()?))
     }
 }
 
-pub struct MARGReadings<T> {
-    pub accel: Triplet<T>,
-    pub gyro: Triplet<T>,
-    pub mag: Triplet<T>,
-}
-
-pub trait MARG:
-    Accelerometer
-    + Gyroscope<Value = <Self as Accelerometer>::Value, Error = <Self as Accelerometer>::Error>
-    + Magnetometer<Value = <Self as Accelerometer>::Value, Error = <Self as Accelerometer>::Error>
+/// All three of a accelerometer, magnetometer, and gyroscope
+///
+/// The default implementation queries for all three readings separately.
+/// Consider providing a querying optimization if you're able to do so.
+pub trait MARG<A, G, M>:
+    Accelerometer<A>
+    + Gyroscope<G, Error = <Self as Accelerometer<A>>::Error>
+    + Magnetometer<M, Error = <Self as Accelerometer<A>>::Error>
 {
-    fn marg(
-        &mut self,
-    ) -> Result<MARGReadings<<Self as Accelerometer>::Value>, <Self as Accelerometer>::Error> {
-        Ok(MARGReadings {
-            accel: self.accelerometer()?,
-            gyro: self.gyroscope()?,
-            mag: self.magnetometer()?,
-        })
+    fn marg(&mut self) -> Result<(Acc<A>, Gyro<G>, Mag<M>), <Self as Accelerometer<A>>::Error> {
+        Ok((
+            self.accelerometer()?,
+            self.gyroscope()?,
+            self.magnetometer()?,
+        ))
     }
 }
