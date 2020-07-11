@@ -121,6 +121,21 @@ pub fn release<I>(mpu: MPU<Bypass<I>>) -> (I, Handle) {
     (mpu.transport.0, mpu.handle)
 }
 
+/// Reconstruct an MPU from an I2C peripheral and its handle
+///
+/// You're responsible for making sure that the handle matches to
+/// the I2C peripheral it was originally associated with. Otherwise,
+/// we associated the wrong state with a physical MPU.
+pub fn from_handle<I>(i2c: I, handle: Handle) -> MPU<Bypass<I>>
+where
+    I: i2c::WriteRead + i2c::Write,
+{
+    MPU {
+        transport: Bypass(i2c),
+        handle,
+    }
+}
+
 impl<I> Accelerometer for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
@@ -175,7 +190,7 @@ where
     fn magnetometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
         // Need to read 7 bytes here
         //
-        // We need to touch ST1 in order to reset the magnetomter readings.
+        // We need to touch ST2 in order to reset the magnetomter readings.
         let mut buffer = [0; 7];
         self.transport
             .0

@@ -41,6 +41,10 @@ impl<P> From<P> for Error<P> {
 /// Holds controller-side state of the MPU9250
 pub struct Handle {}
 
+/// An Invensense MPU
+///
+/// The `MPU` struct can be used to query readings from a physical
+/// MPU.
 pub struct MPU<T> {
     transport: T,
     handle: Handle,
