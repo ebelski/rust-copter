@@ -66,7 +66,7 @@ fn main() -> ! {
     log::info!("Waiting a few seconds before querying MPU9250...");
     peripherals.systick.delay(4000);
 
-    let mut sensor = match invensense_mpu::spi::SPI::new(spi4, &mut peripherals.systick) {
+    let mut sensor = match invensense_mpu::spi::new(spi4, &mut peripherals.systick) {
         Ok(sensor) => sensor,
         Err(err) => {
             log::error!("Error when constructing MP9250: {:?}", err);

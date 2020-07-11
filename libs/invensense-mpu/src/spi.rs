@@ -1,6 +1,6 @@
 //! SPI interface for an MPU9250
 
-use crate::{Error, Transport};
+use crate::{Error, Handle, Transport, MPU};
 use embedded_hal::{blocking::delay::DelayMs, blocking::spi::Transfer};
 use motion_sensor::{Accelerometer, Gyroscope, Magnetometer, Triplet};
 use mpu9250_regs as regs;
@@ -79,31 +79,97 @@ where
     }
 }
 
+/// SPI communication transport for the MPU9250
 pub struct SPI<S>(S);
 
-impl<S> SPI<S>
+/// Release a SPI-based MPU, returning the device handle
+/// and the SPI peripheral
+pub fn release<S>(mpu: MPU<SPI<S>>) -> (S, Handle) {
+    (mpu.transport.0, mpu.handle)
+}
+
+/// Re-create the MPU from a SPI peripheral and an MPU `Handle`
+///
+/// Caller is reponsible for matching the peripheral to the handle.
+/// Otherwise, we might be using the wrong handle for a different
+/// physical MPU.
+pub fn from_handle<S>(spi: S, handle: Handle) -> MPU<SPI<S>>
+where
+    S: Transfer<u16>,
+{
+    MPU {
+        transport: SPI(spi),
+        handle,
+    }
+}
+
+/// Create a new SPI-based MPU
+pub fn new<S>(spi: S, delay: &mut dyn DelayMs<u8>) -> Result<MPU<SPI<S>>, Error<S::Error>>
 where
     S: Transfer<u16>,
     S::Error: Debug,
 {
-    pub fn new(spi: S, delay: &mut dyn DelayMs<u8>) -> Result<Self, Error<S::Error>> {
-        let mut spi = SPI(spi);
-        crate::begin(&mut spi, delay)?;
-        Ok(spi)
+    use crate::regs::{
+        ak8963::flags::*, ak8963::Regs as AK8963, mpu9250::flags::*, mpu9250::Regs as MPU9250,
+    };
+
+    let mut spi = SPI(spi);
+
+    // Enable the I2C interface, just so we can power-down the AK8963...
+    spi.mpu9250_write(MPU9250::USER_CTRL, USER_CTRL::I2C_MST_EN.bits())?;
+    spi.mpu9250_write(
+        MPU9250::I2C_MST_CTRL,
+        I2C_MST_CTRL::clock(I2C_MST_CLK::KHz400),
+    )?;
+
+    // Bring down both the AK8963 and the MPU9250
+    spi.ak8963_write(AK8963::CNTL1, CNTL1::power_down())?;
+    spi.mpu9250_write(MPU9250::PWR_MGMT_1, PWR_MGMT_1::reset())?;
+    delay.delay_ms(10);
+
+    // Re-enable the I2C interface.
+    // Disable the I2C slave interface here, so that it doesn't think
+    // we're talking to it as an I2C device.
+    spi.mpu9250_write(
+        MPU9250::USER_CTRL,
+        (USER_CTRL::I2C_MST_EN | USER_CTRL::I2C_IF_DIS).bits(),
+    )?;
+    spi.mpu9250_write(
+        MPU9250::I2C_MST_CTRL,
+        I2C_MST_CTRL::clock(I2C_MST_CLK::KHz400),
+    )?;
+
+    // Soft-reset the AK8963
+    spi.ak8963_write(AK8963::CNTL2, CNTL2::SRST.bits())?;
+
+    // Set the gyro clock source
+    spi.mpu9250_write(
+        MPU9250::PWR_MGMT_1,
+        PWR_MGMT_1::clock_select(PWR_MGMT_1_CLKSEL::AutoSelect),
+    )?;
+
+    // Sanity-check the WHO_AM_I values for both devices. By this point, we should be able
+    // to address them.
+    let who_am_i = spi.mpu9250_read(MPU9250::WHO_AM_I)?;
+    if !crate::regs::mpu9250::VALID_WHO_AM_I.contains(&who_am_i) {
+        return Err(Error::WhoAmI {
+            expected: crate::regs::mpu9250::VALID_WHO_AM_I,
+            actual: who_am_i,
+        });
     }
 
-    /// Query the MPU9250's `WHO_AM_I` register
-    pub fn mpu9250_who_am_i(&mut self) -> Result<u8, Error<S::Error>> {
-        self.mpu9250_read(regs::mpu9250::Regs::WHO_AM_I)
+    let who_am_i = spi.ak8963_read(AK8963::WIA)?;
+    if !crate::regs::ak8963::VALID_WHO_AM_I.contains(&who_am_i) {
+        return Err(Error::WhoAmI {
+            expected: crate::regs::ak8963::VALID_WHO_AM_I,
+            actual: who_am_i,
+        });
     }
 
-    /// Query the AK8963's `WHO_AM_I` register
-    pub fn ak8963_who_am_i(&mut self) -> Result<u8, Error<S::Error>> {
-        self.ak8963_read(regs::ak8963::Regs::WIA)
-    }
+    Ok(MPU::new(spi))
 }
 
-impl<S> Accelerometer for SPI<S>
+impl<S> Accelerometer for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
@@ -119,7 +185,7 @@ where
             read(regs::mpu9250::Regs::ACCEL_ZOUT_L),
         ];
         let mut buffer = COMMANDS;
-        self.0.transfer(&mut buffer)?;
+        self.transport.0.transfer(&mut buffer)?;
         Ok(Triplet {
             x: (buffer[0] << 8) | (buffer[1] & 0xFF),
             y: (buffer[2] << 8) | (buffer[3] & 0xFF),
@@ -128,7 +194,7 @@ where
     }
 }
 
-impl<S> Gyroscope for SPI<S>
+impl<S> Gyroscope for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
@@ -144,7 +210,7 @@ where
             read(regs::mpu9250::Regs::GYRO_ZOUT_L),
         ];
         let mut buffer = COMMANDS;
-        self.0.transfer(&mut buffer)?;
+        self.transport.0.transfer(&mut buffer)?;
         Ok(Triplet {
             x: (buffer[0] << 8) | (buffer[1] & 0xFF),
             y: (buffer[2] << 8) | (buffer[3] & 0xFF),
@@ -153,7 +219,7 @@ where
     }
 }
 
-impl<S> Magnetometer for SPI<S>
+impl<S> Magnetometer for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
@@ -169,7 +235,7 @@ where
             read(regs::mpu9250::Regs::EXT_SENS_DATA_05),
         ];
         let mut buffer = COMMANDS;
-        self.0.transfer(&mut buffer)?;
+        self.transport.0.transfer(&mut buffer)?;
         Ok(Triplet {
             x: (buffer[1] << 8) | (buffer[0] & 0xFF),
             y: (buffer[3] << 8) | (buffer[2] & 0xFF),
