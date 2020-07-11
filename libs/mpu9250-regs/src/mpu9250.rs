@@ -197,7 +197,7 @@ pub mod flags {
     /// The variants are used for gyroscope and accelerometer.
     /// The properties of each selection are qualified in the
     /// docs.
-    #[derive(Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     #[repr(u8)]
     pub enum DLPF {
         /// Accelerometer: bandwitdh=218.Hz, delay=1.88ms;
@@ -232,6 +232,12 @@ pub mod flags {
         /// Gyroscope: bandwidth=3600Hz, delay=0.17ms, Fs=8kHz;
         /// Temperature sensor: bandwidth=4000Hz, delay=0.04ms.
         _7,
+    }
+
+    impl From<DLPF> for u8 {
+        fn from(dlpf: DLPF) -> u8 {
+            dlpf as u8
+        }
     }
 
     impl Default for DLPF {
@@ -290,7 +296,7 @@ pub mod flags {
         }
     }
 
-    #[derive(Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     #[repr(u8)]
     pub enum GYRO_FS_SEL {
         DPS250 = 0,
@@ -319,7 +325,7 @@ pub mod flags {
         }
     }
 
-    #[derive(Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     #[repr(u8)]
     pub enum FCHOICE {
         /// Gyro bandwidth: 8800 Hz, delay: 0.064 ms, Fs: 32 kHz
@@ -381,7 +387,7 @@ pub mod flags {
         }
     }
 
-    #[derive(Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     #[repr(u8)]
     pub enum ACCEL_FS_SEL {
         G2 = 0,
@@ -428,6 +434,27 @@ pub mod flags {
                 self_test: ACCEL_SELF_TEST::from_bits_truncate(byte),
                 full_scale: ACCEL_FS_SEL::from(byte),
             }
+        }
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ACCEL_CONFIG_2 {
+        FCHOICE,
+        DLPF(DLPF),
+    }
+
+    impl From<ACCEL_CONFIG_2> for u8 {
+        fn from(config: ACCEL_CONFIG_2) -> u8 {
+            match config {
+                ACCEL_CONFIG_2::DLPF(dlpf) => u8::from(dlpf),
+                ACCEL_CONFIG_2::FCHOICE => 1u8 << 3,
+            }
+        }
+    }
+
+    impl Default for ACCEL_CONFIG_2 {
+        fn default() -> Self {
+            ACCEL_CONFIG_2::DLPF(DLPF::default())
         }
     }
 

@@ -66,7 +66,13 @@ fn main() -> ! {
     log::info!("Waiting a few seconds before querying MPU9250...");
     peripherals.systick.delay(4000);
 
-    let mut sensor = match invensense_mpu::spi::new(spi4, &mut peripherals.systick) {
+    let mut config = invensense_mpu::Config::default();
+    config.accel_scale = invensense_mpu::regs::ACCEL_FS_SEL::G8;
+    config.mag_scale = invensense_mpu::regs::CNTL1 {
+        mode: invensense_mpu::regs::CNTL1_MODE::CONTINUOUS_2,
+        ..Default::default()
+    };
+    let mut sensor = match invensense_mpu::spi::new(spi4, &mut peripherals.systick, &config) {
         Ok(sensor) => sensor,
         Err(err) => {
             log::error!("Error when constructing MP9250: {:?}", err);

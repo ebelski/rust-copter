@@ -90,7 +90,14 @@ fn main() -> ! {
     // I2C.
     log::info!("Creating MPU9250...");
     peripherals.systick.delay(5000);
-    let mut sensor = match invensense_mpu::i2c::new(i2c3, &mut peripherals.systick) {
+
+    let mut config = invensense_mpu::Config::default();
+    config.accel_scale = invensense_mpu::regs::ACCEL_FS_SEL::G8;
+    config.mag_scale = invensense_mpu::regs::CNTL1 {
+        mode: invensense_mpu::regs::CNTL1_MODE::CONTINUOUS_2,
+        ..Default::default()
+    };
+    let mut sensor = match invensense_mpu::i2c::new(i2c3, &mut peripherals.systick, &config) {
         // Damn, something went wrong when connecting to the MPU!
         Err(err) => {
             log::error!("Unable to create MPU9250: {:?}", err);

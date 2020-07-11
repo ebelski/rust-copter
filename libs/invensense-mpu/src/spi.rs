@@ -1,6 +1,6 @@
 //! SPI interface for an MPU9250
 
-use crate::{regs::*, Error, Handle, Transport, MPU};
+use crate::{regs::*, Config, Error, Handle, Transport, MPU};
 use embedded_hal::{blocking::delay::DelayMs, blocking::spi::Transfer};
 use motion_sensor::{Accelerometer, Gyroscope, Magnetometer, Triplet};
 
@@ -103,7 +103,11 @@ where
 }
 
 /// Create a new SPI-based MPU
-pub fn new<S>(spi: S, delay: &mut dyn DelayMs<u8>) -> Result<MPU<SPI<S>>, Error<S::Error>>
+pub fn new<S>(
+    spi: S,
+    delay: &mut dyn DelayMs<u8>,
+    config: &Config,
+) -> Result<MPU<SPI<S>>, Error<S::Error>>
 where
     S: Transfer<u16>,
     S::Error: Debug,
@@ -161,14 +165,10 @@ where
         });
     }
 
-    // Set the AK8963 to continuous sampling
-    spi.ak8963_write(
-        AK8963::CNTL1,
-        CNTL1 {
-            mode: CNTL1_MODE::CONTINUOUS_2,
-            ..Default::default()
-        },
-    )?;
+    let sensitivity = crate::mag_sensitivity(&mut spi, delay)?;
+
+    // Apply user configuration
+    config.apply(&mut spi)?;
 
     // Sample the AK8963 from the I2C_SLV0 controller
     //
@@ -184,14 +184,14 @@ where
         },
     )?;
 
-    Ok(MPU::new(spi))
+    Ok(MPU::new(spi, &config, &sensitivity))
 }
 
 impl<S> Accelerometer for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = i16;
+    type Value = f64;
     type Error = Error<S::Error>;
     fn accelerometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
         const COMMANDS: [u16; 6] = [
@@ -204,11 +204,11 @@ where
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
-        Ok(Triplet {
+        Ok(self.scale_acc(Triplet {
             x: ((buffer[0] << 8) | (buffer[1] & 0xFF)) as i16,
             y: ((buffer[2] << 8) | (buffer[3] & 0xFF)) as i16,
             z: ((buffer[4] << 8) | (buffer[5] & 0xFF)) as i16,
-        })
+        }))
     }
 }
 
@@ -216,7 +216,7 @@ impl<S> Gyroscope for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = i16;
+    type Value = f64;
     type Error = Error<S::Error>;
     fn gyroscope(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
         const COMMANDS: [u16; 6] = [
@@ -229,11 +229,11 @@ where
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
-        Ok(Triplet {
+        Ok(self.scale_gyro(Triplet {
             x: ((buffer[0] << 8) | (buffer[1] & 0xFF)) as i16,
             y: ((buffer[2] << 8) | (buffer[3] & 0xFF)) as i16,
             z: ((buffer[4] << 8) | (buffer[5] & 0xFF)) as i16,
-        })
+        }))
     }
 }
 
@@ -241,7 +241,7 @@ impl<S> Magnetometer for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = i16;
+    type Value = f64;
     type Error = Error<S::Error>;
     fn magnetometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
         const COMMANDS: [u16; 6] = [
@@ -254,11 +254,11 @@ where
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
-        Ok(Triplet {
+        Ok(self.scale_mag(Triplet {
             x: ((buffer[1] << 8) | (buffer[0] & 0xFF)) as i16,
             y: ((buffer[3] << 8) | (buffer[2] & 0xFF)) as i16,
             z: ((buffer[5] << 8) | (buffer[4] & 0xFF)) as i16,
-        })
+        }))
     }
 }
 

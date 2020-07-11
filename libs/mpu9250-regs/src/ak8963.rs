@@ -64,7 +64,7 @@ pub mod flags {
         }
     }
 
-    #[derive(Clone, Copy)]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
     #[repr(u8)]
     pub enum CNTL1_MODE {
         POWER_DOWN = 0b0000,
@@ -94,7 +94,7 @@ pub mod flags {
         }
     }
 
-    #[derive(Default, Clone, Copy)]
+    #[derive(Default, Clone, Copy, PartialEq, Eq, Debug)]
     pub struct CNTL1 {
         pub mode: CNTL1_MODE,
         pub output: CNTL1_OUTPUT,

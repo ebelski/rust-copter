@@ -4,7 +4,7 @@
 //! magnetometer with our I2C controller. User is responsible for setting an appropriate I2C
 //! clock speed.
 
-use crate::{regs::*, Error, Handle, Transport, MPU};
+use crate::{regs::*, Config, Error, Handle, Transport, MPU};
 use core::convert::TryInto;
 use embedded_hal::blocking::{delay::DelayMs, i2c};
 use motion_sensor::{
@@ -54,7 +54,11 @@ where
 }
 
 /// Create a new MPU that uses I2C bypass
-pub fn new<I, E>(i2c: I, delay: &mut dyn DelayMs<u8>) -> Result<MPU<Bypass<I>>, Error<E>>
+pub fn new<I, E>(
+    i2c: I,
+    delay: &mut dyn DelayMs<u8>,
+    config: &Config,
+) -> Result<MPU<Bypass<I>>, Error<E>>
 where
     I: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
@@ -103,16 +107,12 @@ where
         });
     }
 
-    // Set the AK8963 to continuous sampling
-    i2c.ak8963_write(
-        AK8963::CNTL1,
-        CNTL1 {
-            mode: CNTL1_MODE::CONTINUOUS_2,
-            ..Default::default()
-        },
-    )?;
+    let sensitivity = crate::mag_sensitivity(&mut i2c, delay)?;
 
-    Ok(MPU::new(i2c))
+    // Apply user configuration
+    config.apply(&mut i2c)?;
+
+    Ok(MPU::new(i2c, &config, &sensitivity))
 }
 
 /// Release the I2C driver along with the driver handler for re-creating the
@@ -140,7 +140,7 @@ impl<I> Accelerometer for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
-    type Value = i16;
+    type Value = f64;
     type Error = I::Error;
 
     fn accelerometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
@@ -150,11 +150,11 @@ where
             &[MPU9250::ACCEL_XOUT_H as u8],
             &mut buffer,
         )?;
-        Ok(Triplet {
+        Ok(self.scale_acc(Triplet {
             x: i16::from_be_bytes(buffer[0..2].try_into().unwrap()),
             y: i16::from_be_bytes(buffer[2..4].try_into().unwrap()),
             z: i16::from_be_bytes(buffer[4..6].try_into().unwrap()),
-        })
+        }))
     }
 }
 
@@ -162,7 +162,7 @@ impl<I> Gyroscope for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
-    type Value = i16;
+    type Value = f64;
     type Error = I::Error;
 
     fn gyroscope(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
@@ -172,11 +172,11 @@ where
             &[MPU9250::GYRO_XOUT_H as u8],
             &mut buffer,
         )?;
-        Ok(Triplet {
+        Ok(self.scale_gyro(Triplet {
             x: i16::from_be_bytes(buffer[0..2].try_into().unwrap()),
             y: i16::from_be_bytes(buffer[2..4].try_into().unwrap()),
             z: i16::from_be_bytes(buffer[4..6].try_into().unwrap()),
-        })
+        }))
     }
 }
 
@@ -184,7 +184,7 @@ impl<I> Magnetometer for MPU<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
-    type Value = i16;
+    type Value = f64;
     type Error = I::Error;
 
     fn magnetometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
@@ -195,11 +195,11 @@ where
         self.transport
             .0
             .write_read(AK8963_I2C_ADDRESS, &[AK8963::HXL as u8], &mut buffer)?;
-        Ok(Triplet {
+        Ok(self.scale_mag(Triplet {
             x: i16::from_le_bytes(buffer[0..2].try_into().unwrap()),
             y: i16::from_le_bytes(buffer[2..4].try_into().unwrap()),
             z: i16::from_le_bytes(buffer[4..6].try_into().unwrap()),
-        })
+        }))
     }
 }
 
@@ -218,16 +218,16 @@ where
             &mut buffer,
         )?;
         Ok(DOF6Readings {
-            accel: Triplet {
+            accel: self.scale_acc(Triplet {
                 x: i16::from_be_bytes(buffer[0..2].try_into().unwrap()),
                 y: i16::from_be_bytes(buffer[2..4].try_into().unwrap()),
                 z: i16::from_be_bytes(buffer[4..6].try_into().unwrap()),
-            }, // buffer[6..8] is temperature...
-            gyro: Triplet {
+            }), // buffer[6..8] is temperature...
+            gyro: self.scale_gyro(Triplet {
                 x: i16::from_be_bytes(buffer[8..10].try_into().unwrap()),
                 y: i16::from_be_bytes(buffer[10..12].try_into().unwrap()),
                 z: i16::from_be_bytes(buffer[12..14].try_into().unwrap()),
-            },
+            }),
         })
     }
 }
