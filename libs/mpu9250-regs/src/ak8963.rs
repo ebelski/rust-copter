@@ -10,6 +10,9 @@
 /// I2C pass-through mode.
 pub const I2C_ADDRESS: u8 = 0x0C;
 
+/// Possible responses for `WHO_AM_I`
+pub static VALID_WHO_AM_I: &[u8] = &[0x48];
+
 /// AK8963 register addresses
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -95,6 +98,12 @@ pub mod flags {
     pub struct CNTL1 {
         pub mode: CNTL1_MODE,
         pub output: CNTL1_OUTPUT,
+    }
+
+    impl CNTL1 {
+        pub fn power_down() -> Self {
+            CNTL1::default()
+        }
     }
 
     impl From<CNTL1> for u8 {

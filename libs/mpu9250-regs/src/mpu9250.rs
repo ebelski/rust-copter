@@ -7,6 +7,9 @@
 /// The MPU9250's I2C address
 pub const I2C_ADDRESS: u8 = 0x68;
 
+/// Possible responses for `WHO_AM_I`
+pub static VALID_WHO_AM_I: &[u8] = &[0x71, 0x73];
+
 /// MPU9250 register addresses
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -444,7 +447,7 @@ pub mod flags {
     }
 
     bitflags! {
-        pub struct I2C_MST_CTRL: u8 {
+        pub struct I2C_MST_FLAGS: u8 {
             /// Enables multi-master capability. When disabled, clocking to the I2C_MST_IF
             /// can be disabled when not in use and the logic to detect lost arbitration is
             /// disabled.
@@ -462,6 +465,34 @@ pub mod flags {
             /// slave read. If 0, there is a restart between reads. If 1, there is a stop between
             /// reads.
             const I2C_MST_P_NSR = 1 << 4;
+        }
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    #[repr(u8)]
+    #[non_exhaustive]
+    pub enum I2C_MST_CLK {
+        KHz400 = 13,
+    }
+
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub struct I2C_MST_CTRL {
+        pub flags: I2C_MST_FLAGS,
+        pub clk: I2C_MST_CLK,
+    }
+
+    impl From<I2C_MST_CTRL> for u8 {
+        fn from(ctrl: I2C_MST_CTRL) -> u8 {
+            ctrl.flags.bits() | ctrl.clk as u8
+        }
+    }
+
+    impl I2C_MST_CTRL {
+        pub fn clock(clk: I2C_MST_CLK) -> Self {
+            I2C_MST_CTRL {
+                clk,
+                flags: I2C_MST_FLAGS::empty(),
+            }
         }
     }
 
@@ -707,7 +738,7 @@ pub mod flags {
     bitflags! {
         /// Power management
         #[derive(Default)]
-        pub struct PWR_MGMT_1: u8 {
+        pub struct PWR_MGMT_1_FLAGS: u8 {
             /// 1 – Reset the internal registers and restores the default settings. Write a 1 to
             /// set the reset, the bit will auto clear.
             const H_RESET       = 1 << 7;
@@ -728,6 +759,47 @@ pub mod flags {
             const GYRO_STANDBY  = 1 << 4;
             /// Power down internal PTAT voltage generator and PTAT ADC
             const PD_PTAT       = 1 << 3;
+        }
+    }
+
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    #[repr(u8)]
+    pub enum PWR_MGMT_1_CLKSEL {
+        /// Internal 20MHz oscillator
+        Internal20MHzOscillator = 0,
+        /// Auto selects the best available clock source – PLL if ready,
+        /// else use the Internal oscillator
+        AutoSelect = 1,
+        /// Stops the clock and keeps timing generator in reset
+        StopTheClock = 7,
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct PWR_MGMT_1 {
+        pub flags: PWR_MGMT_1_FLAGS,
+        pub clksel: PWR_MGMT_1_CLKSEL,
+    }
+
+    impl PWR_MGMT_1 {
+        pub fn reset() -> Self {
+            PWR_MGMT_1 {
+                flags: PWR_MGMT_1_FLAGS::H_RESET,
+                // Don't care
+                clksel: PWR_MGMT_1_CLKSEL::Internal20MHzOscillator,
+            }
+        }
+
+        pub fn clock_select(clksel: PWR_MGMT_1_CLKSEL) -> Self {
+            PWR_MGMT_1 {
+                flags: PWR_MGMT_1_FLAGS::empty(),
+                clksel,
+            }
+        }
+    }
+
+    impl From<PWR_MGMT_1> for u8 {
+        fn from(pwr: PWR_MGMT_1) -> u8 {
+            pwr.flags.bits() | pwr.clksel as u8
         }
     }
 
