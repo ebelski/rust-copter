@@ -1,17 +1,16 @@
 //! SPI interface for an MPU9250
 
-use crate::{Error, Handle, Transport, MPU};
+use crate::{Error, Handle, Transport, MPU, regs::*};
 use embedded_hal::{blocking::delay::DelayMs, blocking::spi::Transfer};
 use motion_sensor::{Accelerometer, Gyroscope, Magnetometer, Triplet};
-use mpu9250_regs as regs;
 
 use core::fmt::Debug;
 
-const fn read(address: regs::mpu9250::Regs) -> u16 {
+const fn read(address: MPU9250) -> u16 {
     ((address as u16) | (1 << 7)) << 8
 }
 
-const fn write(address: regs::mpu9250::Regs, value: u8) -> u16 {
+const fn write(address: MPU9250, value: u8) -> u16 {
     ((address as u16) << 8) | (value as u16)
 }
 
@@ -21,7 +20,7 @@ where
     S::Error: Debug,
 {
     type Error = S::Error;
-    fn mpu9250_read(&mut self, register: regs::mpu9250::Regs) -> Result<u8, Error<Self::Error>> {
+    fn mpu9250_read(&mut self, register: MPU9250) -> Result<u8, Error<Self::Error>> {
         let mut buffer = [read(register)];
         self.0
             .transfer(&mut buffer)
@@ -37,7 +36,7 @@ where
     }
     fn mpu9250_write<B: Copy + Into<u8>>(
         &mut self,
-        register: regs::mpu9250::Regs,
+        register: MPU9250,
         value: B,
     ) -> Result<(), Error<Self::Error>> {
         let value = value.into();
@@ -52,7 +51,7 @@ where
                 err.into()
             })
     }
-    fn ak8963_read(&mut self, register: regs::ak8963::Regs) -> Result<u8, Error<Self::Error>> {
+    fn ak8963_read(&mut self, register: AK8963) -> Result<u8, Error<Self::Error>> {
         ak8963_read(&mut self.0, register)
             .map(|value| {
                 log::trace!("READ {:?} => {:#04X}", register, value);
@@ -65,7 +64,7 @@ where
     }
     fn ak8963_write<B: Copy + Into<u8>>(
         &mut self,
-        register: regs::ak8963::Regs,
+        register: AK8963,
         value: B,
     ) -> Result<(), Error<Self::Error>> {
         ak8963_write(&mut self.0, register, value.into())
@@ -109,10 +108,6 @@ where
     S: Transfer<u16>,
     S::Error: Debug,
 {
-    use crate::regs::{
-        ak8963::flags::*, ak8963::Regs as AK8963, mpu9250::flags::*, mpu9250::Regs as MPU9250,
-    };
-
     let mut spi = SPI(spi);
 
     // Enable the I2C interface, just so we can power-down the AK8963...
@@ -151,20 +146,43 @@ where
     // Sanity-check the WHO_AM_I values for both devices. By this point, we should be able
     // to address them.
     let who_am_i = spi.mpu9250_read(MPU9250::WHO_AM_I)?;
-    if !crate::regs::mpu9250::VALID_WHO_AM_I.contains(&who_am_i) {
+    if !mpu9250_regs::mpu9250::VALID_WHO_AM_I.contains(&who_am_i) {
         return Err(Error::WhoAmI {
-            expected: crate::regs::mpu9250::VALID_WHO_AM_I,
+            expected: mpu9250_regs::mpu9250::VALID_WHO_AM_I,
             actual: who_am_i,
         });
     }
 
     let who_am_i = spi.ak8963_read(AK8963::WIA)?;
-    if !crate::regs::ak8963::VALID_WHO_AM_I.contains(&who_am_i) {
+    if !mpu9250_regs::ak8963::VALID_WHO_AM_I.contains(&who_am_i) {
         return Err(Error::WhoAmI {
-            expected: crate::regs::ak8963::VALID_WHO_AM_I,
+            expected: mpu9250_regs::ak8963::VALID_WHO_AM_I,
             actual: who_am_i,
         });
     }
+
+    // Set the AK8963 to continuous sampling
+    spi.ak8963_write(
+        AK8963::CNTL1,
+        CNTL1 {
+            mode: CNTL1_MODE::CONTINUOUS_2,
+            ..Default::default()
+        },
+    )?;
+
+    // Sample the AK8963 from the I2C_SLV0 controller
+    //
+    // After this runs, we'll need to disable the I2C_SLV0 polling to achieve
+    // any configuration of the magnetometer.
+    spi.mpu9250_write(MPU9250::I2C_SLV0_ADDR, AK8963_I2C_ADDRESS | (1 << 7))?;
+    spi.mpu9250_write(MPU9250::I2C_SLV0_REG, AK8963::HXL as u8)?;
+    spi.mpu9250_write(
+        MPU9250::I2C_SLV0_CTRL,
+        I2C_SLVX_CTRL {
+            flags: I2C_SLVX_FLAGS::EN,
+            length: 7,
+        },
+    )?;
 
     Ok(MPU::new(spi))
 }
@@ -173,23 +191,23 @@ impl<S> Accelerometer for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = u16;
+    type Value = i16;
     type Error = Error<S::Error>;
     fn accelerometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
         const COMMANDS: [u16; 6] = [
-            read(regs::mpu9250::Regs::ACCEL_XOUT_H),
-            read(regs::mpu9250::Regs::ACCEL_XOUT_L),
-            read(regs::mpu9250::Regs::ACCEL_YOUT_H),
-            read(regs::mpu9250::Regs::ACCEL_YOUT_L),
-            read(regs::mpu9250::Regs::ACCEL_ZOUT_H),
-            read(regs::mpu9250::Regs::ACCEL_ZOUT_L),
+            read(MPU9250::ACCEL_XOUT_H),
+            read(MPU9250::ACCEL_XOUT_L),
+            read(MPU9250::ACCEL_YOUT_H),
+            read(MPU9250::ACCEL_YOUT_L),
+            read(MPU9250::ACCEL_ZOUT_H),
+            read(MPU9250::ACCEL_ZOUT_L),
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
         Ok(Triplet {
-            x: (buffer[0] << 8) | (buffer[1] & 0xFF),
-            y: (buffer[2] << 8) | (buffer[3] & 0xFF),
-            z: (buffer[4] << 8) | (buffer[5] & 0xFF),
+            x: ((buffer[0] << 8) | (buffer[1] & 0xFF)) as i16,
+            y: ((buffer[2] << 8) | (buffer[3] & 0xFF)) as i16,
+            z: ((buffer[4] << 8) | (buffer[5] & 0xFF)) as i16,
         })
     }
 }
@@ -198,23 +216,23 @@ impl<S> Gyroscope for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = u16;
+    type Value = i16;
     type Error = Error<S::Error>;
     fn gyroscope(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
         const COMMANDS: [u16; 6] = [
-            read(regs::mpu9250::Regs::GYRO_XOUT_H),
-            read(regs::mpu9250::Regs::GYRO_XOUT_L),
-            read(regs::mpu9250::Regs::GYRO_YOUT_H),
-            read(regs::mpu9250::Regs::GYRO_YOUT_L),
-            read(regs::mpu9250::Regs::GYRO_ZOUT_H),
-            read(regs::mpu9250::Regs::GYRO_ZOUT_L),
+            read(MPU9250::GYRO_XOUT_H),
+            read(MPU9250::GYRO_XOUT_L),
+            read(MPU9250::GYRO_YOUT_H),
+            read(MPU9250::GYRO_YOUT_L),
+            read(MPU9250::GYRO_ZOUT_H),
+            read(MPU9250::GYRO_ZOUT_L),
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
         Ok(Triplet {
-            x: (buffer[0] << 8) | (buffer[1] & 0xFF),
-            y: (buffer[2] << 8) | (buffer[3] & 0xFF),
-            z: (buffer[4] << 8) | (buffer[5] & 0xFF),
+            x: ((buffer[0] << 8) | (buffer[1] & 0xFF)) as i16,
+            y: ((buffer[2] << 8) | (buffer[3] & 0xFF)) as i16,
+            z: ((buffer[4] << 8) | (buffer[5] & 0xFF)) as i16,
         })
     }
 }
@@ -223,23 +241,23 @@ impl<S> Magnetometer for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
-    type Value = u16;
+    type Value = i16;
     type Error = Error<S::Error>;
     fn magnetometer(&mut self) -> Result<Triplet<Self::Value>, Self::Error> {
         const COMMANDS: [u16; 6] = [
-            read(regs::mpu9250::Regs::EXT_SENS_DATA_00),
-            read(regs::mpu9250::Regs::EXT_SENS_DATA_01),
-            read(regs::mpu9250::Regs::EXT_SENS_DATA_02),
-            read(regs::mpu9250::Regs::EXT_SENS_DATA_03),
-            read(regs::mpu9250::Regs::EXT_SENS_DATA_04),
-            read(regs::mpu9250::Regs::EXT_SENS_DATA_05),
+            read(MPU9250::EXT_SENS_DATA_00),
+            read(MPU9250::EXT_SENS_DATA_01),
+            read(MPU9250::EXT_SENS_DATA_02),
+            read(MPU9250::EXT_SENS_DATA_03),
+            read(MPU9250::EXT_SENS_DATA_04),
+            read(MPU9250::EXT_SENS_DATA_05),
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
         Ok(Triplet {
-            x: (buffer[1] << 8) | (buffer[0] & 0xFF),
-            y: (buffer[3] << 8) | (buffer[2] & 0xFF),
-            z: (buffer[5] << 8) | (buffer[4] & 0xFF),
+            x: ((buffer[1] << 8) | (buffer[0] & 0xFF)) as i16,
+            y: ((buffer[3] << 8) | (buffer[2] & 0xFF)) as i16,
+            z: ((buffer[5] << 8) | (buffer[4] & 0xFF)) as i16,
         })
     }
 }
@@ -247,17 +265,17 @@ where
 /// Read from the AK8963's register identified by `register`
 fn ak8963_read<SPI: Transfer<u16>>(
     spi: &mut SPI,
-    register: regs::ak8963::Regs,
+    register: AK8963,
 ) -> Result<u8, Error<SPI::Error>> {
-    use regs::ak8963::I2C_ADDRESS;
-    use regs::mpu9250::{flags::I2C_SLV4_CTRL, Regs::*};
-
-    spi.transfer(&mut [write(I2C_SLV4_ADDR, I2C_ADDRESS | (1 << 7))])?;
-    spi.transfer(&mut [write(I2C_SLV4_REG, register as u8)])?;
-    spi.transfer(&mut [write(I2C_SLV4_CTRL, I2C_SLV4_CTRL::I2C_SLV4_EN.bits())])?;
+    spi.transfer(&mut [write(MPU9250::I2C_SLV4_ADDR, AK8963_I2C_ADDRESS | (1 << 7))])?;
+    spi.transfer(&mut [write(MPU9250::I2C_SLV4_REG, register as u8)])?;
+    spi.transfer(&mut [write(
+        MPU9250::I2C_SLV4_CTRL,
+        I2C_SLV4_CTRL::I2C_SLV4_EN.bits(),
+    )])?;
     ak8963_wait_done(spi, 10_000, register, None)?;
 
-    let mut buffer = [read(I2C_SLV4_DI)];
+    let mut buffer = [read(MPU9250::I2C_SLV4_DI)];
     spi.transfer(&mut buffer)?;
     Ok((buffer[0] & 0xFF) as u8)
 }
@@ -265,16 +283,16 @@ fn ak8963_read<SPI: Transfer<u16>>(
 /// Write's `value` to the AK8963's `register`
 fn ak8963_write<SPI: Transfer<u16>>(
     spi: &mut SPI,
-    register: regs::ak8963::Regs,
+    register: AK8963,
     value: u8,
 ) -> Result<(), Error<SPI::Error>> {
-    use regs::ak8963::I2C_ADDRESS;
-    use regs::mpu9250::{flags::I2C_SLV4_CTRL, Regs::*};
-
-    spi.transfer(&mut [write(I2C_SLV4_ADDR, I2C_ADDRESS)])?;
-    spi.transfer(&mut [write(I2C_SLV4_REG, register as u8)])?;
-    spi.transfer(&mut [write(I2C_SLV4_DO, value)])?;
-    spi.transfer(&mut [write(I2C_SLV4_CTRL, I2C_SLV4_CTRL::I2C_SLV4_EN.bits())])?;
+    spi.transfer(&mut [write(MPU9250::I2C_SLV4_ADDR, AK8963_I2C_ADDRESS)])?;
+    spi.transfer(&mut [write(MPU9250::I2C_SLV4_REG, register as u8)])?;
+    spi.transfer(&mut [write(MPU9250::I2C_SLV4_DO, value)])?;
+    spi.transfer(&mut [write(
+        MPU9250::I2C_SLV4_CTRL,
+        I2C_SLV4_CTRL::I2C_SLV4_EN.bits(),
+    )])?;
     ak8963_wait_done(spi, 10_000, register, Some(value))?;
     Ok(())
 }
@@ -283,12 +301,11 @@ fn ak8963_write<SPI: Transfer<u16>>(
 fn ak8963_wait_done<SPI: Transfer<u16>>(
     spi: &mut SPI,
     max_attempts: u16,
-    register: regs::ak8963::Regs,
+    register: AK8963,
     value: Option<u8>,
 ) -> Result<(), Error<SPI::Error>> {
-    use regs::mpu9250::{flags::I2C_MST_STATUS, Regs::*};
     for _ in 0..max_attempts {
-        let mut buffer = [read(I2C_MST_STATUS)];
+        let mut buffer = [read(MPU9250::I2C_MST_STATUS)];
         spi.transfer(&mut buffer)?;
         let status = I2C_MST_STATUS::from_bits_truncate((buffer[0] & 0xFF) as u8);
         if status.contains(I2C_MST_STATUS::I2C_SLV4_DONE) {

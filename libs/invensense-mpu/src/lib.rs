@@ -1,7 +1,14 @@
 #![no_std]
 
 pub mod spi;
-use mpu9250_regs as regs;
+
+/// Re-export the registers under a different name
+mod regs {
+    pub use mpu9250_regs::{
+        ak8963::flags::*, ak8963::Regs as AK8963, ak8963::I2C_ADDRESS as AK8963_I2C_ADDRESS,
+        mpu9250::flags::*, mpu9250::Regs as MPU9250,
+    };
+}
 
 use core::fmt::Debug;
 
@@ -12,7 +19,7 @@ pub enum Error<P> {
     Nack,
     Timeout {
         attempts: u16,
-        register: regs::ak8963::Regs,
+        register: regs::AK8963,
         value: Option<u8>,
     },
     Peripheral(P),
@@ -55,12 +62,12 @@ where
 {
     /// Query the MPU9250's `WHO_AM_I` register
     pub fn mpu9250_who_am_i(&mut self) -> Result<u8, Error<T::Error>> {
-        self.transport.mpu9250_read(regs::mpu9250::Regs::WHO_AM_I)
+        self.transport.mpu9250_read(regs::MPU9250::WHO_AM_I)
     }
 
     /// Query the AK8963's `WHO_AM_I` register
     pub fn ak8963_who_am_i(&mut self) -> Result<u8, Error<T::Error>> {
-        self.transport.ak8963_read(regs::ak8963::Regs::WIA)
+        self.transport.ak8963_read(regs::AK8963::WIA)
     }
 }
 
@@ -72,35 +79,19 @@ pub trait Transport: private::Sealed {
     type Error;
 
     /// Read a register from the MPU9250
-    fn mpu9250_read(&mut self, register: regs::mpu9250::Regs) -> Result<u8, Error<Self::Error>>;
+    fn mpu9250_read(&mut self, register: regs::MPU9250) -> Result<u8, Error<Self::Error>>;
     /// Write a value to an MPU9250 register
     fn mpu9250_write<B: Copy + Into<u8>>(
         &mut self,
-        register: regs::mpu9250::Regs,
+        register: regs::MPU9250,
         value: B,
     ) -> Result<(), Error<Self::Error>>;
-    /// Modify an MPU9250 register
-    ///
-    /// By default, this performs a read then a write. If the supplied function
-    /// returns `None`, the implementation aborts the write operation, and returns
-    /// `Ok(())`.
-    fn mpu9250_modify<F: FnOnce(u8) -> Option<B>, B: Copy + Into<u8>>(
-        &mut self,
-        register: regs::mpu9250::Regs,
-        func: F,
-    ) -> Result<(), Error<Self::Error>> {
-        let value = self.mpu9250_read(register)?;
-        match func(value) {
-            None => Ok(()),
-            Some(value) => self.mpu9250_write(register, value.into()),
-        }
-    }
     /// Read an AK8963 register
-    fn ak8963_read(&mut self, register: regs::ak8963::Regs) -> Result<u8, Error<Self::Error>>;
+    fn ak8963_read(&mut self, register: regs::AK8963) -> Result<u8, Error<Self::Error>>;
     /// Write an AK8963 register
     fn ak8963_write<B: Copy + Into<u8>>(
         &mut self,
-        register: regs::ak8963::Regs,
+        register: regs::AK8963,
         value: B,
     ) -> Result<(), Error<Self::Error>>;
 }
