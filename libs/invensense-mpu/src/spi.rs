@@ -1,6 +1,6 @@
 //! SPI interface for an MPU9250
 
-use crate::{Error, Handle, Transport, MPU, regs::*};
+use crate::{regs::*, Error, Handle, Transport, MPU};
 use embedded_hal::{blocking::delay::DelayMs, blocking::spi::Transfer};
 use motion_sensor::{Accelerometer, Gyroscope, Magnetometer, Triplet};
 
@@ -111,7 +111,7 @@ where
     let mut spi = SPI(spi);
 
     // Enable the I2C interface, just so we can power-down the AK8963...
-    spi.mpu9250_write(MPU9250::USER_CTRL, USER_CTRL::I2C_MST_EN.bits())?;
+    spi.mpu9250_write(MPU9250::USER_CTRL, USER_CTRL::I2C_MST_EN)?;
     spi.mpu9250_write(
         MPU9250::I2C_MST_CTRL,
         I2C_MST_CTRL::clock(I2C_MST_CLK::KHz400),

@@ -1,12 +1,15 @@
+//! Implementation of the `motion-sensor` interfaces for an Invensense MPU9250
+
 #![no_std]
 
+pub mod i2c;
 pub mod spi;
 
 /// Re-export the registers under a different name
 mod regs {
     pub use mpu9250_regs::{
         ak8963::flags::*, ak8963::Regs as AK8963, ak8963::I2C_ADDRESS as AK8963_I2C_ADDRESS,
-        mpu9250::flags::*, mpu9250::Regs as MPU9250,
+        mpu9250::flags::*, mpu9250::Regs as MPU9250, mpu9250::I2C_ADDRESS as MPU9250_I2C_ADDRESS,
     };
 }
 
@@ -72,9 +75,10 @@ where
 }
 
 /// `Transport` lets us generalize device configuration across both
-/// SPI and I2C interfaces. It should *not* be used for higher-speed
-/// data queries; those should be implemented manually, using the
-/// best approach available for your peripheral.
+/// SPI and I2C interfaces
+///
+/// It should *not* be used for higher-speed data queries; those should be
+/// implemented manually, using the best approach available for your peripheral.
 pub trait Transport: private::Sealed {
     type Error;
 
@@ -98,5 +102,6 @@ pub trait Transport: private::Sealed {
 
 mod private {
     pub trait Sealed {}
+    impl<I> Sealed for crate::i2c::Bypass<I> {}
     impl<S> Sealed for crate::spi::SPI<S> {}
 }

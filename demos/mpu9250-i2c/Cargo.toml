@@ -1,5 +1,5 @@
 [package]
-name = "demo-mpu9250"
+name = "demo-mpu9250-i2c"
 version = "0.1.0"
 authors = ["Ian McIntyre <ianpmcintyre@gmail.com>", "Eric Belski <belski.eric@gmail.com>"]
 edition = "2018"
@@ -10,14 +10,12 @@ description = "Demonstration of interfacing an MPU9250 with the Teensy 4"
 [dependencies]
 embedded-hal = "0.2.4"
 panic-halt = "0.2.0"
-
-[dependencies.mpu9250]
-version = "0.22.2"
-features = ["i2c"]
+motion-sensor = { path = "../../libs/motion-sensor" }
+invensense-mpu = { path = "../../libs/invensense-mpu" }
 
 [dependencies.log]
 version = "0.4.8"
-features = ["release_max_level_info"]
+features = ["release_max_level_debug"]
 
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"

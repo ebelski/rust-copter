@@ -36,15 +36,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
-name = "cast"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b9434b9a5aa1450faa3f9cb14ea0e8c53bb5d2b3c1bfd1ab4fc03e9f33fbfb0"
-dependencies = [
- "rustc_version",
-]
-
-[[package]]
 name = "cfg-if"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -64,7 +55,7 @@ dependencies = [
 [[package]]
 name = "cortex-m-rt"
 version = "0.6.12"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs#fe0f30e4a1b3172ea57ffad6e2520cbbda53323b"
 dependencies = [
  "teensy4-rt",
 ]
@@ -72,7 +63,7 @@ dependencies = [
 [[package]]
 name = "cortex-m-rt-macros"
 version = "0.6.11"
-source = "git+https://github.com/rust-embedded/cortex-m-rt.git#ef6c6e678b507e6a740bd13b24dbb5e545f104ae"
+source = "git+https://github.com/rust-embedded/cortex-m-rt.git#4d60835a5a68efe853e269216ad8a3fbc350bcc4"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -80,12 +71,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "demo-mpu9250"
+name = "demo-mpu9250-i2c"
 version = "0.1.0"
 dependencies = [
  "embedded-hal",
+ "invensense-mpu",
  "log",
- "mpu9250",
+ "motion-sensor",
  "panic-halt",
  "teensy4-bsp",
 ]
@@ -121,7 +113,7 @@ version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa998ce59ec9765d15216393af37a58961ddcefb14c753b4816ba2191d865fcb"
 dependencies = [
- "nb",
+ "nb 0.1.3",
  "void",
 ]
 
@@ -177,7 +169,7 @@ dependencies = [
  "embedded-hal",
  "imxrt-ral",
  "log",
- "nb",
+ "nb 0.1.3",
  "void",
 ]
 
@@ -215,17 +207,6 @@ name = "motion-sensor"
 version = "0.1.0"
 
 [[package]]
-name = "mpu9250"
-version = "0.22.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8917520dcbed869b54abdfe913b5275ab59d55989b1331753bcc0150b0bc250"
-dependencies = [
- "bitflags",
- "cast",
- "embedded-hal",
-]
-
-[[package]]
 name = "mpu9250-regs"
 version = "0.1.0"
 dependencies = [
@@ -234,9 +215,18 @@ dependencies = [
 
 [[package]]
 name = "nb"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1411551beb3c11dedfb0a90a0fa256b47d28b9ec2cdff34c25a2fa59e45dbdc"
+checksum = "801d31da0513b6ec5214e9bf433a77966320625a37860f910be265be6e18d06f"
+dependencies = [
+ "nb 1.0.0",
+]
+
+[[package]]
+name = "nb"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "546c37ac5d9e56f55e73b677106873d9d9f5190605e41a856503623648488cae"
 
 [[package]]
 name = "panic-halt"
@@ -306,7 +296,7 @@ dependencies = [
 [[package]]
 name = "teensy4-bsp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs#fe0f30e4a1b3172ea57ffad6e2520cbbda53323b"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -320,7 +310,7 @@ dependencies = [
 [[package]]
 name = "teensy4-fcb"
 version = "0.2.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs#fe0f30e4a1b3172ea57ffad6e2520cbbda53323b"
 dependencies = [
  "imxrt-boot-gen",
 ]
@@ -328,7 +318,7 @@ dependencies = [
 [[package]]
 name = "teensy4-rt"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs#fe0f30e4a1b3172ea57ffad6e2520cbbda53323b"
 dependencies = [
  "cortex-m",
  "cortex-m-rt-macros",
@@ -337,7 +327,7 @@ dependencies = [
 [[package]]
 name = "teensy4-usb-sys"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs#fe0f30e4a1b3172ea57ffad6e2520cbbda53323b"
 
 [[package]]
 name = "typenum"

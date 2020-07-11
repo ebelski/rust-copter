@@ -83,7 +83,6 @@ fn main() -> ! {
     log::info!("AK8963 WHO_AM_I = {:#X}", sensor.ak8963_who_am_i().unwrap());
     peripherals.systick.delay(5000);
     loop {
-        core::sync::atomic::spin_loop_hint();
         log::info!("ACC {:?}", sensor.accelerometer().unwrap());
         log::info!("GYRO {:?}", sensor.gyroscope().unwrap());
         log::info!("MAG {:?}", sensor.magnetometer().unwrap());

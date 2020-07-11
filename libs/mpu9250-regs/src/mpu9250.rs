@@ -633,6 +633,12 @@ pub mod flags {
         }
     }
 
+    impl From<INT_PIN_CFG> for u8 {
+        fn from(cfg: INT_PIN_CFG) -> u8 {
+            cfg.bits()
+        }
+    }
+
     bitflags! {
         /// Enable interrupt for...
         #[derive(Default)]
@@ -741,6 +747,12 @@ pub mod flags {
             /// digital signal path. This bit also clears all the sensor registers.
             /// SIG_COND_RST is a pulse of one clk8M wide.
             const SIG_COND_RST  = 1 << 0;
+        }
+    }
+
+    impl From<USER_CTRL> for u8 {
+        fn from(ctrl: USER_CTRL) -> u8 {
+            ctrl.bits()
         }
     }
 

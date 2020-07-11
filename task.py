@@ -39,7 +39,7 @@ TARGET = "thumbv7em-none-eabihf"
 OBJCOPY = "arm-none-eabi-objcopy"
 TEENSY_LOADER = "teensy_loader_cli"
 DEMOS = [
-    "demo-mpu9250",
+    "demo-mpu9250-i2c",
     "demo-mpu9250-spi",
     "demo-pwm-control",
 ]
