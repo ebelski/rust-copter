@@ -15,3 +15,6 @@ path = "../mpu9250-regs"
 [dependencies]
 embedded-hal = "0.2.4"
 log = "0.4.8"
+
+[dev-dependencies]
+embedded-hal-mock = { git = "https://github.com/mciantyre/embedded-hal-mock" }

@@ -1,8 +1,33 @@
-//! I2C interface
+//! I2C interface for an MPU9250
 //!
-//! Our current interface sets the MPU for I2C bypass mode. We directly talk to the on-board
+//! Our interface sets the MPU for I2C bypass mode. We directly talk to the on-board
 //! magnetometer with our I2C controller. User is responsible for setting an appropriate I2C
 //! clock speed.
+//!
+//! # Example
+//!
+//! ```no_run
+//! # use embedded_hal_mock::{i2c::Mock, delay::MockNoop};
+//! use invensense_mpu as invensense;
+//! use motion_sensor::MARG;
+//!
+//! let mut i2c = // An I2C peripheral...
+//!     # Mock::new(&[]);
+//! let mut delay = // A blocking delay...
+//!     # MockNoop::new();
+//!
+//! let mut config = invensense::Config::default();
+//! config.accel_scale = invensense::regs::ACCEL_FS_SEL::G2;
+//! config.mag_control = invensense::regs::CNTL1 {
+//!     mode: invensense::regs::CNTL1_MODE::CONTINUOUS_2,
+//!     ..Default::default()
+//! };
+//!
+//! let mut mpu = invensense::i2c::new(i2c, &mut delay, &config).unwrap();
+//!
+//! // Acquire all readings
+//! let (acc, gyro, mag) = mpu.marg().unwrap();
+//! ```
 
 use crate::{regs::*, Config, Error, Handle, Transport, MPU};
 use core::convert::TryInto;
@@ -11,7 +36,8 @@ use motion_sensor::{Accelerometer, DegPerSec, Gs, Gyroscope, Magnetometer, Micro
 
 /// Bypass I2C mode
 ///
-/// We directly talk to the AK8963 by disabling the MPU's I2C controller
+/// We directly talk to the AK8963 by disabling the MPU's I2C controller.
+/// Use [`new()`](fn.new.html) to create a `Bypass`.
 pub struct Bypass<I>(I);
 
 impl<I, E> Transport for Bypass<I>

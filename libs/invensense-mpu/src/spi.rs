@@ -1,8 +1,41 @@
 //! SPI interface for an MPU9250
+//!
+//! The driver uses the MPU's I2C_SLV0 to poll for magnetometer readings, bringing the values into
+//! the MPU's registers. The MPU polls at the sampling rate of the MPU. If users want magnetomter
+//! readings, users should set the magnetometer mode to one of the continuous settings.
+//!
+//! User is responsible for setting an appropriate SPI clock speed. If you'd like
+//! to re-configure the bus speed after bring-up, use [`configure()`](fn.configure.html).
+//!
+//! # Example
+//!
+//! ```no_run
+//! # use embedded_hal_mock::{spi::Mock as SPI, delay::MockNoop};
+//! use invensense_mpu as invensense;
+//! use motion_sensor::MARG;
+//!
+//! let mut spi = // A SPI peripheral with u16 words
+//!     # SPI::new(&[]);
+//! let mut delay = // A type that provides a blocking delay
+//!     # MockNoop::new();
+//!
+//! let mut config = invensense::Config::default();
+//! config.accel_scale = invensense::regs::ACCEL_FS_SEL::G8;
+//! config.mag_control = invensense::regs::CNTL1 {
+//!     mode: invensense::regs::CNTL1_MODE::CONTINUOUS_2,
+//!     ..Default::default()
+//! };
+//!
+//! let mut mpu = invensense::spi::new(spi, &mut delay, &config).unwrap();
+//! invensense::spi::configure(&mut mpu, |spi| { /* Re-configure SPI clock speed */ });
+//!
+//! // Acquire all readings
+//! let (acc, gyro, mag) = mpu.marg().unwrap();
+//! ```
 
 use crate::{regs::*, Config, Error, Handle, Transport, MPU};
 use embedded_hal::{blocking::delay::DelayMs, blocking::spi::Transfer};
-use motion_sensor::{Accelerometer, DegPerSec, Gs, Gyroscope, Magnetometer, MicroT};
+use motion_sensor::{Accelerometer, DegPerSec, Gs, Gyroscope, Magnetometer, MicroT, DOF6, MARG};
 
 use core::fmt::Debug;
 
@@ -258,6 +291,10 @@ where
         }))
     }
 }
+
+impl<S> DOF6 for MPU<SPI<S>> where S: Transfer<u16> {}
+
+impl<S> MARG for MPU<SPI<S>> where S: Transfer<u16> {}
 
 /// Read from the AK8963's register identified by `register`
 fn ak8963_read<SPI: Transfer<u16>>(

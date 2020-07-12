@@ -93,7 +93,7 @@ fn main() -> ! {
 
     let mut config = invensense_mpu::Config::default();
     config.accel_scale = invensense_mpu::regs::ACCEL_FS_SEL::G8;
-    config.mag_scale = invensense_mpu::regs::CNTL1 {
+    config.mag_control = invensense_mpu::regs::CNTL1 {
         mode: invensense_mpu::regs::CNTL1_MODE::CONTINUOUS_2,
         ..Default::default()
     };

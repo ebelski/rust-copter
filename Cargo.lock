@@ -118,6 +118,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-hal-mock"
+version = "0.7.2"
+source = "git+https://github.com/mciantyre/embedded-hal-mock#25e8d0802b857f1c3cc70db94cc596e19f1b5038"
+dependencies = [
+ "embedded-hal",
+ "nb 0.1.3",
+]
+
+[[package]]
 name = "esc"
 version = "0.1.0"
 dependencies = [
@@ -188,6 +197,7 @@ name = "invensense-mpu"
 version = "0.1.0"
 dependencies = [
  "embedded-hal",
+ "embedded-hal-mock",
  "log",
  "motion-sensor",
  "mpu9250-regs",

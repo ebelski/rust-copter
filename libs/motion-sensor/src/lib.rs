@@ -1,4 +1,7 @@
 //! Interfaces for motion sensors
+//!
+//! Implementations of these traits must return values that are described by the
+//! unit aliases. See the return types for more details.
 
 #![no_std]
 
@@ -51,6 +54,9 @@ pub trait DOF6<A = DefaultScalar, G = DefaultScalar>:
     }
 }
 
+/// A tuple of accelerometer, gyroscope, and magnetometer readings
+///
+/// See [`MARG`](trait.MARG.html) for more information.
 pub type MARGReadings<A = DefaultScalar, G = DefaultScalar, M = DefaultScalar> =
     (Gs<A>, DegPerSec<G>, MicroT<M>);
 

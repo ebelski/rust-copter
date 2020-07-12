@@ -1,11 +1,17 @@
 //! Implementation of the `motion-sensor` interfaces for an Invensense MPU9250
+//!
+//! The crate provides drivers for I2C and SPI. Once you have an [`MPU`](struct.MPU.html),
+//! you can query for sensor readings. See the documentation in each module for examples
+//! of how to prepare your device.
 
 #![no_std]
 
 pub mod i2c;
 pub mod spi;
 
-/// Re-export the registers under a different name
+/// Re-export the MPU9250 registers
+///
+/// The symbols may have different namespaces than what's provided by the `mpu9250_regs` crate.
 pub mod regs {
     pub use mpu9250_regs::{
         ak8963::flags::*, ak8963::Regs as AK8963, ak8963::I2C_ADDRESS as AK8963_I2C_ADDRESS,
@@ -20,18 +26,26 @@ use motion_sensor::Triplet;
 /// Device errors that could occur during initialization or communication
 #[derive(Debug)]
 pub enum Error<P> {
+    /// The MPU lost I2C arbitration
     LostArbitration,
+    /// The MPU received a NACK from a connected I2C device
     Nack,
+    /// The SPI driver tried `attempts` to read (write) an AK8963 `register` (with
+    /// the provided `value`), but the device never responded.
     Timeout {
+        /// How many attempts we made
         attempts: u16,
+        /// The register we were reading (writing)
         register: regs::AK8963,
+        /// The value we were writing, or `None` if we were reading
         value: Option<u8>,
     },
+    /// The underlying peripheral returned an error
     Peripheral(P),
-    WhoAmI {
-        expected: &'static [u8],
-        actual: u8,
-    },
+    /// Incorrect `WHO_AM_I` value returned from the connected device.
+    /// We expected one of the values in `expected`, but we received
+    /// `actual`.
+    WhoAmI { expected: &'static [u8], actual: u8 },
 }
 
 impl<P> From<P> for Error<P> {
@@ -43,7 +57,8 @@ impl<P> From<P> for Error<P> {
 /// An Invensense MPU
 ///
 /// The `MPU` struct can be used to query readings from a physical
-/// MPU.
+/// MPU. See the [`spi`](spi/index.html) and [`i2c`](i2c/index.html)
+/// module documentation for details on how to acquire an `MPU`.
 pub struct MPU<T> {
     transport: T,
     handle: Handle,
@@ -130,6 +145,10 @@ mod private {
 }
 
 /// Holds controller-side state of the MPU9250
+///
+/// `Handle` lets you reconstruct an [`MPU`](struct.MPU.html) using
+/// either [`i2c::from_handle()`](i2c/fn.from_handle.html) or
+/// [`spi::from_handle()`](spi/fn.from_handle.html).
 pub struct Handle {
     gyro_resolution: f32,
     acc_resolution: f32,
@@ -153,7 +172,7 @@ impl Handle {
                 ACCEL_FS_SEL::G8 => 8.0,
                 ACCEL_FS_SEL::G16 => 16.0,
             } / 32768.0,
-            mag_resolution: if config.mag_scale.output.is_empty() {
+            mag_resolution: if config.mag_control.output.is_empty() {
                 10. * 4912. / 8190.
             } else {
                 10. * 4912. / 32760.0
@@ -169,12 +188,11 @@ impl Handle {
 /// `Config` looks like.
 ///
 /// ```
-/// use invensense_mpu::Config;
-/// use mpu9250_regs::mpu9250::flags::*;
+/// use invensense_mpu::{Config, regs};
 ///
 /// let mut config = Config::default();
-/// config.gyro_scale = GYRO_FS_SEL::DPS500;
-/// config.dlpf = DLPF::_4;
+/// config.gyro_scale = regs::GYRO_FS_SEL::DPS500;
+/// config.dlpf = regs::DLPF::_4;
 /// ```
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
@@ -189,8 +207,8 @@ pub struct Config {
     pub accel_scale: regs::ACCEL_FS_SEL,
     /// Acceleromter data rate (DLPF) selection
     pub accel_rate: regs::ACCEL_CONFIG_2,
-    /// Magnetometer resolution
-    pub mag_scale: regs::CNTL1,
+    /// Magnetometer control
+    pub mag_control: regs::CNTL1,
     /// Configures the sample rate, `Sample_Rate`, as
     ///
     /// ```text
@@ -223,7 +241,7 @@ impl Config {
         )?;
         transport.mpu9250_write(MPU9250::ACCEL_CONFIG_2, self.accel_rate)?;
         transport.mpu9250_write(MPU9250::SMPLRT_DIV, self.sample_rate_divider)?;
-        transport.ak8963_write(AK8963::CNTL1, self.mag_scale)?;
+        transport.ak8963_write(AK8963::CNTL1, self.mag_control)?;
         Ok(())
     }
 }
