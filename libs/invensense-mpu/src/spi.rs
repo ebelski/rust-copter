@@ -319,3 +319,13 @@ fn ak8963_wait_done<SPI: Transfer<u16>>(
         value,
     })
 }
+
+/// Acquire a reference to the SPI peripheral that's wrapped in the MPU
+///
+/// Use `configure` to perform a quick configuration that doesn't require the
+/// [`release()`](fn.release.html) and [`from_handle()`](fn.from_handle.html)
+/// pattern. You're responsible for making sure the SPI peripheral is still
+/// usable when `configure()` returns.
+pub fn configure<S, R, F: FnOnce(&mut S) -> R>(mpu: &mut MPU<SPI<S>>, f: F) -> R {
+    f(&mut mpu.transport.0)
+}
