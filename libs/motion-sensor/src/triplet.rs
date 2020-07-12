@@ -122,7 +122,6 @@ where
     }
 }
 
-
 impl<T> core::fmt::Display for Triplet<T>
 where
     T: core::fmt::Display,
