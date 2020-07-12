@@ -48,6 +48,8 @@ pub trait DOF6<A, G>:
     }
 }
 
+pub type MARGReadings<A, G, M> = (Acc<A>, Gyro<G>, Mag<M>);
+
 /// All three of a accelerometer, magnetometer, and gyroscope
 ///
 /// The default implementation queries for all three readings separately.
@@ -57,7 +59,7 @@ pub trait MARG<A, G, M>:
     + Gyroscope<G, Error = <Self as Accelerometer<A>>::Error>
     + Magnetometer<M, Error = <Self as Accelerometer<A>>::Error>
 {
-    fn marg(&mut self) -> Result<(Acc<A>, Gyro<G>, Mag<M>), <Self as Accelerometer<A>>::Error> {
+    fn marg(&mut self) -> Result<MARGReadings<A, G, M>, <Self as Accelerometer<A>>::Error> {
         Ok((
             self.accelerometer()?,
             self.gyroscope()?,

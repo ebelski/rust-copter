@@ -233,7 +233,7 @@ where
 {
     fn marg(
         &mut self,
-    ) -> Result<(Triplet<f64>, Triplet<f64>, Triplet<f64>), <Self as Accelerometer<f64>>::Error>
+    ) -> Result<motion_sensor::MARGReadings<f64, f64, f64>, <Self as Accelerometer<f64>>::Error>
     {
         let (acc, gyro) = self.dof6()?;
         let mag = self.magnetometer()?;
