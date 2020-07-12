@@ -72,7 +72,11 @@ impl<T> MPU<T> {
         raw.map(|raw| self.handle.acc_resolution * f32::from(raw))
     }
 
-    fn scale_mag(&self, raw: Triplet<i16>) -> Triplet<f32> {
+    /// This also corrects for the axes. It makes the axes align with the accelerometer
+    /// and gyroscope axes.
+    fn scale_mag(&self, mut raw: Triplet<i16>) -> Triplet<f32> {
+        core::mem::swap(&mut raw.x, &mut raw.y);
+        raw.z = raw.z.wrapping_neg();
         raw.map(|raw| self.handle.mag_resolution * f32::from(raw)) * self.handle.mag_sensitivity
     }
 }
