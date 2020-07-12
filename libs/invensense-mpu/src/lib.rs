@@ -49,7 +49,7 @@ pub struct MPU<T> {
     handle: Handle,
 }
 
-type Sensitivity = Triplet<f64>;
+type Sensitivity = Triplet<f32>;
 
 impl<T> MPU<T>
 where
@@ -64,17 +64,16 @@ where
 }
 
 impl<T> MPU<T> {
-    fn scale_gyro(&self, raw: Triplet<i16>) -> Triplet<f64> {
-        raw.map(|raw| self.handle.gyro_resolution * f64::from(raw))
+    fn scale_gyro(&self, raw: Triplet<i16>) -> Triplet<f32> {
+        raw.map(|raw| self.handle.gyro_resolution * f32::from(raw))
     }
 
-    fn scale_acc(&self, raw: Triplet<i16>) -> Triplet<f64> {
-        const GRAVITY: f64 = 9.807;
-        raw.map(|raw| self.handle.acc_resolution * GRAVITY * f64::from(raw))
+    fn scale_acc(&self, raw: Triplet<i16>) -> Triplet<f32> {
+        raw.map(|raw| self.handle.acc_resolution * f32::from(raw))
     }
 
-    fn scale_mag(&self, raw: Triplet<i16>) -> Triplet<f64> {
-        raw.map(|raw| self.handle.mag_resolution * f64::from(raw)) * self.handle.mag_sensitivity
+    fn scale_mag(&self, raw: Triplet<i16>) -> Triplet<f32> {
+        raw.map(|raw| self.handle.mag_resolution * f32::from(raw)) * self.handle.mag_sensitivity
     }
 }
 
@@ -128,10 +127,10 @@ mod private {
 
 /// Holds controller-side state of the MPU9250
 pub struct Handle {
-    gyro_resolution: f64,
-    acc_resolution: f64,
-    mag_resolution: f64,
-    mag_sensitivity: Triplet<f64>,
+    gyro_resolution: f32,
+    acc_resolution: f32,
+    mag_resolution: f32,
+    mag_sensitivity: Triplet<f32>,
 }
 
 impl Handle {
@@ -232,7 +231,7 @@ impl Config {
 fn mag_sensitivity<T: Transport>(
     transport: &mut T,
     delay: &mut dyn DelayMs<u8>,
-) -> Result<Triplet<f64>, Error<T::Error>> {
+) -> Result<Triplet<f32>, Error<T::Error>> {
     use regs::*;
     let cntl1 = transport.ak8963_read(AK8963::CNTL1)?;
     transport.ak8963_write(
@@ -248,7 +247,7 @@ fn mag_sensitivity<T: Transport>(
         y: transport.ak8963_read(AK8963::ASAY)?,
         z: transport.ak8963_read(AK8963::ASAZ)?,
     };
-    let sensitivity = bias.map(|bias| f64::from(bias - 128) / 256f64 + 1f64);
+    let sensitivity = bias.map(|bias| f32::from(bias - 128) / 256f32 + 1f32);
     transport.ak8963_write(AK8963::CNTL1, cntl1)?;
     delay.delay_ms(20);
     Ok(sensitivity)

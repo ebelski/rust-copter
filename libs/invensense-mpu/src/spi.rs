@@ -2,7 +2,7 @@
 
 use crate::{regs::*, Config, Error, Handle, Transport, MPU};
 use embedded_hal::{blocking::delay::DelayMs, blocking::spi::Transfer};
-use motion_sensor::{Accelerometer, Gyroscope, Magnetometer, Triplet};
+use motion_sensor::{Accelerometer, DegPerSec, Gs, Gyroscope, Magnetometer, MicroT};
 
 use core::fmt::Debug;
 
@@ -187,12 +187,12 @@ where
     Ok(MPU::new(spi, &config, &sensitivity))
 }
 
-impl<S> Accelerometer<f64> for MPU<SPI<S>>
+impl<S> Accelerometer for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
     type Error = Error<S::Error>;
-    fn accelerometer(&mut self) -> Result<Triplet<f64>, Self::Error> {
+    fn accelerometer(&mut self) -> Result<Gs, Self::Error> {
         const COMMANDS: [u16; 6] = [
             read(MPU9250::ACCEL_XOUT_H),
             read(MPU9250::ACCEL_XOUT_L),
@@ -203,7 +203,7 @@ where
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
-        Ok(self.scale_acc(Triplet {
+        Ok(self.scale_acc(Gs {
             x: ((buffer[0] << 8) | (buffer[1] & 0xFF)) as i16,
             y: ((buffer[2] << 8) | (buffer[3] & 0xFF)) as i16,
             z: ((buffer[4] << 8) | (buffer[5] & 0xFF)) as i16,
@@ -211,12 +211,12 @@ where
     }
 }
 
-impl<S> Gyroscope<f64> for MPU<SPI<S>>
+impl<S> Gyroscope for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
     type Error = Error<S::Error>;
-    fn gyroscope(&mut self) -> Result<Triplet<f64>, Self::Error> {
+    fn gyroscope(&mut self) -> Result<DegPerSec, Self::Error> {
         const COMMANDS: [u16; 6] = [
             read(MPU9250::GYRO_XOUT_H),
             read(MPU9250::GYRO_XOUT_L),
@@ -227,7 +227,7 @@ where
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
-        Ok(self.scale_gyro(Triplet {
+        Ok(self.scale_gyro(DegPerSec {
             x: ((buffer[0] << 8) | (buffer[1] & 0xFF)) as i16,
             y: ((buffer[2] << 8) | (buffer[3] & 0xFF)) as i16,
             z: ((buffer[4] << 8) | (buffer[5] & 0xFF)) as i16,
@@ -235,12 +235,12 @@ where
     }
 }
 
-impl<S> Magnetometer<f64> for MPU<SPI<S>>
+impl<S> Magnetometer for MPU<SPI<S>>
 where
     S: Transfer<u16>,
 {
     type Error = Error<S::Error>;
-    fn magnetometer(&mut self) -> Result<Triplet<f64>, Self::Error> {
+    fn magnetometer(&mut self) -> Result<MicroT, Self::Error> {
         const COMMANDS: [u16; 6] = [
             read(MPU9250::EXT_SENS_DATA_00),
             read(MPU9250::EXT_SENS_DATA_01),
@@ -251,7 +251,7 @@ where
         ];
         let mut buffer = COMMANDS;
         self.transport.0.transfer(&mut buffer)?;
-        Ok(self.scale_mag(Triplet {
+        Ok(self.scale_mag(MicroT {
             x: ((buffer[1] << 8) | (buffer[0] & 0xFF)) as i16,
             y: ((buffer[3] << 8) | (buffer[2] & 0xFF)) as i16,
             z: ((buffer[5] << 8) | (buffer[4] & 0xFF)) as i16,
