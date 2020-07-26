@@ -41,9 +41,9 @@ fn main() -> ! {
 
     log::info!("Constructing SPI4 peripheral...");
     let mut spi4 = spi4_builder.build(
-        peripherals.pins.p11.alt3(),
-        peripherals.pins.p12.alt3(),
-        peripherals.pins.p13.alt3(),
+        peripherals.pins.p11,
+        peripherals.pins.p12,
+        peripherals.pins.p13,
     );
 
     match spi4.set_clock_speed(bsp::hal::spi::ClockSpeed(SPI_BAUD_RATE_HZ)) {
@@ -62,7 +62,7 @@ fn main() -> ! {
         }
     };
 
-    spi4.enable_chip_select_0(peripherals.pins.p10.alt3());
+    spi4.enable_chip_select_0(peripherals.pins.p10);
     log::info!("Waiting a few seconds before querying MPU9250...");
     peripherals.systick.delay(4000);
 

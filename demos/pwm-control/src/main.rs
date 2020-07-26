@@ -60,10 +60,7 @@ extern crate panic_halt;
 
 use bsp::rt::entry;
 use core::time::Duration;
-use embedded_hal::{
-    digital::v2::{OutputPin, ToggleableOutputPin},
-    timer::CountDown,
-};
+use embedded_hal::{digital::v2::OutputPin, timer::CountDown};
 use parser::{Command, Parser};
 use teensy4_bsp as bsp;
 
@@ -76,7 +73,7 @@ const ESC_PROTOCOL: Protocol = Protocol::OneShot125;
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
-    let mut led = bsp::configure_led(&mut peripherals.gpr, peripherals.pins.p13);
+    let mut led = bsp::configure_led(peripherals.pins.p13);
 
     // Initialize the ARM and IPG clocks. The PWM module runs on the IPG clock.
     let (_, ipg_hz) = peripherals.ccm.pll1.set_arm_clock(
@@ -105,8 +102,8 @@ fn main() -> ! {
         .sm2
         .outputs(
             &mut pwm2.handle,
-            peripherals.pins.p6.alt2(),
-            peripherals.pins.p9.alt2(),
+            peripherals.pins.p6,
+            peripherals.pins.p9,
             bsp::hal::pwm::Timing {
                 clock_select: bsp::hal::ccm::pwm::ClockSelect::IPG(ipg_hz),
                 prescalar: bsp::hal::ccm::pwm::Prescalar::PRSC_5,
@@ -120,8 +117,8 @@ fn main() -> ! {
         .sm3
         .outputs(
             &mut pwm1.handle,
-            peripherals.pins.p8.alt6(),
-            peripherals.pins.p7.alt6(),
+            peripherals.pins.p8,
+            peripherals.pins.p7,
             bsp::hal::pwm::Timing {
                 clock_select: bsp::hal::ccm::pwm::ClockSelect::IPG(ipg_hz),
                 prescalar: bsp::hal::ccm::pwm::Prescalar::PRSC_5,
@@ -141,7 +138,7 @@ fn main() -> ! {
 
     loop {
         if let Ok(()) = led_timer.wait() {
-            led.toggle().unwrap();
+            led.toggle();
         }
 
         match parser.parse() {

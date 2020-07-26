@@ -64,7 +64,7 @@ fn main() -> ! {
     // The alt1() means that we're configuring the pin to be
     // used specifically for I2C functions.
     peripherals.systick.delay(5000);
-    let mut i2c3 = i2c3_builder.build(peripherals.pins.p16.alt1(), peripherals.pins.p17.alt1());
+    let mut i2c3 = i2c3_builder.build(peripherals.pins.p16, peripherals.pins.p17);
     // Set the I2C clock speed. If this returns an error, log it and stop.
     match i2c3.set_clock_speed(I2C_CLOCK_SPEED) {
         Ok(_) => (),

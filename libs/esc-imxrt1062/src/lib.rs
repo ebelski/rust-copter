@@ -28,19 +28,22 @@
 use esc::{self, QuadMotor};
 
 use imxrt_hal::{
-    iomuxc::pwm::Pin,
-    pwm::{module, output, submodule, Channel, Handle, Pins},
+    iomuxc::{
+        consts,
+        pwm::{self, Pin},
+    },
+    pwm::{Channel, Handle, Pins},
 };
 
 use embedded_hal::Pwm;
 
 use core::{cell::RefCell, time::Duration};
 
-pub type XMod = module::_1;
-type XSub = submodule::_3;
+pub type XMod = consts::U1;
+type XSub = consts::U3;
 
-pub type YMod = module::_2;
-type YSub = submodule::_2;
+pub type YMod = consts::U2;
+type YSub = consts::U2;
 
 /// ESC protocol selection
 ///
@@ -90,10 +93,10 @@ struct Module<A, B, C, D> {
 
 impl<A, B, C, D> Module<A, B, C, D>
 where
-    A: Pin<Module = XMod, Output = output::A, Submodule = XSub>,
-    B: Pin<Module = XMod, Output = output::B, Submodule = <A as Pin>::Submodule>,
-    C: Pin<Module = YMod, Output = output::A, Submodule = YSub>,
-    D: Pin<Module = YMod, Output = output::B, Submodule = <C as Pin>::Submodule>,
+    A: Pin<Module = XMod, Output = pwm::A, Submodule = XSub>,
+    B: Pin<Module = XMod, Output = pwm::B, Submodule = <A as Pin>::Submodule>,
+    C: Pin<Module = YMod, Output = pwm::A, Submodule = YSub>,
+    D: Pin<Module = YMod, Output = pwm::B, Submodule = <C as Pin>::Submodule>,
 {
     fn new(
         mut handle_ab: Handle<XMod>,
@@ -182,10 +185,10 @@ pub struct ESC<A, B, C, D>(RefCell<Module<A, B, C, D>>);
 
 impl<A, B, C, D> ESC<A, B, C, D>
 where
-    A: Pin<Module = XMod, Output = output::A, Submodule = XSub>,
-    B: Pin<Module = XMod, Output = output::B, Submodule = <A as Pin>::Submodule>,
-    C: Pin<Module = YMod, Output = output::A, Submodule = YSub>,
-    D: Pin<Module = YMod, Output = output::B, Submodule = <C as Pin>::Submodule>,
+    A: Pin<Module = XMod, Output = pwm::A, Submodule = XSub>,
+    B: Pin<Module = XMod, Output = pwm::B, Submodule = <A as Pin>::Submodule>,
+    C: Pin<Module = YMod, Output = pwm::A, Submodule = YSub>,
+    D: Pin<Module = YMod, Output = pwm::B, Submodule = <C as Pin>::Submodule>,
 {
     pub fn new(
         protocol: Protocol,
@@ -221,10 +224,10 @@ fn duty_to_percent(duty: u16) -> f32 {
 
 impl<A, B, C, D> esc::ESC for ESC<A, B, C, D>
 where
-    A: Pin<Module = XMod, Output = output::A, Submodule = XSub>,
-    B: Pin<Module = XMod, Output = output::B, Submodule = <A as Pin>::Submodule>,
-    C: Pin<Module = YMod, Output = output::A, Submodule = YSub>,
-    D: Pin<Module = YMod, Output = output::B, Submodule = <C as Pin>::Submodule>,
+    A: Pin<Module = XMod, Output = pwm::A, Submodule = XSub>,
+    B: Pin<Module = XMod, Output = pwm::B, Submodule = <A as Pin>::Submodule>,
+    C: Pin<Module = YMod, Output = pwm::A, Submodule = YSub>,
+    D: Pin<Module = YMod, Output = pwm::B, Submodule = <C as Pin>::Submodule>,
 {
     type Motor = QuadMotor;
 

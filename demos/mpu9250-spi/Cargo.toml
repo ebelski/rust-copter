@@ -16,3 +16,4 @@ features = ["release_max_level_trace"]
 
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"
+branch = "development"
