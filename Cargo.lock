@@ -30,19 +30,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitfield"
+version = "0.13.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46afbd2983a5d5a7bd740ccb198caf5b82f45c40c09c0eed36052d91cb92e719"
+
+[[package]]
 name = "bitflags"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
-
-[[package]]
-name = "cast"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b9434b9a5aa1450faa3f9cb14ea0e8c53bb5d2b3c1bfd1ab4fc03e9f33fbfb0"
-dependencies = [
- "rustc_version",
-]
 
 [[package]]
 name = "cfg-if"
@@ -52,19 +49,20 @@ checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 
 [[package]]
 name = "cortex-m"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2954942fbbdd49996704e6f048ce57567c3e1a4e2dc59b41ae9fde06a01fc763"
+checksum = "2be99930c99669a74d986f7fd2162085498b322e6daae8ef63a97cc9ac1dc73c"
 dependencies = [
  "aligned",
  "bare-metal",
+ "bitfield",
  "volatile-register",
 ]
 
 [[package]]
 name = "cortex-m-rt"
 version = "0.6.12"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
 dependencies = [
  "teensy4-rt",
 ]
@@ -72,7 +70,7 @@ dependencies = [
 [[package]]
 name = "cortex-m-rt-macros"
 version = "0.6.11"
-source = "git+https://github.com/rust-embedded/cortex-m-rt.git#ef6c6e678b507e6a740bd13b24dbb5e545f104ae"
+source = "git+https://github.com/rust-embedded/cortex-m-rt.git#98e4c3c8597f1dfa52d55616c7ce7cf90682d95b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -80,12 +78,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "demo-mpu9250"
+name = "demo-mpu9250-i2c"
 version = "0.1.0"
 dependencies = [
  "embedded-hal",
+ "invensense-mpu",
  "log",
- "mpu9250",
+ "motion-sensor",
+ "panic-halt",
+ "teensy4-bsp",
+]
+
+[[package]]
+name = "demo-mpu9250-spi"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "invensense-mpu",
+ "log",
+ "motion-sensor",
  "panic-halt",
  "teensy4-bsp",
 ]
@@ -109,8 +120,17 @@ version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa998ce59ec9765d15216393af37a58961ddcefb14c753b4816ba2191d865fcb"
 dependencies = [
- "nb",
+ "nb 0.1.3",
  "void",
+]
+
+[[package]]
+name = "embedded-hal-mock"
+version = "0.7.2"
+source = "git+https://github.com/mciantyre/embedded-hal-mock#25e8d0802b857f1c3cc70db94cc596e19f1b5038"
+dependencies = [
+ "embedded-hal",
+ "nb 0.1.3",
 ]
 
 [[package]]
@@ -156,54 +176,90 @@ checksum = "3991722c78672e5006f670da9a374a2af5c944a2a25fa2652346bf74aa1acf57"
 [[package]]
 name = "imxrt-hal"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2ee5a782b624980c24de5f82cddf19c9220313c51e75904c21e3a88a5d6c930"
+source = "git+https://github.com/mciantyre/imxrt-rs#a63ce3954a0eff000796f4a6791efe2d9d32ead5"
 dependencies = [
  "as-slice",
  "bitflags",
  "cortex-m",
  "embedded-hal",
+ "imxrt-iomuxc",
  "imxrt-ral",
  "log",
- "nb",
+ "nb 0.1.3",
  "void",
+]
+
+[[package]]
+name = "imxrt-iomuxc"
+version = "0.1.0"
+source = "git+https://github.com/mciantyre/imxrt-rs#a63ce3954a0eff000796f4a6791efe2d9d32ead5"
+dependencies = [
+ "imxrt-iomuxc-build",
+ "typenum",
+]
+
+[[package]]
+name = "imxrt-iomuxc-build"
+version = "0.1.0"
+source = "git+https://github.com/mciantyre/imxrt-rs#a63ce3954a0eff000796f4a6791efe2d9d32ead5"
+dependencies = [
+ "quote",
 ]
 
 [[package]]
 name = "imxrt-ral"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ba0977a2c5a0f1a80783049627e2ea754c9c61ee2c936f748596ef6ad2282b7"
+source = "git+https://github.com/mciantyre/imxrt-rs#a63ce3954a0eff000796f4a6791efe2d9d32ead5"
 dependencies = [
  "bare-metal",
  "cortex-m",
 ]
 
 [[package]]
+name = "invensense-mpu"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "embedded-hal-mock",
+ "log",
+ "motion-sensor",
+ "mpu9250-regs",
+]
+
+[[package]]
 name = "log"
-version = "0.4.8"
+version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14b6052be84e6b71ab17edffc2eeabf5c2c3ae1fdb464aae35ac50c67a44e1f7"
+checksum = "4fabed175da42fed1fa0746b0ea71f412aa9d35e76e95e59b192c64b9dc2bf8b"
 dependencies = [
  "cfg-if",
 ]
 
 [[package]]
-name = "mpu9250"
-version = "0.22.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8917520dcbed869b54abdfe913b5275ab59d55989b1331753bcc0150b0bc250"
+name = "motion-sensor"
+version = "0.1.0"
+
+[[package]]
+name = "mpu9250-regs"
+version = "0.1.0"
 dependencies = [
  "bitflags",
- "cast",
- "embedded-hal",
 ]
 
 [[package]]
 name = "nb"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1411551beb3c11dedfb0a90a0fa256b47d28b9ec2cdff34c25a2fa59e45dbdc"
+checksum = "801d31da0513b6ec5214e9bf433a77966320625a37860f910be265be6e18d06f"
+dependencies = [
+ "nb 1.0.0",
+]
+
+[[package]]
+name = "nb"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "546c37ac5d9e56f55e73b677106873d9d9f5190605e41a856503623648488cae"
 
 [[package]]
 name = "panic-halt"
@@ -213,9 +269,9 @@ checksum = "de96540e0ebde571dc55c73d60ef407c653844e6f9a1e2fdbd40c07b9252d812"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.18"
+version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "beae6331a816b1f65d04c45b078fd8e6c93e8071771f41b8163255bbd8d7c8fa"
+checksum = "04f5f085b5d71e2188cb8271e5da0161ad52c3f227a661a3c135fdf28e258b12"
 dependencies = [
  "unicode-xid",
 ]
@@ -255,15 +311,15 @@ checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "stable_deref_trait"
-version = "1.1.1"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dba1a27d3efae4351c8051072d619e3ade2820635c3958d826bfea39d59b54c8"
+checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "syn"
-version = "1.0.33"
+version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8d5d96e8cbb005d6959f119f773bfaebb5684296108fb32600c00cde305b2cd"
+checksum = "fb7f4c519df8c117855e19dd8cc851e89eb746fe7a73f0157e0d95fdec5369b0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -273,7 +329,7 @@ dependencies = [
 [[package]]
 name = "teensy4-bsp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -287,7 +343,7 @@ dependencies = [
 [[package]]
 name = "teensy4-fcb"
 version = "0.2.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
 dependencies = [
  "imxrt-boot-gen",
 ]
@@ -295,7 +351,7 @@ dependencies = [
 [[package]]
 name = "teensy4-rt"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
 dependencies = [
  "cortex-m",
  "cortex-m-rt-macros",
@@ -304,7 +360,7 @@ dependencies = [
 [[package]]
 name = "teensy4-usb-sys"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#21147887f3e84973a4eccfab7b8278a7070cbda1"
+source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
 
 [[package]]
 name = "typenum"

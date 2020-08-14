@@ -1,11 +1,18 @@
 [workspace]
 members = [
-    "demos/mpu9250",
+    "demos/mpu9250-i2c",
+    "demos/mpu9250-spi",
     "demos/pwm-control",
     "libs/esc",
     "libs/esc-imxrt1062",
+    "libs/invensense-mpu",
+    "libs/motion-sensor",
+    "libs/mpu9250-regs",
 ]
 
 [patch.crates-io.cortex-m-rt]
 git = "https://github.com/mciantyre/teensy4-rs"
-branch = "master"
+branch = "development"
+
+[patch.crates-io.imxrt-hal]
+git = "https://github.com/mciantyre/imxrt-rs"
