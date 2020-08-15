@@ -10,6 +10,7 @@ panic-halt = "0.2.0"
 cortex-m = "0.6.2"
 embedded-hal = "0.2.4"
 log = "0.4.8"
+void = "1.0.2"
 
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"

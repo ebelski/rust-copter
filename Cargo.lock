@@ -112,6 +112,7 @@ dependencies = [
  "log",
  "panic-halt",
  "teensy4-bsp",
+ "void",
 ]
 
 [[package]]

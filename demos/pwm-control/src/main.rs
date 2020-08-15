@@ -54,6 +54,7 @@
 #![no_std]
 #![no_main]
 
+mod datapath;
 mod parser;
 
 extern crate panic_halt;
