@@ -2,6 +2,11 @@
 //!
 //! Implementations of these traits must return values that are described by the
 //! unit aliases. See the return types for more details.
+//!
+//! # Features
+//!
+//! Enable the `"use-serde"` flags to define an enum for motion sensor readings. The
+//! enum can be serialized and deserialized.
 
 #![no_std]
 
@@ -77,3 +82,27 @@ pub trait MARG<A = DefaultScalar, G = DefaultScalar, M = DefaultScalar>:
         ))
     }
 }
+
+/// Types that are exposed only when the "use-serde" feature is on
+#[cfg(feature = "use-serde")]
+mod ser_de {
+    use super::{DefaultScalar, DegPerSec, Gs, MicroT};
+    use serde::{Deserialize, Serialize};
+
+    /// A motion sensor reading, with a tag that describes
+    /// the measurement
+    ///
+    /// `Reading` can be serialized and deserialized with `serde`.
+    #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum Reading<A = DefaultScalar, G = DefaultScalar, M = DefaultScalar> {
+        /// Accelerometer reading
+        Accelerometer(Gs<A>),
+        /// Gyroscope reading
+        Gyroscope(DegPerSec<G>),
+        /// Magnetometer reading
+        Magnetometer(MicroT<M>),
+    }
+}
+
+#[cfg(feature = "use-serde")]
+pub use ser_de::*;
