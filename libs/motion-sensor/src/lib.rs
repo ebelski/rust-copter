@@ -94,13 +94,13 @@ mod ser_de {
     ///
     /// `Reading` can be serialized and deserialized with `serde`.
     #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
-    pub enum Reading<A = DefaultScalar, G = DefaultScalar, M = DefaultScalar> {
+    pub enum Reading<V = DefaultScalar> {
         /// Accelerometer reading
-        Accelerometer(Gs<A>),
+        Accelerometer(Gs<V>),
         /// Gyroscope reading
-        Gyroscope(DegPerSec<G>),
+        Gyroscope(DegPerSec<V>),
         /// Magnetometer reading
-        Magnetometer(MicroT<M>),
+        Magnetometer(MicroT<V>),
     }
 }
 

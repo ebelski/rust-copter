@@ -30,7 +30,7 @@ pub enum Error {
 }
 
 impl Datapath {
-    pub fn new(sink: Sink, channel: hal::dma::Channel) -> Result<Self, Error> {
+    pub fn new(sink: Sink, mut channel: hal::dma::Channel) -> Result<Self, Error> {
         let circular = hal::dma::Circular::new(&BUFFER.0).map_err(|_| Error::AlreadyCreated)?;
 
         channel.set_interrupt_on_completion(false);
@@ -44,11 +44,9 @@ impl Datapath {
     }
 
     pub fn write(&mut self, buffer: &[u8]) -> Result<(), Error> {
-        if self.peripheral.is_transfer_complete() {
-            self.circular = self.peripheral.transfer_complete();
-        }
+        self.poll()?;
 
-        if let Some(circular) = self.circular.take() {
+        if let Some(mut circular) = self.circular.take() {
             circular.insert(buffer.iter().copied());
             match self.peripheral.start_transfer(circular) {
                 Ok(()) => Ok(()),
@@ -57,7 +55,7 @@ impl Datapath {
                     Err(Error::Transfer(err))
                 }
             }
-        } else if let Some(circular) = self.peripheral.write_half() {
+        } else if let Some(mut circular) = self.peripheral.write_half() {
             circular.insert(buffer.iter().copied());
             Ok(())
         } else {
@@ -66,6 +64,15 @@ impl Datapath {
     }
 
     pub fn poll(&mut self) -> Result<(), Error> {
-        self.write(&[])
+        if self.peripheral.is_transfer_complete() {
+            self.circular = self.peripheral.transfer_complete();
+            if self.circular.is_none() {
+                Err(Error::NoBuffer)
+            } else {
+                Ok(())
+            }
+        } else {
+            Ok(())
+        }
     }
 }
