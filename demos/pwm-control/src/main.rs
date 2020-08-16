@@ -55,7 +55,7 @@
 //!
 //! # Motion Sensor
 //!
-//! You can optionally connect an MPU9250 motion sensor to a Teensy 4's I2C peripheral. If we find the sensor,
+//! You can optionally connect an MPU9250 motion sensor to a Teensy 4's I2C peripheral. If connected,
 //! the example will poll the sensor and write the data over a UART peripheral. The table below describes
 //! the I2C sensor and UART pinouts.
 //!
@@ -65,6 +65,11 @@
 //! |      15      |     UART2 RX      | Host UART TX |
 //! |      16      |     I2C3 SCL      |   MPU SCL    |
 //! |      17      |     I2C3 SDA      |   MPU SDA    |
+//!
+//! Note that the motion sensor is optional. If the sensor is not connected, you may still control motors.
+//!
+//! IMU readings represent a COBS-encoded slice of one ore more `motion_sensor::Reading` measurements. You
+//! may deserialize them using `postcard`.
 
 #![no_std]
 #![no_main]
@@ -105,8 +110,6 @@ fn main() -> ! {
         &mut peripherals.ccm.handle,
         &mut peripherals.dcdc,
     );
-
-    peripherals.systick.delay(5000);
 
     let mut pit_cfg = peripherals.ccm.perclk.configure(
         &mut peripherals.ccm.handle,
