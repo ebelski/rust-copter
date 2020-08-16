@@ -8,7 +8,7 @@ use embedded_hal::{
 use invensense_mpu::MPU;
 use motion_sensor::*;
 
-const POLLING_INTERVAL: Duration = Duration::from_micros(1_000);
+const POLLING_INTERVAL: Duration = Duration::from_micros(10_000);
 
 pub struct Sensor<P, I> {
     timer: P,
@@ -67,23 +67,14 @@ where
             _try!(self.write.poll());
             if let Ok(()) = self.timer.wait() {
                 let (acc, gyro, mag) = _try!(mpu.marg());
-
-                const SIZE: usize = core::mem::size_of::<Reading>();
-                let mut buffer = [0; 3 * SIZE];
-
-                _try!(postcard::to_slice(
-                    &Reading::Accelerometer(acc),
-                    &mut buffer[..SIZE]
-                ));
-                _try!(postcard::to_slice(
-                    &Reading::Gyroscope(gyro),
-                    &mut buffer[SIZE..2 * SIZE]
-                ));
-                _try!(postcard::to_slice(
-                    &Reading::Magnetometer(mag),
-                    &mut buffer[2 * SIZE..]
-                ));
-                _try!(self.write.write(&buffer));
+                let readings = [
+                    Reading::Accelerometer(acc),
+                    Reading::Gyroscope(gyro),
+                    Reading::Magnetometer(mag),
+                ];
+                let mut buffer = [0; 128];
+                let offset = _try!(postcard::to_slice_cobs(&readings[..], &mut buffer)).len();
+                _try!(self.write.write(&buffer[..offset]));
             }
         }
     }
