@@ -8,6 +8,8 @@ members = [
     "libs/invensense-mpu",
     "libs/motion-sensor",
     "libs/mpu9250-regs",
+]
+exclude = [
     "tools/pymotion-sensor",
 ]
 
