@@ -73,7 +73,11 @@ const ESC_PROTOCOL: Protocol = Protocol::OneShot125;
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
-    let mut led = bsp::configure_led(peripherals.pins.p13);
+    let core_peripherals = cortex_m::Peripherals::take().unwrap();
+    let mut systick = bsp::SysTick::new(core_peripherals.SYST);
+    let pins = bsp::t40::pins(peripherals.iomuxc);
+
+    let mut led = bsp::configure_led(pins.p13);
 
     // Initialize the ARM and IPG clocks. The PWM module runs on the IPG clock.
     let (_, ipg_hz) = peripherals.ccm.pll1.set_arm_clock(
@@ -102,8 +106,8 @@ fn main() -> ! {
         .sm2
         .outputs(
             &mut pwm2.handle,
-            peripherals.pins.p6,
-            peripherals.pins.p9,
+            pins.p6,
+            pins.p9,
             bsp::hal::pwm::Timing {
                 clock_select: bsp::hal::ccm::pwm::ClockSelect::IPG(ipg_hz),
                 prescalar: bsp::hal::ccm::pwm::Prescalar::PRSC_5,
@@ -117,8 +121,8 @@ fn main() -> ! {
         .sm3
         .outputs(
             &mut pwm1.handle,
-            peripherals.pins.p8,
-            peripherals.pins.p7,
+            pins.p8,
+            pins.p7,
             bsp::hal::pwm::Timing {
                 clock_select: bsp::hal::ccm::pwm::ClockSelect::IPG(ipg_hz),
                 prescalar: bsp::hal::ccm::pwm::Prescalar::PRSC_5,
@@ -130,7 +134,7 @@ fn main() -> ! {
     let mut esc = imxrtESC::new(ESC_PROTOCOL, pwm1.handle, sm3, pwm2.handle, sm2);
 
     // Set up the USB stack, and use the USB reader for parsing commands
-    let usb_reader = peripherals.usb.init(Default::default());
+    let usb_reader = bsp::usb::init(&systick, Default::default()).unwrap();
     let mut parser = Parser::new(usb_reader);
 
     let blink_period = pwm_to_blink_period(&esc);
@@ -143,7 +147,7 @@ fn main() -> ! {
 
         match parser.parse() {
             // Parser has not found any command; it needs more inputs
-            Ok(None) => peripherals.systick.delay(10),
+            Ok(None) => systick.delay(10),
             // User wants to reset all duty cycles
             Ok(Some(Command::ResetThrottle)) => {
                 esc.set_throttle_group(&[
@@ -184,7 +188,7 @@ fn main() -> ! {
 
                 led.set_high().unwrap();
                 loop {
-                    peripherals.systick.delay(1_000);
+                    systick.delay(1_000);
                     cortex_m::asm::wfe();
                 }
             }

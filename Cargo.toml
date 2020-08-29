@@ -12,7 +12,3 @@ members = [
 
 [patch.crates-io.cortex-m-rt]
 git = "https://github.com/mciantyre/teensy4-rs"
-branch = "development"
-
-[patch.crates-io.imxrt-hal]
-git = "https://github.com/mciantyre/imxrt-rs"
