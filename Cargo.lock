@@ -2,9 +2,9 @@
 # It is not intended for manual editing.
 [[package]]
 name = "aligned"
-version = "0.3.2"
+version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb1ce8b3382016136ab1d31a1b5ce807144f8b7eb2d5f16b2108f0f07edceb94"
+checksum = "c19796bd8d477f1a9d4ac2465b464a8b1359474f06a96bb3cda650b4fca309bf"
 dependencies = [
  "as-slice",
 ]
@@ -62,7 +62,7 @@ dependencies = [
 [[package]]
 name = "cortex-m-rt"
 version = "0.6.12"
-source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
+source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
 dependencies = [
  "teensy4-rt",
 ]
@@ -70,7 +70,7 @@ dependencies = [
 [[package]]
 name = "cortex-m-rt-macros"
 version = "0.6.11"
-source = "git+https://github.com/rust-embedded/cortex-m-rt.git#98e4c3c8597f1dfa52d55616c7ce7cf90682d95b"
+source = "git+https://github.com/rust-embedded/cortex-m-rt.git#48a73b6d1025d856df8bc85b6aaf9f7c195f82ef"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -81,6 +81,7 @@ dependencies = [
 name = "demo-mpu9250-i2c"
 version = "0.1.0"
 dependencies = [
+ "cortex-m",
  "embedded-hal",
  "invensense-mpu",
  "log",
@@ -93,6 +94,7 @@ dependencies = [
 name = "demo-mpu9250-spi"
 version = "0.1.0"
 dependencies = [
+ "cortex-m",
  "embedded-hal",
  "invensense-mpu",
  "log",
@@ -175,8 +177,9 @@ checksum = "3991722c78672e5006f670da9a374a2af5c944a2a25fa2652346bf74aa1acf57"
 
 [[package]]
 name = "imxrt-hal"
-version = "0.3.0"
-source = "git+https://github.com/mciantyre/imxrt-rs#a63ce3954a0eff000796f4a6791efe2d9d32ead5"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d6b4ed0b813de2f00bfea74005d37f9744221fd20f52936dd129315b36e1f1b2"
 dependencies = [
  "as-slice",
  "bitflags",
@@ -192,7 +195,8 @@ dependencies = [
 [[package]]
 name = "imxrt-iomuxc"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/imxrt-rs#a63ce3954a0eff000796f4a6791efe2d9d32ead5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff127479e96ac36a0c60b2c6646f35ed02cd77aa1719d2e72efb1cb3ce5cbbba"
 dependencies = [
  "imxrt-iomuxc-build",
  "typenum",
@@ -201,15 +205,17 @@ dependencies = [
 [[package]]
 name = "imxrt-iomuxc-build"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/imxrt-rs#a63ce3954a0eff000796f4a6791efe2d9d32ead5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4eccabb29df24f0d492fdd19b936b21b0a7a2a9b37c1f76d31a367193e21cd91"
 dependencies = [
  "quote",
 ]
 
 [[package]]
 name = "imxrt-ral"
-version = "0.3.0"
-source = "git+https://github.com/mciantyre/imxrt-rs#a63ce3954a0eff000796f4a6791efe2d9d32ead5"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dbfe12e595fa993020cd4b630b94f63bf2b2d48d0b0157b14e66abc2ed2a93cf"
 dependencies = [
  "bare-metal",
  "cortex-m",
@@ -317,9 +323,9 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "syn"
-version = "1.0.35"
+version = "1.0.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb7f4c519df8c117855e19dd8cc851e89eb746fe7a73f0157e0d95fdec5369b0"
+checksum = "891d8d6567fe7c7f8835a3a98af4208f3846fba258c1bc3c31d6e506239f11f9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -329,7 +335,7 @@ dependencies = [
 [[package]]
 name = "teensy4-bsp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
+source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -343,7 +349,7 @@ dependencies = [
 [[package]]
 name = "teensy4-fcb"
 version = "0.2.0"
-source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
+source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
 dependencies = [
  "imxrt-boot-gen",
 ]
@@ -351,7 +357,7 @@ dependencies = [
 [[package]]
 name = "teensy4-rt"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
+source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
 dependencies = [
  "cortex-m",
  "cortex-m-rt-macros",
@@ -360,7 +366,7 @@ dependencies = [
 [[package]]
 name = "teensy4-usb-sys"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs?branch=development#00bb334f22e57fb7a03d83f4bf336c79bf87b3ec"
+source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
 
 [[package]]
 name = "typenum"

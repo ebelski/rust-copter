@@ -7,13 +7,12 @@ description = "Demonstrates PWM duty cycle control. Useful for testing PWM outpu
 
 [dependencies]
 panic-halt = "0.2.0"
-cortex-m = "0.6.2"
+cortex-m = "0.6.3"
 embedded-hal = "0.2.4"
-log = "0.4.8"
+log = "0.4.11"
 
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"
-branch = "development"
 
 [dependencies.esc]
 path = "../../libs/esc"

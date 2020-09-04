@@ -13,4 +13,4 @@ path = "../esc"
 
 [dependencies.imxrt-hal]
 features = ["imxrt1062"]
-version = "0.3.0"
+version = "0.4.0"
