@@ -19,10 +19,18 @@ const SPI_BAUD_RATE_HZ: u32 = 1_000_000;
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
-    peripherals.usb.init(bsp::usb::LoggingConfig {
-        filters: &[],
-        ..Default::default()
-    });
+    let core_peripherals = cortex_m::Peripherals::take().unwrap();
+    let mut systick = bsp::SysTick::new(core_peripherals.SYST);
+    let pins = bsp::t40::pins(peripherals.iomuxc);
+
+    bsp::usb::init(
+        &systick,
+        bsp::usb::LoggingConfig {
+            filters: &[],
+            ..Default::default()
+        },
+    )
+    .unwrap();
 
     peripherals.ccm.pll1.set_arm_clock(
         bsp::hal::ccm::PLL1::ARM_HZ,
@@ -30,7 +38,7 @@ fn main() -> ! {
         &mut peripherals.dcdc,
     );
 
-    peripherals.systick.delay(5000);
+    systick.delay(5000);
     log::info!("Initializing SPI4 clocks...");
 
     let (_, _, _, spi4_builder) = peripherals.spi.clock(
@@ -40,11 +48,7 @@ fn main() -> ! {
     );
 
     log::info!("Constructing SPI4 peripheral...");
-    let mut spi4 = spi4_builder.build(
-        peripherals.pins.p11,
-        peripherals.pins.p12,
-        peripherals.pins.p13,
-    );
+    let mut spi4 = spi4_builder.build(pins.p11, pins.p12, pins.p13);
 
     match spi4.set_clock_speed(bsp::hal::spi::ClockSpeed(SPI_BAUD_RATE_HZ)) {
         Ok(()) => {
@@ -62,9 +66,9 @@ fn main() -> ! {
         }
     };
 
-    spi4.enable_chip_select_0(peripherals.pins.p10);
+    spi4.enable_chip_select_0(pins.p10);
     log::info!("Waiting a few seconds before querying MPU9250...");
-    peripherals.systick.delay(4000);
+    systick.delay(4000);
 
     let mut config = invensense_mpu::Config::default();
     config.accel_scale = invensense_mpu::regs::ACCEL_FS_SEL::G8;
@@ -72,7 +76,7 @@ fn main() -> ! {
         mode: invensense_mpu::regs::CNTL1_MODE::CONTINUOUS_2,
         ..Default::default()
     };
-    let mut sensor = match invensense_mpu::spi::new(spi4, &mut peripherals.systick, &config) {
+    let mut sensor = match invensense_mpu::spi::new(spi4, &mut systick, &config) {
         Ok(sensor) => sensor,
         Err(err) => {
             log::error!("Error when constructing MP9250: {:?}", err);
@@ -87,12 +91,12 @@ fn main() -> ! {
         sensor.mpu9250_who_am_i().unwrap()
     );
     log::info!("AK8963 WHO_AM_I = {:#X}", sensor.ak8963_who_am_i().unwrap());
-    peripherals.systick.delay(5000);
+    systick.delay(5000);
     loop {
         log::info!("ACC {:?}", sensor.accelerometer().unwrap());
         log::info!("GYRO {:?}", sensor.gyroscope().unwrap());
         log::info!("MAG {:?}", sensor.magnetometer().unwrap());
 
-        peripherals.systick.delay(250);
+        systick.delay(250);
     }
 }

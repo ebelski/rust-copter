@@ -98,11 +98,11 @@ const UART_BAUD: u32 = 115_200;
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
-    let mut led = bsp::configure_led(peripherals.pins.p13);
+    let core_peripherals = cortex_m::Peripherals::take().unwrap();
+    let mut systick = bsp::SysTick::new(core_peripherals.SYST);
+    let pins = bsp::t40::pins(peripherals.iomuxc);
 
-    // Set up the USB stack, and use the USB reader for parsing commands
-    let usb_reader = peripherals.usb.init(Default::default());
-    let mut parser = Parser::new(usb_reader);
+    let mut led = bsp::configure_led(pins.p13);
 
     // Initialize the ARM and IPG clocks. The PWM module runs on the IPG clock.
     let (_, ipg_hz) = peripherals.ccm.pll1.set_arm_clock(
@@ -130,8 +130,8 @@ fn main() -> ! {
         .sm2
         .outputs(
             &mut pwm2.handle,
-            peripherals.pins.p6,
-            peripherals.pins.p9,
+            pins.p6,
+            pins.p9,
             bsp::hal::pwm::Timing {
                 clock_select: bsp::hal::ccm::pwm::ClockSelect::IPG(ipg_hz),
                 prescalar: bsp::hal::ccm::pwm::Prescalar::PRSC_5,
@@ -145,8 +145,8 @@ fn main() -> ! {
         .sm3
         .outputs(
             &mut pwm1.handle,
-            peripherals.pins.p8,
-            peripherals.pins.p7,
+            pins.p8,
+            pins.p7,
             bsp::hal::pwm::Timing {
                 clock_select: bsp::hal::ccm::pwm::ClockSelect::IPG(ipg_hz),
                 prescalar: bsp::hal::ccm::pwm::Prescalar::PRSC_5,
@@ -156,6 +156,10 @@ fn main() -> ! {
         .unwrap();
 
     let mut esc = imxrtESC::new(ESC_PROTOCOL, pwm1.handle, sm3, pwm2.handle, sm2);
+
+    // Set up the USB stack, and use the USB reader for parsing commands
+    let usb_reader = bsp::usb::init(&systick, Default::default()).unwrap();
+    let mut parser = Parser::new(usb_reader);
 
     let blink_period = pwm_to_blink_period(&esc);
     led_timer.start(blink_period);
@@ -168,10 +172,7 @@ fn main() -> ! {
         bsp::hal::ccm::uart::ClockSelect::OSC,
         bsp::hal::ccm::uart::PrescalarSelect::DIVIDE_1,
     );
-    let uart = uarts
-        .uart2
-        .init(peripherals.pins.p14, peripherals.pins.p15, UART_BAUD)
-        .unwrap();
+    let uart = uarts.uart2.init(pins.p14, pins.p15, UART_BAUD).unwrap();
     let (tx, _) = uart.split();
 
     // ---------
@@ -201,7 +202,7 @@ fn main() -> ! {
         bsp::hal::ccm::i2c::ClockSelect::OSC, // Use the 24MHz oscillator as the peripheral clock source
         bsp::hal::ccm::i2c::PrescalarSelect::DIVIDE_3, // Divide that 24MHz clock by 3
     );
-    let mut i2c3 = i2c3_builder.build(peripherals.pins.p16, peripherals.pins.p17);
+    let mut i2c3 = i2c3_builder.build(pins.p16, pins.p17);
     // Set the I2C clock speed. If this returns an error, log it and stop.
     match i2c3.set_clock_speed(I2C_CLOCK_SPEED) {
         Ok(_) => (),
@@ -221,7 +222,7 @@ fn main() -> ! {
     // ------------
     // Sensor setup
     // ------------
-    let mut sensor = sensor::Sensor::new(sensor_timer, i2c3, datapath, &mut peripherals.systick);
+    let mut sensor = sensor::Sensor::new(sensor_timer, i2c3, datapath, &mut systick);
 
     log::info!("=============READY=============");
     loop {
@@ -280,7 +281,7 @@ fn main() -> ! {
 
                 led.set_high().unwrap();
                 loop {
-                    peripherals.systick.delay(1_000);
+                    systick.delay(1_000);
                     cortex_m::asm::wfe();
                 }
             }

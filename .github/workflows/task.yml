@@ -33,10 +33,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
+      # See https://github.com/psf/black/issues/1654 for why we're
+      # locking black version.
       - name: Install formatter
         run: |
           python -m pip install --upgrade pip
-          pip install black
+          pip install black==19.10b0
       - uses: actions/checkout@v2
       - name: Check formatting of tasks.py
         run: black --check task.py
