@@ -1,5 +1,8 @@
 //! Triplet helper type for three-axis readings
 
+#[cfg(feature = "use-serde")]
+use serde::{Deserialize, Serialize};
+
 /// A reading `T` on three axes
 ///
 /// The axis orientations are dependent on the implementation. Consult
@@ -9,6 +12,7 @@
 /// By convention, the zeroth element is X; the first Y; the second Z.
 /// It can also be treated as a slice of three elements.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 #[repr(C)]
 pub struct Triplet<T> {
     /// Reading from the X axis

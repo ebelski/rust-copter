@@ -1,5 +1,7 @@
 //! PWM control example
 //!
+//! # Motor control
+//!
 //! The example lets us change PWM outputs from user input. There are four
 //! PWM outputs, identified by the letters A through D:
 //!
@@ -50,14 +52,35 @@
 //! 50% duty cycle represents 0% throttle. We're assuming that the ESC
 //! can perfectly detect a 2000us pulse followed immediately by another 2000us pulse, where there may be
 //! no delay between the two pulses.
+//!
+//! # Motion Sensor
+//!
+//! You can optionally connect an MPU9250 motion sensor to a Teensy 4's I2C peripheral. If connected,
+//! the example will poll the sensor and write the data over a UART peripheral. The table below describes
+//! the I2C sensor and UART pinouts.
+//!
+//! | Teensy 4 Pin | Teensy 4 Function |  Connection  |
+//! | ------------ | ----------------- | ------------ |
+//! |      14      |     UART2 TX      | Host UART RX |
+//! |      15      |     UART2 RX      | Host UART TX |
+//! |      16      |     I2C3 SCL      |   MPU SCL    |
+//! |      17      |     I2C3 SDA      |   MPU SDA    |
+//!
+//! Note that the motion sensor is optional. If the sensor is not connected, you may still control motors.
+//!
+//! IMU readings represent a COBS-encoded slice of one ore more `motion_sensor::Reading` measurements. You
+//! may deserialize them using `postcard`.
 
 #![no_std]
 #![no_main]
 
+mod datapath;
 mod parser;
+mod sensor;
 
 extern crate panic_halt;
 
+use bsp::hal::i2c::ClockSpeed;
 use bsp::rt::entry;
 use core::time::Duration;
 use embedded_hal::{digital::v2::OutputPin, timer::CountDown};
@@ -69,6 +92,8 @@ use esc_imxrt1062::{Protocol, ESC as imxrtESC};
 
 /// CHANGE ME to vary the ESC protocol
 const ESC_PROTOCOL: Protocol = Protocol::OneShot125;
+const I2C_CLOCK_SPEED: ClockSpeed = ClockSpeed::KHz400;
+const UART_BAUD: u32 = 115_200;
 
 #[entry]
 fn main() -> ! {
@@ -86,13 +111,12 @@ fn main() -> ! {
         &mut peripherals.dcdc,
     );
 
-    // Use one of the PIT timers to blink the LED at 1Hz
     let mut pit_cfg = peripherals.ccm.perclk.configure(
         &mut peripherals.ccm.handle,
         bsp::hal::ccm::perclk::PODF::DIVIDE_3,
         bsp::hal::ccm::perclk::CLKSEL::IPG(ipg_hz),
     );
-    let (mut led_timer, _, _, _) = peripherals.pit.clock(&mut pit_cfg);
+    let (mut led_timer, _, _, sensor_timer) = peripherals.pit.clock(&mut pit_cfg);
 
     // Enable clocks to the PWM modules
     let mut pwm1 = peripherals.pwm1.clock(&mut peripherals.ccm.handle);
@@ -140,6 +164,67 @@ fn main() -> ! {
     let blink_period = pwm_to_blink_period(&esc);
     led_timer.start(blink_period);
 
+    // ----------
+    // UART setup
+    // ----------
+    let uarts = peripherals.uart.clock(
+        &mut peripherals.ccm.handle,
+        bsp::hal::ccm::uart::ClockSelect::OSC,
+        bsp::hal::ccm::uart::PrescalarSelect::DIVIDE_1,
+    );
+    let uart = uarts.uart2.init(pins.p14, pins.p15, UART_BAUD).unwrap();
+    let (tx, _) = uart.split();
+
+    // ---------
+    // DMA setup
+    // ---------
+    let mut dma_channels = peripherals.dma.clock(&mut peripherals.ccm.handle);
+    let channel_7 = dma_channels[7].take().unwrap();
+
+    // --------------
+    // Datapath setup
+    // --------------
+    let datapath = match datapath::Datapath::new(tx, channel_7) {
+        Ok(datapath) => datapath,
+        Err(err) => {
+            log::error!("Unable to establish datapath: {:?}", err);
+            loop {
+                core::sync::atomic::spin_loop_hint();
+            }
+        }
+    };
+
+    // ---------
+    // I2C setup
+    // ---------
+    let (_, _, i2c3_builder, _) = peripherals.i2c.clock(
+        &mut peripherals.ccm.handle,
+        bsp::hal::ccm::i2c::ClockSelect::OSC, // Use the 24MHz oscillator as the peripheral clock source
+        bsp::hal::ccm::i2c::PrescalarSelect::DIVIDE_3, // Divide that 24MHz clock by 3
+    );
+    let mut i2c3 = i2c3_builder.build(pins.p16, pins.p17);
+    // Set the I2C clock speed. If this returns an error, log it and stop.
+    match i2c3.set_clock_speed(I2C_CLOCK_SPEED) {
+        Ok(_) => (),
+        Err(err) => {
+            log::error!(
+                "Unable to set I2C clock speed to {:?}: {:?}",
+                I2C_CLOCK_SPEED,
+                err
+            );
+            loop {
+                // Nothing more to do
+                core::sync::atomic::spin_loop_hint();
+            }
+        }
+    }
+
+    // ------------
+    // Sensor setup
+    // ------------
+    let mut sensor = sensor::Sensor::new(sensor_timer, i2c3, datapath, &mut systick);
+
+    log::info!("=============READY=============");
     loop {
         if let Ok(()) = led_timer.wait() {
             led.toggle();
@@ -147,7 +232,7 @@ fn main() -> ! {
 
         match parser.parse() {
             // Parser has not found any command; it needs more inputs
-            Ok(None) => systick.delay(10),
+            Ok(None) => sensor.poll(),
             // User wants to reset all duty cycles
             Ok(Some(Command::ResetThrottle)) => {
                 esc.set_throttle_group(&[
@@ -161,8 +246,16 @@ fn main() -> ! {
                 led_timer.start(blink_period);
             }
             // User wants to read all the throttle settings
-            Ok(Some(Command::ReadThrottle)) => {
+            Ok(Some(Command::ReadSettings)) => {
                 log::info!("ESC_PROTOCOL = {:?}", ESC_PROTOCOL);
+                log::info!(
+                    "SENSOR = {}",
+                    if sensor.is_active() {
+                        "CONNECTED"
+                    } else {
+                        "DISCONNECTED"
+                    }
+                );
                 log::info!("A = {}", esc.throttle(QuadMotor::A) * 100.0);
                 log::info!("B = {}", esc.throttle(QuadMotor::B) * 100.0);
                 log::info!("C = {}", esc.throttle(QuadMotor::C) * 100.0);

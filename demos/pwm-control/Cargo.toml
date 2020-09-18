@@ -9,7 +9,11 @@ description = "Demonstrates PWM duty cycle control. Useful for testing PWM outpu
 panic-halt = "0.2.0"
 cortex-m = "0.6.3"
 embedded-hal = "0.2.4"
-log = "0.4.11"
+log = { version = "0.4.11", features = ["release_max_level_debug"] }
+postcard = { version = "0.5", default-features = false }
+void = { version = "1.0.2", default-features = false }
+motion-sensor = { path = "../../libs/motion-sensor", features = ["use-serde"] }
+invensense-mpu = { path = "../../libs/invensense-mpu" }
 
 [dependencies.teensy4-bsp]
 git = "https://github.com/mciantyre/teensy4-rs.git"

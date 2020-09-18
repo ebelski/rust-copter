@@ -27,8 +27,8 @@ pub enum Command {
     ///
     /// `percent` is bound from the closed range `[0, 100]`
     SetThrottle { output: QuadMotor, percent: f32 },
-    /// Read and report all throttle values
-    ReadThrottle,
+    /// Read system settings
+    ReadSettings,
     /// Reset all throttle values
     ResetThrottle,
     /// Kill switch
@@ -115,7 +115,7 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
             b'B' => QuadMotor::B,
             b'C' => QuadMotor::C,
             b'D' => QuadMotor::D,
-            b'r' => return Ok(Some(Command::ReadThrottle)),
+            b'r' => return Ok(Some(Command::ReadSettings)),
             b' ' => return Ok(Some(Command::ResetThrottle)),
             b'\\' => return Ok(Some(Command::KillSwitch)),
             _ => return Err(ParserError::InvalidPrefix(*output as char)),

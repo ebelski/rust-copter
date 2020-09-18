@@ -9,6 +9,9 @@ members = [
     "libs/motion-sensor",
     "libs/mpu9250-regs",
 ]
+exclude = [
+    "tools/pymotion-sensor",
+]
 
 [patch.crates-io.cortex-m-rt]
 git = "https://github.com/mciantyre/teensy4-rs"
