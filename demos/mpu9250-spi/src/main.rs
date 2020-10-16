@@ -10,7 +10,7 @@
 
 extern crate panic_halt;
 
-use bsp::rt::entry;
+use cortex_m_rt::entry;
 use motion_sensor::*;
 use teensy4_bsp as bsp;
 
@@ -21,7 +21,7 @@ fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
     let core_peripherals = cortex_m::Peripherals::take().unwrap();
     let mut systick = bsp::SysTick::new(core_peripherals.SYST);
-    let pins = bsp::t40::pins(peripherals.iomuxc);
+    let pins = bsp::t40::into_pins(peripherals.iomuxc);
 
     bsp::usb::init(
         &systick,

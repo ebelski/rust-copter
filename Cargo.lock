@@ -11,12 +11,13 @@ dependencies = [
 
 [[package]]
 name = "as-slice"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37dfb65bc03b2bc85ee827004f14a6817e04160e3b1a28931986a666a9290e70"
+checksum = "bb4d1c23475b74e3672afa8c2be22040b8b7783ad9b461021144ed10a46bb0e6"
 dependencies = [
  "generic-array 0.12.3",
  "generic-array 0.13.2",
+ "generic-array 0.14.4",
  "stable_deref_trait",
 ]
 
@@ -61,16 +62,19 @@ dependencies = [
 
 [[package]]
 name = "cortex-m-rt"
-version = "0.6.12"
-source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
+version = "0.6.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "980c9d0233a909f355ed297ef122f257942de5e0a2cb1c39f60684b65bcb90fb"
 dependencies = [
- "teensy4-rt",
+ "cortex-m-rt-macros",
+ "r0",
 ]
 
 [[package]]
 name = "cortex-m-rt-macros"
-version = "0.6.11"
-source = "git+https://github.com/rust-embedded/cortex-m-rt.git#48a73b6d1025d856df8bc85b6aaf9f7c195f82ef"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4717562afbba06e760d34451919f5c3bf3ac15c7bb897e8b04862a7428378647"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -82,6 +86,7 @@ name = "demo-mpu9250-i2c"
 version = "0.1.0"
 dependencies = [
  "cortex-m",
+ "cortex-m-rt",
  "embedded-hal",
  "invensense-mpu",
  "log",
@@ -95,6 +100,7 @@ name = "demo-mpu9250-spi"
 version = "0.1.0"
 dependencies = [
  "cortex-m",
+ "cortex-m-rt",
  "embedded-hal",
  "invensense-mpu",
  "log",
@@ -108,6 +114,7 @@ name = "demo-pwm-control"
 version = "0.1.0"
 dependencies = [
  "cortex-m",
+ "cortex-m-rt",
  "embedded-hal",
  "esc",
  "esc-imxrt1062",
@@ -174,6 +181,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "generic-array"
+version = "0.14.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "501466ecc8a30d1d3b7fc9229b122b2ce8ed6e9d9223f1138d4babb253e51817"
+dependencies = [
+ "typenum",
+ "version_check",
+]
+
+[[package]]
 name = "imxrt-boot-gen"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -181,9 +198,9 @@ checksum = "3991722c78672e5006f670da9a374a2af5c944a2a25fa2652346bf74aa1acf57"
 
 [[package]]
 name = "imxrt-hal"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6b4ed0b813de2f00bfea74005d37f9744221fd20f52936dd129315b36e1f1b2"
+checksum = "ebafdfcc5eea4473cd454e0081cb63d0a41981bb1789b44c7da922f4095bcdd8"
 dependencies = [
  "as-slice",
  "bitflags",
@@ -198,9 +215,9 @@ dependencies = [
 
 [[package]]
 name = "imxrt-iomuxc"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff127479e96ac36a0c60b2c6646f35ed02cd77aa1719d2e72efb1cb3ce5cbbba"
+checksum = "6b755807a270239691ef54fdf418fabe649781b4e6770341c14f457191243511"
 dependencies = [
  "imxrt-iomuxc-build",
  "typenum",
@@ -298,9 +315,9 @@ checksum = "7c68cb38ed13fd7bc9dd5db8f165b7c8d9c1a315104083a2b10f11354c2af97f"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.19"
+version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04f5f085b5d71e2188cb8271e5da0161ad52c3f227a661a3c135fdf28e258b12"
+checksum = "1e0704ee1a7e00d7bb417d0770ea303c1bccbabf0ef1667dae92b5967f5f8a71"
 dependencies = [
  "unicode-xid",
 ]
@@ -313,6 +330,12 @@ checksum = "aa563d17ecb180e500da1cfd2b028310ac758de548efdd203e18f283af693f37"
 dependencies = [
  "proc-macro2",
 ]
+
+[[package]]
+name = "r0"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2a38df5b15c8d5c7e8654189744d8e396bddc18ad48041a500ce52d6948941f"
 
 [[package]]
 name = "rustc_version"
@@ -340,18 +363,18 @@ checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "serde"
-version = "1.0.115"
+version = "1.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e54c9a88f2da7238af84b5101443f0c0d0a3bbdc455e34a5c9497b1903ed55d5"
+checksum = "b88fa983de7720629c9387e9f517353ed404164b1e482c970a90c1a4aaf7dc1a"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.115"
+version = "1.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "609feed1d0a73cc36a0182a840a9b37b4a82f0b1150369f0536a9e3f2a31dc48"
+checksum = "cbd1ae72adb44aab48f325a02444a5fc079349a8d804c1fc922aed3f7454c74e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -366,9 +389,9 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "syn"
-version = "1.0.39"
+version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "891d8d6567fe7c7f8835a3a98af4208f3846fba258c1bc3c31d6e506239f11f9"
+checksum = "e03e57e4fcbfe7749842d53e24ccb9aa12b7252dbe5e91d2acad31834c8b8fdd"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -378,7 +401,8 @@ dependencies = [
 [[package]]
 name = "teensy4-bsp"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d7120dc32cd0b5691fedfea7b4bfc3bb4300f5d33c604852198bc2f5f66ded7"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -386,30 +410,26 @@ dependencies = [
  "imxrt-hal",
  "log",
  "teensy4-fcb",
- "teensy4-usb-sys",
+ "teensy4-pins",
 ]
 
 [[package]]
 name = "teensy4-fcb"
 version = "0.2.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4c08911c8e1ca601332f27ce9eb0c8e54dc1647eb0636e13aca6952ff3140c3"
 dependencies = [
  "imxrt-boot-gen",
 ]
 
 [[package]]
-name = "teensy4-rt"
+name = "teensy4-pins"
 version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79e76b6f0de074cc76c22d3bca8dc51bbfbc53695d8b1d5b70a317334657ebc5"
 dependencies = [
- "cortex-m",
- "cortex-m-rt-macros",
+ "imxrt-iomuxc",
 ]
-
-[[package]]
-name = "teensy4-usb-sys"
-version = "0.1.0"
-source = "git+https://github.com/mciantyre/teensy4-rs#e7f717133294f22f6189a48cd15bf3e2d0c25f00"
 
 [[package]]
 name = "typenum"
@@ -428,6 +448,12 @@ name = "vcell"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "876e32dcadfe563a4289e994f7cb391197f362b6315dc45e8ba4aa6f564a4b3c"
+
+[[package]]
+name = "version_check"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5a972e5669d67ba988ce3dc826706fb0a8b01471c088cb0b6110b805cc36aed"
 
 [[package]]
 name = "void"
