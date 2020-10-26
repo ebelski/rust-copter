@@ -34,7 +34,7 @@ import shutil
 from typing import Optional
 from zipfile import ZipFile
 
-RUSTFLAGS = "-C link-arg=-Tlink.x"
+RUSTFLAGS = "-C link-arg=-Tt4link.x"
 TARGET = "thumbv7em-none-eabihf"
 OBJCOPY = "arm-none-eabi-objcopy"
 TEENSY_LOADER = "teensy_loader_cli"

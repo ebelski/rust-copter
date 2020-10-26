@@ -81,8 +81,8 @@ mod sensor;
 extern crate panic_halt;
 
 use bsp::hal::i2c::ClockSpeed;
-use bsp::rt::entry;
 use core::time::Duration;
+use cortex_m_rt::entry;
 use embedded_hal::{digital::v2::OutputPin, timer::CountDown};
 use parser::{Command, Parser};
 use teensy4_bsp as bsp;
@@ -100,7 +100,7 @@ fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
     let core_peripherals = cortex_m::Peripherals::take().unwrap();
     let mut systick = bsp::SysTick::new(core_peripherals.SYST);
-    let pins = bsp::t40::pins(peripherals.iomuxc);
+    let pins = bsp::t40::into_pins(peripherals.iomuxc);
 
     let mut led = bsp::configure_led(pins.p13);
 

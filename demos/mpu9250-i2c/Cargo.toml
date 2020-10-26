@@ -9,6 +9,7 @@ description = "Demonstration of interfacing an MPU9250 with the Teensy 4"
 
 [dependencies]
 cortex-m = "0.6.3"
+cortex-m-rt = "0.6.13"
 embedded-hal = "0.2.4"
 panic-halt = "0.2.0"
 motion-sensor = { path = "../../libs/motion-sensor" }
@@ -19,4 +20,5 @@ version = "0.4.11"
 features = ["release_max_level_debug"]
 
 [dependencies.teensy4-bsp]
-git = "https://github.com/mciantyre/teensy4-rs.git"
+version = "0.1"
+features = ["rt"]

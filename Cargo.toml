@@ -12,6 +12,3 @@ members = [
 exclude = [
     "tools/pymotion-sensor",
 ]
-
-[patch.crates-io.cortex-m-rt]
-git = "https://github.com/mciantyre/teensy4-rs"

@@ -30,14 +30,14 @@ const I2C_CLOCK_SPEED: ClockSpeed = ClockSpeed::KHz400;
 /// This is the fist thing that runs. By this point, the processor
 /// is ready to go. Most importantly, we can use floating-point
 /// operations by the time main() is called.
-#[bsp::rt::entry]
+#[cortex_m_rt::entry]
 fn main() -> ! {
     // Initializes system peripherals, and exposes them as a Peripherals
     // object. This can only be called once!
     let mut peripherals = bsp::Peripherals::take().unwrap();
     let core_peripherals = cortex_m::Peripherals::take().unwrap();
     let mut systick = bsp::SysTick::new(core_peripherals.SYST);
-    let pins = bsp::t40::pins(peripherals.iomuxc);
+    let pins = bsp::t40::into_pins(peripherals.iomuxc);
 
     // We'll set up the logging system, since it will be nice
     // to print things out. See the usb demo in the teensy4-rs
