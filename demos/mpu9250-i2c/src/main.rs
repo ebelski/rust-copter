@@ -14,6 +14,9 @@
 // We're going to write our own main() function, rather than
 // using the normal, 'special' main() function.
 #![no_main]
+// This seems to be a bad lint. The patter is valid
+// for a non_exhaustive struct.
+#![allow(clippy::field_reassign_with_default)]
 
 // -------
 // Imports

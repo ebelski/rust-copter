@@ -36,7 +36,7 @@ from zipfile import ZipFile
 
 RUSTFLAGS = "-C link-arg=-Tt4link.x"
 TARGET = "thumbv7em-none-eabihf"
-OBJCOPY = "arm-none-eabi-objcopy"
+OBJCOPY = "rust-objcopy"
 TEENSY_LOADER = "teensy_loader_cli"
 DEMOS = [
     "demo-mpu9250-i2c",

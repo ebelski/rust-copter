@@ -10,8 +10,6 @@ jobs:
     name: Build and upload demo release
     runs-on: ubuntu-latest
     steps:
-      - name: Install build dependencies
-        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
       - name: Checkout code
         uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -19,6 +17,12 @@ jobs:
           toolchain: stable
           target: thumbv7em-none-eabihf
           override: true
+          components: llvm-tools-preview
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-binutils
+          version: latest
+          use-tool-cache: true
       - name: Run release task
         run: ./task.py --verbose release
       - name: Create release
