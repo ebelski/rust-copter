@@ -29,7 +29,8 @@ jobs:
         python -m pip install maturin
     - name: Build and install pymotion-sensor
       run: |
-        maturin build --manifest-path tools/pymotion-sensor/Cargo.toml --out wheels
+        maturin build --manifest-path tools/pymotion-sensor/Cargo.toml --out wheels --manylinux off
+        ls -al wheels
         python -m pip install wheels/*.whl
     - name: Check pymotion-sensor installation
       run: python -c "import motion_sensor"
