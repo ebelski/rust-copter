@@ -38,3 +38,20 @@ jobs:
       with:
           command: fmt
           args: --verbose --all -- --check
+
+  # Build all Rust code on macOS, Ubuntu, and Windows
+  xplat:
+    strategy:
+      matrix:
+        host: [ macos-latest, ubuntu-latest, windows-latest ]
+    runs-on: ${{ matrix.host }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            profile: minimal
+            toolchain: stable
+            target: thumbv7em-none-eabihf
+            override: true
+      - name: Build examples
+        run: cargo build --workspace --target thumbv7em-none-eabihf
