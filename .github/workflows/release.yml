@@ -17,6 +17,11 @@ jobs:
           toolchain: stable
           target: thumbv7em-none-eabihf
           override: true
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-binutils
+          version: latest
+          use-tool-cache: true
       - name: Run release task
         run: ./task.py --verbose release
       - name: Create release

@@ -21,6 +21,11 @@ jobs:
             components: clippy
             target: thumbv7em-none-eabihf
             override: true
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-binutils
+          version: latest
+          use-tool-cache: true
       - uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

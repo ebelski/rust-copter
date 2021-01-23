@@ -19,6 +19,11 @@ jobs:
             toolchain: stable
             target: thumbv7em-none-eabihf
             override: true
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-binutils
+          version: latest
+          use-tool-cache: true
       - name: Run task for pwm-control demo
         run: ./task.py --verbose demo pwm-control --skip-flash
       - name: Run task for pwm-control demo ('demo-' prefix)
