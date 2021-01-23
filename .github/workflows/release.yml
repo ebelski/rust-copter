@@ -17,6 +17,7 @@ jobs:
           toolchain: stable
           target: thumbv7em-none-eabihf
           override: true
+          components: llvm-tools-preview
       - uses: actions-rs/install@v0.1
         with:
           crate: cargo-binutils
