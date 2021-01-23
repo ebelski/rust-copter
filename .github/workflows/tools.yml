@@ -8,6 +8,10 @@ on:
   pull_request:
     branches: [ master ]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   # Ensure that the pymotion-sensor library works builds
   # on macOS, Ubuntu, and Windows
