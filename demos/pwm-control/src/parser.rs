@@ -146,7 +146,7 @@ fn parse(buffer: &[u8]) -> Result<Option<Command>, ParserError> {
     }
 
     let percent: f32 = str::parse(pct_str.trim())?;
-    if 0.0f32 <= percent && percent <= 100.0f32 {
+    if (0.0f32..=100.0f32).contains(&percent) {
         Ok(Some(Command::SetThrottle { output, percent }))
     } else {
         Err(ParserError::InvalidPercentage(percent))
