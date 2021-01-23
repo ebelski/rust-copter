@@ -12,3 +12,8 @@ members = [
 exclude = [
     "tools/pymotion-sensor",
 ]
+
+# Don't optimize build dependencies, like proc macros.
+# Helps with build times.
+[profile.release.build-override]
+opt-level = 0
