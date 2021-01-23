@@ -1,0 +1,50 @@
+# Checks for host-side tools
+
+name: Tools
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  # Ensure that the pymotion-sensor library works builds
+  # on macOS, Ubuntu, and Windows
+  pymotion-sensor:
+    strategy:
+      matrix:
+        host: [ macos-latest, ubuntu-latest, windows-latest ]
+        python-version: [ 3.7, 3.8, 3.9 ]
+    runs-on: ${{ matrix.host }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install maturin
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install maturin
+    - name: Build pymotion-sensor
+      run: maturin develop --manifest-path tools/pymotion-sensor/Cargo.toml
+    - name: Check pymotion-sensor installation
+      run: python -c "import motion_sensor"
+
+  imu-parse:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    # See https://github.com/psf/black/issues/1654 for why we're
+    # locking black version.
+    - name: Install formatter
+      run: |
+        python -m pip install --upgrade pip
+        pip install black==19.10b0
+    - name: Check formatting of tools/imu-parse.py
+      run: black --check tools/imu-parse.py
