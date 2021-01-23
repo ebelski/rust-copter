@@ -25,7 +25,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --verbose --target thumbv7em-none-eabihf -- -D warnings
-          name: Run clippy
+          name: Run clippy for workspace
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --verbose --manifest-path tools/pymotion-sensor/Cargo.toml -- -D warnings
+          name: Run clippy for tools/pymotion-sensor
 
   # Ensure code is formatted
   format:
@@ -33,11 +38,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: rustup component add rustfmt
-    - name: Check code formatting
+    - name: Check code formatting for workspace
       uses: actions-rs/cargo@v1
       with:
           command: fmt
           args: --verbose --all -- --check
+    - name: Check code formatting for tools/pymotion-sensor
+      uses: actions-rs/cargo@v1
+      with:
+          command: fmt
+          args: --verbose --manifest-path tools/pymotion-sensor/Cargo.toml -- --check
 
   # Build all Rust code on macOS, Ubuntu, and Windows
   xplat:
