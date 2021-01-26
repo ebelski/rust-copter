@@ -1,12 +1,10 @@
-# Jobs and checks for all-things documentation
+# Cron job that checks the first-time setup script
 
-name: Docs
+name: First Time Setup
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  schedule:
+  - cron: "15 14 */13 * *"  # at 2:15PM on each 13th day of the month
 
 defaults:
   run:
