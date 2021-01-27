@@ -9,7 +9,7 @@ name = "motion_sensor"
 crate-type = ["cdylib"]
 
 [dependencies.pyo3]
-version = "0.11.1"
+version = "0.13.1"
 features = ["extension-module"]
 
 [dependencies.motion-sensor]
@@ -20,3 +20,8 @@ features = ["use-serde"]
 version = "0.5"
 default-features = false
 features = ["use-std"]
+
+# Don't optimize build dependencies, like proc macros.
+# Helps with build times.
+[profile.release.build-override]
+opt-level = 0

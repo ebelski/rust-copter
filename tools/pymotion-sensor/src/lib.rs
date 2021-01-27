@@ -1,4 +1,4 @@
-use pyo3::exceptions::ValueError;
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyByteArray;
 use pyo3::wrap_pyfunction;
@@ -104,7 +104,7 @@ pub fn convert_readings(py: Python, buffer: &PyByteArray) -> PyResult<Vec<PyObje
     let buffer = unsafe { buffer.as_bytes_mut() };
     let readings: Vec<Reading> = match postcard::from_bytes_cobs(buffer) {
         Err(err) => {
-            return Err(PyErr::new::<ValueError, _>(format!(
+            return Err(PyErr::new::<PyValueError, _>(format!(
                 "error converting readings: {:?}",
                 err,
             )));
