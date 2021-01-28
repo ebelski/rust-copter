@@ -6,15 +6,7 @@ A quadcopter build using a semi-realtime Teensy 4.0 running Rust ([mciantyre](ht
 
 [Install `git-lfs`](https://git-lfs.github.com). We use `git-lfs` to manage larger files, like PDF reference manuals and 3D models, in this repository.
 
-The Rust libraries and applications in this project are expected to run in a Teensy 4. To build the code, install the [dependencies](https://github.com/mciantyre/teensy4-rs#dependencies) required by the `teensy4-rs` project.
-
-Once you've installed all of the dependencies, check-out this repository, then try
-
-```
-cargo build --target thumbv7em-none-eabihf
-```
-
-to build the code.
+To get started with the software, see the [Getting Started - Software](docs/GettingStartedSoftware.md) guide.
 
 ## Downloading software to a Teensy 4
 

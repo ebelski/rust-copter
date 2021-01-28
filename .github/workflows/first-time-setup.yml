@@ -1,0 +1,31 @@
+# Cron job that checks the first-time setup script
+
+name: First Time Setup
+
+on:
+  schedule:
+  - cron: "15 14 */13 * *"  # at 2:15PM on each 13th day of the month
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # Make sure that the first-time setup works
+  #
+  # Assumed base installation includes Rust, and other build
+  # essentials for the platform (at least a linker). The script
+  # should then install llvm-tools-preview, cargo-binutils, and
+  # make sure that it all works. Then, it should do a test build
+  # of all the Rust code. Finally, it checks the Python version,
+  # but a missing installation or wrong version doesn't mean a
+  # failure.
+  first-time-setup:
+    strategy:
+      matrix:
+        host: [ macos-latest, ubuntu-latest ]
+    runs-on: ${{ matrix.host }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run first-time setup
+      run: cd docs && ./first-time-setup.sh
