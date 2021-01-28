@@ -37,7 +37,8 @@ toolchains.
 
 Make sure that you have all additional dependencies. If you're on Linux /macOS,
 you might need to install a linker. If you use Windows, you may need to install
-the Build Tools for Visual Studio 2019. Read the relevant sections for more
+the Build Tools for Visual Studio 2019. Read the relevant sections of
+[The Rust Programming Language][the-book-ch1] (section 1.1) for more
 information.
 
 **Success**: All of these commands succeed:
