@@ -55,12 +55,16 @@ cargo build
 popd &> /dev/null
 echo "[✓] OK build of all embedded and host-side Rust code"
 
-# Check for Python installation with minimum version
-# for versions. TODO check version.
-if ! python -c "import sys; assert sys.version_info[0] == 3 and sys.version_info[1] > 6" &> /dev/null
+# Check for a Python interpreter, and make sure it's at least Python 3.7
+if ! command -v python &> /dev/null
 then
-    echo "[!] Cannot find Python interpreter at 'python', or installation is not the 3.7 min version"
-    echo "[!] Make sure you have at least a Python 3.7 installation available"
+    echo "[!] Cannot find Python interpreter at 'python'"
+    echo "    Make sure you have a Python interpreter available"
+elif ! python -c "import sys; assert sys.version_info[0] == 3 and sys.version_info[1] > 6" &> /dev/null
+then
+    echo "[!] Python interpreter 'python' is not the min version 3.7"
+    echo "    Make sure your 'python' interpreter is at least version 3.7"
+    echo "    Hint: use a virtual environment generated from your Python 3 installation"
 else
     echo "[✓] Found Python installation with interpreter 'python' and min version 3.7"
 fi
