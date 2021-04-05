@@ -27,7 +27,7 @@ jobs:
   first-time-setup:
     strategy:
       matrix:
-        host: [ macos-latest, ubuntu-latest ]
+        host: [ macos-latest, ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.host }}
     steps:
     - uses: actions/checkout@v2
