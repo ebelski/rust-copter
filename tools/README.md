@@ -17,7 +17,7 @@ The library is written in Rust. We recommend using
 [maturin](https://github.com/PyO3/maturin) to build and install the library.
 
 ```bash
-$ pip install maturin
+$ pip install 'maturin>=0.9,<0.10'
 $ maturin build --release --manifest-path tools/pymotion-sensor/Cargo.toml
 ```
 
