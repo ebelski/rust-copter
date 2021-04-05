@@ -64,7 +64,7 @@ elif ! python -c "import sys; assert sys.version_info[0] == 3 and sys.version_in
 then
     echo "[!] Python interpreter 'python' is not the min version 3.7"
     echo "    Make sure your 'python' interpreter is at least version 3.7"
-    echo "    Hint: use a virtual environment generated from your Python 3 installation"
+    echo "    Hint: if you have python 3.7+ isntalled but are still getting this error, use a virtual environment generated from your Python 3 installation"
 else
     echo "[✓] Found Python installation with interpreter 'python' and min version 3.7"
 fi
