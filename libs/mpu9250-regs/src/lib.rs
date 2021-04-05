@@ -5,6 +5,7 @@
 //! each module for more information.
 
 #![no_std]
+#![allow(clippy::upper_case_acronyms)]
 
 pub mod ak8963;
 pub mod mpu9250;
