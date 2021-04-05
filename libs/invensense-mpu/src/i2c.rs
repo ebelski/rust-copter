@@ -29,10 +29,10 @@
 //! let (acc, gyro, mag) = mpu.marg().unwrap();
 //! ```
 
-use crate::{regs::*, Config, Error, Handle, Transport, MPU};
+use crate::{regs::*, Config, Error, Handle, Mpu, Transport};
 use core::convert::TryInto;
 use embedded_hal::blocking::{delay::DelayMs, i2c};
-use motion_sensor::{Accelerometer, DegPerSec, Gs, Gyroscope, Magnetometer, MicroT, DOF6, MARG};
+use motion_sensor::{Accelerometer, DegPerSec, Dof6, Gs, Gyroscope, Magnetometer, Marg, MicroT};
 
 /// Bypass I2C mode
 ///
@@ -82,7 +82,7 @@ pub fn new<I, E>(
     i2c: I,
     delay: &mut dyn DelayMs<u8>,
     config: &Config,
-) -> Result<MPU<Bypass<I>>, Error<E>>
+) -> Result<Mpu<Bypass<I>>, Error<E>>
 where
     I: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
@@ -136,12 +136,12 @@ where
     // Apply user configuration
     config.apply(&mut i2c)?;
 
-    Ok(MPU::new(i2c, &config, &sensitivity))
+    Ok(Mpu::new(i2c, &config, &sensitivity))
 }
 
 /// Release the I2C driver along with the driver handler for re-creating the
 /// device
-pub fn release<I>(mpu: MPU<Bypass<I>>) -> (I, Handle) {
+pub fn release<I>(mpu: Mpu<Bypass<I>>) -> (I, Handle) {
     (mpu.transport.0, mpu.handle)
 }
 
@@ -150,17 +150,17 @@ pub fn release<I>(mpu: MPU<Bypass<I>>) -> (I, Handle) {
 /// You're responsible for making sure that the handle matches to
 /// the I2C peripheral it was originally associated with. Otherwise,
 /// we associated the wrong state with a physical MPU.
-pub fn from_handle<I>(i2c: I, handle: Handle) -> MPU<Bypass<I>>
+pub fn from_handle<I>(i2c: I, handle: Handle) -> Mpu<Bypass<I>>
 where
     I: i2c::WriteRead + i2c::Write,
 {
-    MPU {
+    Mpu {
         transport: Bypass(i2c),
         handle,
     }
 }
 
-impl<I> Accelerometer for MPU<Bypass<I>>
+impl<I> Accelerometer for Mpu<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
@@ -181,7 +181,7 @@ where
     }
 }
 
-impl<I> Gyroscope for MPU<Bypass<I>>
+impl<I> Gyroscope for Mpu<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
@@ -202,7 +202,7 @@ where
     }
 }
 
-impl<I> Magnetometer for MPU<Bypass<I>>
+impl<I> Magnetometer for Mpu<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
@@ -224,7 +224,7 @@ where
     }
 }
 
-impl<I> DOF6 for MPU<Bypass<I>>
+impl<I> Dof6 for Mpu<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
@@ -251,11 +251,11 @@ where
     }
 }
 
-impl<I> MARG for MPU<Bypass<I>>
+impl<I> Marg for Mpu<Bypass<I>>
 where
     I: i2c::WriteRead,
 {
-    fn marg(&mut self) -> Result<motion_sensor::MARGReadings, <Self as Accelerometer>::Error> {
+    fn marg(&mut self) -> Result<motion_sensor::MargReadings, <Self as Accelerometer>::Error> {
         let (acc, gyro) = self.dof6()?;
         let mag = self.magnetometer()?;
         Ok((acc, gyro, mag))

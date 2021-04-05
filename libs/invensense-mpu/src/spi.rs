@@ -33,9 +33,9 @@
 //! let (acc, gyro, mag) = mpu.marg().unwrap();
 //! ```
 
-use crate::{regs::*, Config, Error, Handle, Transport, MPU};
+use crate::{regs::*, Config, Error, Handle, Mpu, Transport};
 use embedded_hal::{blocking::delay::DelayMs, blocking::spi::Transfer};
-use motion_sensor::{Accelerometer, DegPerSec, Gs, Gyroscope, Magnetometer, MicroT, DOF6, MARG};
+use motion_sensor::{Accelerometer, DegPerSec, Dof6, Gs, Gyroscope, Magnetometer, Marg, MicroT};
 
 use core::fmt::Debug;
 
@@ -47,7 +47,7 @@ const fn write(address: MPU9250, value: u8) -> u16 {
     ((address as u16) << 8) | (value as u16)
 }
 
-impl<S> Transport for SPI<S>
+impl<S> Transport for Spi<S>
 where
     S: Transfer<u16>,
     S::Error: Debug,
@@ -112,11 +112,11 @@ where
 }
 
 /// SPI communication transport for the MPU9250
-pub struct SPI<S>(S);
+pub struct Spi<S>(S);
 
 /// Release a SPI-based MPU, returning the device handle
 /// and the SPI peripheral
-pub fn release<S>(mpu: MPU<SPI<S>>) -> (S, Handle) {
+pub fn release<S>(mpu: Mpu<Spi<S>>) -> (S, Handle) {
     (mpu.transport.0, mpu.handle)
 }
 
@@ -125,12 +125,12 @@ pub fn release<S>(mpu: MPU<SPI<S>>) -> (S, Handle) {
 /// Caller is reponsible for matching the peripheral to the handle.
 /// Otherwise, we might be using the wrong handle for a different
 /// physical MPU.
-pub fn from_handle<S>(spi: S, handle: Handle) -> MPU<SPI<S>>
+pub fn from_handle<S>(spi: S, handle: Handle) -> Mpu<Spi<S>>
 where
     S: Transfer<u16>,
 {
-    MPU {
-        transport: SPI(spi),
+    Mpu {
+        transport: Spi(spi),
         handle,
     }
 }
@@ -140,12 +140,12 @@ pub fn new<S>(
     spi: S,
     delay: &mut dyn DelayMs<u8>,
     config: &Config,
-) -> Result<MPU<SPI<S>>, Error<S::Error>>
+) -> Result<Mpu<Spi<S>>, Error<S::Error>>
 where
     S: Transfer<u16>,
     S::Error: Debug,
 {
-    let mut spi = SPI(spi);
+    let mut spi = Spi(spi);
 
     // Enable the I2C interface, just so we can power-down the AK8963...
     spi.mpu9250_write(MPU9250::USER_CTRL, USER_CTRL::I2C_MST_EN)?;
@@ -217,10 +217,10 @@ where
         },
     )?;
 
-    Ok(MPU::new(spi, &config, &sensitivity))
+    Ok(Mpu::new(spi, &config, &sensitivity))
 }
 
-impl<S> Accelerometer for MPU<SPI<S>>
+impl<S> Accelerometer for Mpu<Spi<S>>
 where
     S: Transfer<u16>,
 {
@@ -244,7 +244,7 @@ where
     }
 }
 
-impl<S> Gyroscope for MPU<SPI<S>>
+impl<S> Gyroscope for Mpu<Spi<S>>
 where
     S: Transfer<u16>,
 {
@@ -268,7 +268,7 @@ where
     }
 }
 
-impl<S> Magnetometer for MPU<SPI<S>>
+impl<S> Magnetometer for Mpu<Spi<S>>
 where
     S: Transfer<u16>,
 {
@@ -292,9 +292,9 @@ where
     }
 }
 
-impl<S> DOF6 for MPU<SPI<S>> where S: Transfer<u16> {}
+impl<S> Dof6 for Mpu<Spi<S>> where S: Transfer<u16> {}
 
-impl<S> MARG for MPU<SPI<S>> where S: Transfer<u16> {}
+impl<S> Marg for Mpu<Spi<S>> where S: Transfer<u16> {}
 
 /// Read from the AK8963's register identified by `register`
 fn ak8963_read<SPI: Transfer<u16>>(
@@ -363,6 +363,6 @@ fn ak8963_wait_done<SPI: Transfer<u16>>(
 /// [`release()`](fn.release.html) and [`from_handle()`](fn.from_handle.html)
 /// pattern. You're responsible for making sure the SPI peripheral is still
 /// usable when `configure()` returns.
-pub fn configure<S, R, F: FnOnce(&mut S) -> R>(mpu: &mut MPU<SPI<S>>, f: F) -> R {
+pub fn configure<S, R, F: FnOnce(&mut S) -> R>(mpu: &mut Mpu<Spi<S>>, f: F) -> R {
     f(&mut mpu.transport.0)
 }

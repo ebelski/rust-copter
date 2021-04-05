@@ -18,7 +18,7 @@ pub enum QuadMotor {
 }
 
 /// An electronic speed control
-pub trait ESC {
+pub trait Esc {
     /// Identifiers for motors
     ///
     /// `QuadMotor` is an example of a possible `Motor` type.

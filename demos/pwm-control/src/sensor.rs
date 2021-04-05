@@ -5,7 +5,7 @@ use embedded_hal::{
     blocking::i2c::{Write, WriteRead},
     timer::{CountDown, Periodic},
 };
-use invensense_mpu::MPU;
+use invensense_mpu::Mpu;
 use motion_sensor::*;
 
 const POLLING_INTERVAL: Duration = Duration::from_micros(10_000);
@@ -13,7 +13,7 @@ const POLLING_INTERVAL: Duration = Duration::from_micros(10_000);
 pub struct Sensor<P, I> {
     timer: P,
     write: crate::datapath::Datapath,
-    mpu: Option<MPU<invensense_mpu::i2c::Bypass<I>>>,
+    mpu: Option<Mpu<invensense_mpu::i2c::Bypass<I>>>,
 }
 
 impl<P, I, E> Sensor<P, I>

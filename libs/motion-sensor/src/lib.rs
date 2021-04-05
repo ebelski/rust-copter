@@ -51,7 +51,7 @@ pub trait Magnetometer<V = DefaultScalar> {
 /// The default implementation simply queries the accelerometer, then queries the
 /// gyroscope. Implementations that can perform a more efficient query should do
 /// so.
-pub trait DOF6<A = DefaultScalar, G = DefaultScalar>:
+pub trait Dof6<A = DefaultScalar, G = DefaultScalar>:
     Accelerometer<A> + Gyroscope<G, Error = <Self as Accelerometer<A>>::Error>
 {
     fn dof6(&mut self) -> Result<(Gs<A>, DegPerSec<G>), <Self as Accelerometer<A>>::Error> {
@@ -62,19 +62,19 @@ pub trait DOF6<A = DefaultScalar, G = DefaultScalar>:
 /// A tuple of accelerometer, gyroscope, and magnetometer readings
 ///
 /// See [`MARG`](trait.MARG.html) for more information.
-pub type MARGReadings<A = DefaultScalar, G = DefaultScalar, M = DefaultScalar> =
+pub type MargReadings<A = DefaultScalar, G = DefaultScalar, M = DefaultScalar> =
     (Gs<A>, DegPerSec<G>, MicroT<M>);
 
 /// All three of a accelerometer, magnetometer, and gyroscope
 ///
 /// The default implementation queries for all three readings separately.
 /// Consider providing a querying optimization if you're able to do so.
-pub trait MARG<A = DefaultScalar, G = DefaultScalar, M = DefaultScalar>:
+pub trait Marg<A = DefaultScalar, G = DefaultScalar, M = DefaultScalar>:
     Accelerometer<A>
     + Gyroscope<G, Error = <Self as Accelerometer<A>>::Error>
     + Magnetometer<M, Error = <Self as Accelerometer<A>>::Error>
 {
-    fn marg(&mut self) -> Result<MARGReadings<A, G, M>, <Self as Accelerometer<A>>::Error> {
+    fn marg(&mut self) -> Result<MargReadings<A, G, M>, <Self as Accelerometer<A>>::Error> {
         Ok((
             self.accelerometer()?,
             self.gyroscope()?,

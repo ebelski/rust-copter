@@ -64,7 +64,7 @@ fn main() -> ! {
                 err
             );
             loop {
-                core::sync::atomic::spin_loop_hint()
+                core::hint::spin_loop()
             }
         }
     };
@@ -84,7 +84,7 @@ fn main() -> ! {
         Err(err) => {
             log::error!("Error when constructing MP9250: {:?}", err);
             loop {
-                core::sync::atomic::spin_loop_hint();
+                core::hint::spin_loop();
             }
         }
     };
