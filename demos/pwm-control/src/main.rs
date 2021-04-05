@@ -90,8 +90,8 @@ use embedded_hal::{digital::v2::OutputPin, timer::CountDown};
 use parser::{Command, Parser};
 use teensy4_bsp as bsp;
 
-use esc::{QuadMotor, ESC};
-use esc_imxrt1062::{Protocol, ESC as imxrtESC};
+use esc::{Esc, QuadMotor};
+use esc_imxrt1062::{Esc as imxrtEsc, Protocol};
 
 /// CHANGE ME to vary the ESC protocol
 const ESC_PROTOCOL: Protocol = Protocol::OneShot125;
@@ -158,7 +158,7 @@ fn main() -> ! {
         )
         .unwrap();
 
-    let mut esc = imxrtESC::new(ESC_PROTOCOL, pwm1.handle, sm3, pwm2.handle, sm2);
+    let mut esc = imxrtEsc::new(ESC_PROTOCOL, pwm1.handle, sm3, pwm2.handle, sm2);
 
     // Set up the USB stack, and use the USB reader for parsing commands
     let usb_reader = bsp::usb::init(&systick, Default::default()).unwrap();
@@ -192,7 +192,7 @@ fn main() -> ! {
         Err(err) => {
             log::error!("Unable to establish datapath: {:?}", err);
             loop {
-                core::sync::atomic::spin_loop_hint();
+                core::hint::spin_loop();
             }
         }
     };
@@ -217,7 +217,7 @@ fn main() -> ! {
             );
             loop {
                 // Nothing more to do
-                core::sync::atomic::spin_loop_hint();
+                core::hint::spin_loop();
             }
         }
     }
@@ -309,7 +309,7 @@ fn percent_to_duty(pct: f64) -> u16 {
 /// Compute the rate at which we should blink the LED based on the
 /// PWM duty cycles. Defines a duration based on the highest PWM
 /// duty cycle.
-fn pwm_to_blink_period(esc: &dyn ESC<Motor = QuadMotor>) -> Duration {
+fn pwm_to_blink_period(esc: &dyn Esc<Motor = QuadMotor>) -> Duration {
     const SLOWEST_BLINK_NS: i64 = 2_000_000_000;
     const FASTEST_BLINK_NS: i64 = SLOWEST_BLINK_NS / 100;
     const MOTORS: [QuadMotor; 4] = [QuadMotor::A, QuadMotor::B, QuadMotor::C, QuadMotor::D];

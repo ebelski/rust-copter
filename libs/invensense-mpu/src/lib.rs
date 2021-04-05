@@ -59,26 +59,26 @@ impl<P> From<P> for Error<P> {
 /// The `MPU` struct can be used to query readings from a physical
 /// MPU. See the [`spi`](spi/index.html) and [`i2c`](i2c/index.html)
 /// module documentation for details on how to acquire an `MPU`.
-pub struct MPU<T> {
+pub struct Mpu<T> {
     transport: T,
     handle: Handle,
 }
 
 type Sensitivity = Triplet<f32>;
 
-impl<T> MPU<T>
+impl<T> Mpu<T>
 where
     T: Transport,
 {
     fn new(transport: T, config: &Config, sensitivity: &Sensitivity) -> Self {
-        MPU {
+        Mpu {
             transport,
             handle: Handle::new(&config, sensitivity),
         }
     }
 }
 
-impl<T> MPU<T> {
+impl<T> Mpu<T> {
     fn scale_gyro(&self, raw: Triplet<i16>) -> Triplet<f32> {
         raw.map(|raw| self.handle.gyro_resolution * f32::from(raw))
     }
@@ -96,7 +96,7 @@ impl<T> MPU<T> {
     }
 }
 
-impl<T> MPU<T>
+impl<T> Mpu<T>
 where
     T: Transport,
     T::Error: Debug,
@@ -141,7 +141,7 @@ pub trait Transport: private::Sealed {
 mod private {
     pub trait Sealed {}
     impl<I> Sealed for crate::i2c::Bypass<I> {}
-    impl<S> Sealed for crate::spi::SPI<S> {}
+    impl<S> Sealed for crate::spi::Spi<S> {}
 }
 
 /// Holds controller-side state of the MPU9250

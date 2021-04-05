@@ -181,9 +181,9 @@ where
 }
 
 /// i.MX RT-specific ESC implementation
-pub struct ESC<A, B, C, D>(RefCell<Module<A, B, C, D>>);
+pub struct Esc<A, B, C, D>(RefCell<Module<A, B, C, D>>);
 
-impl<A, B, C, D> ESC<A, B, C, D>
+impl<A, B, C, D> Esc<A, B, C, D>
 where
     A: Pin<Module = XMod, Output = pwm::A, Submodule = XSub>,
     B: Pin<Module = XMod, Output = pwm::B, Submodule = <A as Pin>::Submodule>,
@@ -222,7 +222,7 @@ fn duty_to_percent(duty: u16) -> f32 {
     (duty.saturating_sub(MINIMUM_DUTY_CYCLE) as f32) / (MINIMUM_DUTY_CYCLE as f32)
 }
 
-impl<A, B, C, D> esc::ESC for ESC<A, B, C, D>
+impl<A, B, C, D> esc::Esc for Esc<A, B, C, D>
 where
     A: Pin<Module = XMod, Output = pwm::A, Submodule = XSub>,
     B: Pin<Module = XMod, Output = pwm::B, Submodule = <A as Pin>::Submodule>,

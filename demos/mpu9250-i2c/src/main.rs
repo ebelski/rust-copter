@@ -86,7 +86,7 @@ fn main() -> ! {
             );
             loop {
                 // Nothing more to do
-                core::sync::atomic::spin_loop_hint();
+                core::hint::spin_loop();
             }
         }
     }
@@ -113,7 +113,7 @@ fn main() -> ! {
             log::error!("Unable to create MPU9250: {:?}", err);
             loop {
                 // This is it, we stop the example here.
-                core::sync::atomic::spin_loop_hint()
+                core::hint::spin_loop()
             }
         }
         // Connected OK to the MPU!
