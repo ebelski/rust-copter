@@ -49,6 +49,17 @@ jobs:
         command: fmt
         args: --verbose --all --manifest-path host/Cargo.toml -- --check
 
+  # Run unit, integration, documentation tests for common code
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run tests in common
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --verbose --workspace --manifest-path common/Cargo.toml
+
   # Build all Rust code on macOS, Ubuntu, and Windows
   xplat:
     strategy:
