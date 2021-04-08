@@ -95,35 +95,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "demo-mpu9250-i2c"
-version = "0.1.0"
-dependencies = [
- "cortex-m 0.6.7",
- "cortex-m-rt",
- "embedded-hal",
- "invensense-mpu",
- "log",
- "motion-sensor",
- "panic-halt",
- "teensy4-bsp",
-]
-
-[[package]]
-name = "demo-mpu9250-spi"
-version = "0.1.0"
-dependencies = [
- "cortex-m 0.6.7",
- "cortex-m-rt",
- "embedded-hal",
- "invensense-mpu",
- "log",
- "motion-sensor",
- "panic-halt",
- "teensy4-bsp",
-]
-
-[[package]]
-name = "demo-pwm-control"
+name = "demos-teensy4"
 version = "0.1.0"
 dependencies = [
  "cortex-m 0.6.7",
@@ -134,9 +106,9 @@ dependencies = [
  "invensense-mpu",
  "log",
  "motion-sensor",
- "panic-halt",
  "postcard",
  "teensy4-bsp",
+ "teensy4-panic",
  "void",
 ]
 
@@ -295,12 +267,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "546c37ac5d9e56f55e73b677106873d9d9f5190605e41a856503623648488cae"
 
 [[package]]
-name = "panic-halt"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de96540e0ebde571dc55c73d60ef407c653844e6f9a1e2fdbd40c07b9252d812"
-
-[[package]]
 name = "postcard"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -424,6 +390,12 @@ checksum = "c4c08911c8e1ca601332f27ce9eb0c8e54dc1647eb0636e13aca6952ff3140c3"
 dependencies = [
  "imxrt-boot-gen",
 ]
+
+[[package]]
+name = "teensy4-panic"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e47dd0d4933669a6d729b07a67f9d0cd97fd431c0729a0d18a8d10cf2a98de60"
 
 [[package]]
 name = "teensy4-pins"

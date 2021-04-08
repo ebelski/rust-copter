@@ -81,7 +81,7 @@ mod datapath;
 mod parser;
 mod sensor;
 
-extern crate panic_halt;
+extern crate teensy4_panic;
 
 use bsp::hal::i2c::ClockSpeed;
 use core::time::Duration;

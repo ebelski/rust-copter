@@ -1,8 +1,6 @@
 [workspace]
 members = [
-    "demos/mpu9250-i2c",
-    "demos/mpu9250-spi",
-    "demos/pwm-control",
+    "demos-teensy4",
     "esc-imxrt1062",
 ]
 
