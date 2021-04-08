@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "demos/mpu9250-i2c",
+    "demos/mpu9250-spi",
+    "demos/pwm-control",
+    "esc-imxrt1062",
+]
+
+# Don't optimize build dependencies, like proc macros.
+# Helps with build times.
+[profile.release.build-override]
+opt-level = 0

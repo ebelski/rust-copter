@@ -13,15 +13,15 @@ embedded-hal = "0.2.4"
 log = { version = "0.4.11", features = ["release_max_level_debug"] }
 postcard = { version = "0.5", default-features = false }
 void = { version = "1.0.2", default-features = false }
-motion-sensor = { path = "../../libs/motion-sensor", features = ["use-serde"] }
-invensense-mpu = { path = "../../libs/invensense-mpu" }
+motion-sensor = { path = "../../../common/motion-sensor", features = ["use-serde"] }
+invensense-mpu = { path = "../../../common/invensense-mpu" }
 
 [dependencies.teensy4-bsp]
 version = "0.1"
 features = ["rt"]
 
 [dependencies.esc]
-path = "../../libs/esc"
+path = "../../../common/esc"
 
 [dependencies.esc-imxrt1062]
-path = "../../libs/esc-imxrt1062"
+path = "../../esc-imxrt1062"

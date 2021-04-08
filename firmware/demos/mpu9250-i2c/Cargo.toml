@@ -5,15 +5,13 @@ authors = ["Ian McIntyre <ianpmcintyre@gmail.com>", "Eric Belski <belski.eric@gm
 edition = "2018"
 description = "Demonstration of interfacing an MPU9250 with the Teensy 4"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 cortex-m = "0.6.3"
 cortex-m-rt = "0.6.13"
 embedded-hal = "0.2.4"
 panic-halt = "0.2.0"
-motion-sensor = { path = "../../libs/motion-sensor" }
-invensense-mpu = { path = "../../libs/invensense-mpu" }
+motion-sensor = { path = "../../../common/motion-sensor" }
+invensense-mpu = { path = "../../../common/invensense-mpu" }
 
 [dependencies.log]
 version = "0.4.11"
