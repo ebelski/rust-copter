@@ -1,6 +1,6 @@
-# Tools
+# Host-side tools
 
-The `tools` directory contains libraries and programs for host-side software.
+The `host` directory contains libraries and programs for host-side software.
 
 Unless otherwise stated, all commands below should be run from the root of the
 repository. The guides below also assume that you've installed thedependencies
@@ -18,7 +18,7 @@ The library is written in Rust. We recommend using
 
 ```bash
 $ pip install 'maturin>=0.9,<0.10'
-$ maturin build --release --manifest-path tools/pymotion-sensor/Cargo.toml
+$ maturin build --release --manifest-path host/pymotion-sensor/Cargo.toml
 ```
 
 The tool will note the path to the built wheel. Use `pip` to install the
@@ -44,13 +44,13 @@ To use the script, install the `pymotion-sensor` library above. Then, install
 the additional requirements:
 
 ```bash
-$ pip install -r tools/requirements.text
+$ pip install -r host/requirements.text
 ```
 
 Finally, run the script, supplying your serial port:
 
 ```bash
-$ python tools/imu-parse.py --help
-$ python tools/imu-parse.py COMx          # Windows
-$ python tools/imu-parse.py /dev/tty.USBx # *nix
+$ python host/imu-parse.py --help
+$ python host/imu-parse.py COMx          # Windows
+$ python host/imu-parse.py /dev/tty.USBx # *nix
 ```

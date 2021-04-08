@@ -1,0 +1,43 @@
+[package]
+name = "demos-teensy4"
+publish = false
+version = "0.1.0"
+authors = ["Ian McIntyre <ianpmcintyre@gmail.com>", "Eric Belski <belski.eric@gmail.com>"]
+edition = "2018"
+description = "Various demos and test utilities"
+
+[dependencies]
+cortex-m = "0.6.3"
+cortex-m-rt = "0.6.13"
+embedded-hal = "0.2.4"
+invensense-mpu = { path = "../../common/invensense-mpu" }
+motion-sensor = { path = "../../common/motion-sensor", features = ["use-serde"] }
+postcard = { version = "0.5", default-features = false }
+teensy4-panic = "0.1.0"
+void = { version = "1.0.2", default-features = false }
+
+[dependencies.esc]
+path = "../../common/esc"
+
+[dependencies.esc-imxrt1062]
+path = "../esc-imxrt1062"
+
+[dependencies.log]
+version = "0.4.11"
+features = ["release_max_level_debug"]
+
+[dependencies.teensy4-bsp]
+version = "0.1"
+features = ["rt"]
+
+[[bin]]
+name = "mpu9250-i2c"
+path = "mpu9250-i2c.rs"
+
+[[bin]]
+name = "mpu9250-spi"
+path = "mpu9250-spi.rs"
+
+[[bin]]
+name = "pwm-control"
+path = "pwm-control/main.rs"

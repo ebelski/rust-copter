@@ -21,7 +21,7 @@
 // -------
 // Imports
 // -------
-extern crate panic_halt;
+extern crate teensy4_panic;
 use bsp::hal::i2c::ClockSpeed;
 use motion_sensor::*;
 use teensy4_bsp as bsp; // Aliasing teensy4_bsp as bsp for convenience

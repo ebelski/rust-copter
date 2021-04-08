@@ -9,7 +9,7 @@ version = "0.2.4"
 features = ["unproven"]
 
 [dependencies.esc]
-path = "../esc"
+path = "../../common/esc"
 
 [dependencies.imxrt-hal]
 features = ["imxrt1062"]

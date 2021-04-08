@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "demos-teensy4",
+    "esc-imxrt1062",
+]
+
+# Don't optimize build dependencies, like proc macros.
+# Helps with build times.
+[profile.release.build-override]
+opt-level = 0

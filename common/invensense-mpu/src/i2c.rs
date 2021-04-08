@@ -9,7 +9,7 @@
 //! ```no_run
 //! # use embedded_hal_mock::{i2c::Mock, delay::MockNoop};
 //! use invensense_mpu as invensense;
-//! use motion_sensor::MARG;
+//! use motion_sensor::Marg;
 //!
 //! let mut i2c = // An I2C peripheral...
 //!     # Mock::new(&[]);

@@ -11,7 +11,7 @@
 // for a non_exhaustive struct.
 #![allow(clippy::field_reassign_with_default)]
 
-extern crate panic_halt;
+extern crate teensy4_panic;
 
 use cortex_m_rt::entry;
 use motion_sensor::*;

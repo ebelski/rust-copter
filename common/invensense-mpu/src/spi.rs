@@ -12,7 +12,7 @@
 //! ```no_run
 //! # use embedded_hal_mock::{spi::Mock as SPI, delay::MockNoop};
 //! use invensense_mpu as invensense;
-//! use motion_sensor::MARG;
+//! use motion_sensor::Marg;
 //!
 //! let mut spi = // A SPI peripheral with u16 words
 //!     # SPI::new(&[]);

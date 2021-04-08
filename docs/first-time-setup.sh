@@ -49,9 +49,8 @@ fi
 echo "[ ] Attempting build of all embedded and host-side Rust code..."
 pushd . &> /dev/null
 cd ..
-cargo build --target thumbv7em-none-eabihf --workspace
-cd tools/pymotion-sensor
-cargo build
+cargo build --target thumbv7em-none-eabihf --manifest-path firmware/Cargo.toml --workspace
+cargo build --manifest-path host/Cargo.toml --workspace
 popd &> /dev/null
 echo "[✓] OK build of all embedded and host-side Rust code"
 

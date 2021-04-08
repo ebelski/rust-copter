@@ -39,9 +39,9 @@ TARGET = "thumbv7em-none-eabihf"
 OBJCOPY = "rust-objcopy"
 TEENSY_LOADER = "teensy_loader_cli"
 DEMOS = [
-    "demo-mpu9250-i2c",
-    "demo-mpu9250-spi",
-    "demo-pwm-control",
+    "mpu9250-i2c",
+    "mpu9250-spi",
+    "pwm-control",
 ]
 
 
@@ -75,44 +75,48 @@ def _bin2hex(binary: pathlib.Path) -> pathlib.Path:
     return hex_file
 
 
-def _cargo_build(crate: Optional[str], release: bool) -> pathlib.Path:
+def _cargo_build(workspace: str, binary: Optional[str], release: bool) -> pathlib.Path:
     """Run cargo build, building the provided crate
 
-    If `release` is True, build a release build
+    You must provide a Cargo workspace. You may optionally provide a binary
+    in that workspace. If `release` is True, build a release build.
     """
 
     mode = ""
     if release:
         mode = "--release"
 
-    env = os.environ.copy()
-    env["RUSTFLAGS"] = RUSTFLAGS
-    logging.debug("Extended environment with RUSTFLAGS='%s'", RUSTFLAGS)
+    cmd = f"cargo build {mode} --manifest-path {workspace}/Cargo.toml"
 
-    cmd = f"cargo build --target {TARGET} {mode}"
-    if crate:
-        cmd += f" --package {crate}"
+    env = os.environ.copy()
+    if "firmware" == workspace:
+        env["RUSTFLAGS"] = RUSTFLAGS
+        cmd += f" --target {TARGET}"
+        logging.debug("Extended environment with RUSTFLAGS='%s'", RUSTFLAGS)
+
+    if binary:
+        cmd += f" --bin {binary}"
 
     logging.debug("Running '%s'", cmd)
     subprocess.run(cmd, shell=True, check=True, env=env)
 
-    target_dir = pathlib.Path("target") / TARGET / ("release" if release else "debug")
+    target_dir = (
+        pathlib.Path(workspace)
+        / "target"
+        / TARGET
+        / ("release" if release else "debug")
+    )
 
-    return target_dir / crate if crate else target_dir
+    return target_dir / binary if binary else target_dir
 
 
 def demo(args):
     """Handler for the `demo` task
     """
 
-    crate = args.crate
-    if not crate.startswith("demo-"):
-        logging.debug("User did not include 'demo-' prefix, so adding it now...")
-        crate = f"demo-{crate}"
+    logging.debug("Using demo crate '%s'", args.crate)
 
-    logging.debug("Using demo crate '%s'", crate)
-
-    target = _cargo_build(crate, args.release)
+    target = _cargo_build("firmware", args.crate, args.release)
     hex_file = _bin2hex(target)
     if not args.flash or not _flash(hex_file):
         print(str(hex_file))
@@ -122,7 +126,7 @@ def release(args):
     """Handler for the "release" task
     """
     logging.debug("Building workspace...")
-    target = _cargo_build(None, True)
+    target = _cargo_build("firmware", None, True)
     logging.debug("Converting all demos %s to hex files...", DEMOS)
     hex_files = [_bin2hex(target / demo) for demo in DEMOS]
     demos_name = target / "demos.zip"

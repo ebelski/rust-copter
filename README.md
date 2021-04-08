@@ -17,3 +17,13 @@ python task.py demo pwm-control
 ```
 
 will build a `pwm-control` demo binary, ready to be installed on your Teensy 4. `task.py` prints the location of the final program, so take note of the output. Use the [Teensy Loader Application](https://www.pjrc.com/teensy/loader.html) to download the program to your Teensy 4. If the [`teensy_loader_cli` application](https://github.com/PaulStoffregen/teensy_loader_cli) is available on your `PATH`, `task.py` will run it, prompting you to download the program to your Teensy 4.
+
+## Structure
+
+| Directory       | Contents                                                            |
+| --------------- | ------------------------------------------------------------------- |
+| `common/`       | Rust crates that are shared between firmware and host-side software |
+| `docs/`         | Getting started guides, references, how-tos, project history        |
+| `firmware/`     | Rust crates for the embedded system(s)                              |
+| `host/`         | Rust crates, Python utilities for host-side tooling                 |
+| `solid-models/` | Mechanical parts for the copter                                     |
