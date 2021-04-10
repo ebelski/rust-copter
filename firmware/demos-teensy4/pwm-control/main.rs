@@ -2,8 +2,9 @@
 //!
 //! # Motor control
 //!
-//! The example lets us change PWM outputs from user input. There are four
-//! PWM outputs, identified by the letters A through D:
+//! The example lets us change PWM outputs from user input. The system accepts
+//! use input from the USB serial interface. There are four PWM outputs,
+//! identified by the letters A through D:
 //!
 //! | PWM Output | Teensy 4 Pin | PWM instance |
 //! | ---------- | ------------ | ------------ |
@@ -56,13 +57,11 @@
 //! # Motion Sensor
 //!
 //! You can optionally connect an MPU9250 motion sensor to a Teensy 4's I2C peripheral. If connected,
-//! the example will poll the sensor and write the data over a UART peripheral. The table below describes
-//! the I2C sensor and UART pinouts.
+//! the example will poll the sensor and write the data over the USB serial interface. The table below
+//! describes the I2C sensor pinouts.
 //!
 //! | Teensy 4 Pin | Teensy 4 Function |  Connection  |
 //! | ------------ | ----------------- | ------------ |
-//! |      14      |     UART2 TX      | Host UART RX |
-//! |      15      |     UART2 RX      | Host UART TX |
 //! |      16      |     I2C3 SCL      |   MPU SCL    |
 //! |      17      |     I2C3 SDA      |   MPU SDA    |
 //!
@@ -70,6 +69,21 @@
 //!
 //! IMU readings represent a COBS-encoded slice of one ore more `motion_sensor::Reading` measurements. You
 //! may deserialize them using `postcard`.
+//!
+//! # Debugging
+//!
+//! To debug the embedded system,
+//!
+//! - use a serial connection attached to pins 14 and 15, baud rate 115200
+//! - look for an S.O.S. morse code pattern blinking on the LED, which signals a catastrophic failure
+//!
+//! The table below describes the physical connections for debugging.
+//!
+//! | Teensy 4 Pin | Teensy 4 Function |  Connection  |
+//! | ------------ | ----------------- | ------------ |
+//! |      13      |       LED         |     N/A      |
+//! |      14      |     UART2 TX      | Host UART RX |
+//! |      15      |     UART2 RX      | Host UART TX |
 
 #![no_std]
 #![no_main]
