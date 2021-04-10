@@ -40,7 +40,7 @@ jobs:
     - name: Check pymotion-sensor installation
       run: python -c "import motion_sensor"
 
-  imu-parse:
+  python-format:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -54,5 +54,5 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install black==19.10b0
-    - name: Check formatting of host/imu-parse.py
-      run: black --check host/imu-parse.py
+    - name: Check formatting of host Python code
+      run: black --check host/
