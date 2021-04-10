@@ -58,14 +58,10 @@ fn main() -> ! {
             log::info!("Set clock speed to {}Hz", SPI_BAUD_RATE_HZ);
         }
         Err(err) => {
-            log::error!(
+            panic!(
                 "Unable to set clock speed to {}Hz: {:?}",
-                SPI_BAUD_RATE_HZ,
-                err
+                SPI_BAUD_RATE_HZ, err
             );
-            loop {
-                core::hint::spin_loop()
-            }
         }
     };
 
@@ -82,10 +78,7 @@ fn main() -> ! {
     let mut sensor = match invensense_mpu::spi::new(spi4, &mut systick, &config) {
         Ok(sensor) => sensor,
         Err(err) => {
-            log::error!("Error when constructing MP9250: {:?}", err);
-            loop {
-                core::hint::spin_loop();
-            }
+            panic!("Error when constructing MP9250: {:?}", err);
         }
     };
 

@@ -79,15 +79,10 @@ fn main() -> ! {
     match i2c3.set_clock_speed(I2C_CLOCK_SPEED) {
         Ok(_) => (),
         Err(err) => {
-            log::error!(
+            panic!(
                 "Unable to set I2C clock speed to {:?}: {:?}",
-                I2C_CLOCK_SPEED,
-                err
+                I2C_CLOCK_SPEED, err
             );
-            loop {
-                // Nothing more to do
-                core::hint::spin_loop();
-            }
         }
     }
 
@@ -110,11 +105,7 @@ fn main() -> ! {
     let mut sensor = match invensense_mpu::i2c::new(i2c3, &mut systick, &config) {
         // Damn, something went wrong when connecting to the MPU!
         Err(err) => {
-            log::error!("Unable to create MPU9250: {:?}", err);
-            loop {
-                // This is it, we stop the example here.
-                core::hint::spin_loop()
-            }
+            panic!("Unable to create MPU9250: {:?}", err);
         }
         // Connected OK to the MPU!
         Ok(mpu) => mpu,
