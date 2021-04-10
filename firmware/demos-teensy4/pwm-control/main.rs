@@ -98,6 +98,9 @@ const ESC_PROTOCOL: Protocol = Protocol::OneShot125;
 const I2C_CLOCK_SPEED: ClockSpeed = ClockSpeed::KHz400;
 const UART_BAUD: u32 = 115_200;
 
+/// Change me to select a new sensor datapath
+type Datapath = datapath::uart::Datapath;
+
 #[entry]
 fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
@@ -187,7 +190,7 @@ fn main() -> ! {
     // --------------
     // Datapath setup
     // --------------
-    let datapath = match datapath::Datapath::new(tx, channel_7) {
+    let datapath = match Datapath::new(tx, channel_7) {
         Ok(datapath) => datapath,
         Err(err) => {
             log::error!("Unable to establish datapath: {:?}", err);
