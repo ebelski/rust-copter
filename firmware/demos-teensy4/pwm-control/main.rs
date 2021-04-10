@@ -99,7 +99,7 @@ const I2C_CLOCK_SPEED: ClockSpeed = ClockSpeed::KHz400;
 const UART_BAUD: u32 = 115_200;
 
 /// Change me to select a new sensor datapath
-type Datapath = datapath::uart::Datapath;
+type Datapath = datapath::usb::Datapath;
 
 #[entry]
 fn main() -> ! {
@@ -164,7 +164,7 @@ fn main() -> ! {
     let mut esc = imxrtEsc::new(ESC_PROTOCOL, pwm1.handle, sm3, pwm2.handle, sm2);
 
     // Set up the USB stack, and use the USB reader for parsing commands
-    let usb_reader = bsp::usb::init(&systick, Default::default()).unwrap();
+    let (usb_reader, usb_writer) = bsp::usb::split(&systick).unwrap();
     let mut parser = Parser::new(usb_reader);
 
     let blink_period = pwm_to_blink_period(&esc);
@@ -187,10 +187,15 @@ fn main() -> ! {
     let mut dma_channels = peripherals.dma.clock(&mut peripherals.ccm.handle);
     let channel_7 = dma_channels[7].take().unwrap();
 
+    // -------------
+    // Logging setup
+    // -------------
+    imxrt_uart_log::dma::init(tx, channel_7, Default::default()).unwrap();
+
     // --------------
     // Datapath setup
     // --------------
-    let datapath = match Datapath::new(tx, channel_7) {
+    let datapath = match Datapath::new(usb_writer) {
         Ok(datapath) => datapath,
         Err(err) => {
             log::error!("Unable to establish datapath: {:?}", err);
@@ -238,7 +243,10 @@ fn main() -> ! {
 
         match parser.parse() {
             // Parser has not found any command; it needs more inputs
-            Ok(None) => sensor.poll(),
+            Ok(None) => {
+                sensor.poll();
+                imxrt_uart_log::dma::poll();
+            }
             // User wants to reset all duty cycles
             Ok(Some(Command::ResetThrottle)) => {
                 esc.set_throttle_group(&[
