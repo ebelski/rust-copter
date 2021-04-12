@@ -25,9 +25,7 @@ parser.add_argument(
     "port", type=str, help="Serial port (COMx on Windows, or /dev/tty.USBx on *nix)"
 )
 parser.add_argument(
-    "motor",
-    type=str,
-    help="Motor ID",
+    "motor", type=str, help="Motor ID",
 )
 parser.add_argument("throttle", type=float, help="Throttle %")
 
