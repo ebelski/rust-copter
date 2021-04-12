@@ -32,6 +32,18 @@ wheel. Then, ensure that the library installation worked:
 For an example of a Python tool that uses `pymotion-sensor`, see
 `imu-parse.py`.
 
+## pypwm_control
+
+A pure Python package that lets you interface the `pwm-control` demo on the
+embedded system. This package depends on the `pymotion-sensor` library. Use
+the package to
+
+- stream IMU readings
+- control PWM outputs that drive the ESC
+
+See `imu-parse.py` for an example of IMU streaming. See `esc-throttle.py` for
+an example of ESC control.
+
 ## `imu-parse.py`
 
 A simple Python program that demonstrates how to parse motion sensor readings
@@ -53,4 +65,27 @@ Finally, run the script, supplying your serial port:
 $ python host/imu-parse.py --help
 $ python host/imu-parse.py COMx          # Windows
 $ python host/imu-parse.py /dev/tty.USBx # *nix
+```
+
+## `esc-throttle.py`
+
+A simple Python program for controlling the `pwm-control` PWM outputs. See the
+`pwm-control` documentation for more information on the available motors.
+
+To use the script, install the `pymotion-sensor` library above. Then, install
+the additional requirements:
+
+```bash
+$ pip install -r host/requirements.text
+```
+
+Finally, run the script, supplying
+
+- your serial port
+- the motor of interest
+- the motor throttle
+
+```bash
+# Set motor A to 72% throttle (Windows)
+$ python host/esc-throttle.py COMx A 72
 ```

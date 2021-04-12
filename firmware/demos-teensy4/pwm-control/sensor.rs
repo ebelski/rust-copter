@@ -12,7 +12,7 @@ const POLLING_INTERVAL: Duration = Duration::from_micros(10_000);
 
 pub struct Sensor<P, I> {
     timer: P,
-    write: crate::datapath::Datapath,
+    write: crate::Datapath,
     mpu: Option<Mpu<invensense_mpu::i2c::Bypass<I>>>,
 }
 
@@ -25,7 +25,7 @@ where
     pub fn new(
         mut timer: P,
         i2c: I,
-        write: crate::datapath::Datapath,
+        write: crate::Datapath,
         blocking: &mut dyn embedded_hal::blocking::delay::DelayMs<u8>,
     ) -> Self {
         let mut config = invensense_mpu::Config::default();

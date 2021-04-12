@@ -3,3 +3,4 @@ target/
 pyenv/
 tools/pymotion-sensor/Cargo.lock
 wheels/
+__pycache__/

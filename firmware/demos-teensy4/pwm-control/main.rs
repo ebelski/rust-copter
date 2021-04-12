@@ -2,8 +2,9 @@
 //!
 //! # Motor control
 //!
-//! The example lets us change PWM outputs from user input. There are four
-//! PWM outputs, identified by the letters A through D:
+//! The example lets us change PWM outputs from user input. The system accepts
+//! use input from the USB serial interface. There are four PWM outputs,
+//! identified by the letters A through D:
 //!
 //! | PWM Output | Teensy 4 Pin | PWM instance |
 //! | ---------- | ------------ | ------------ |
@@ -56,13 +57,11 @@
 //! # Motion Sensor
 //!
 //! You can optionally connect an MPU9250 motion sensor to a Teensy 4's I2C peripheral. If connected,
-//! the example will poll the sensor and write the data over a UART peripheral. The table below describes
-//! the I2C sensor and UART pinouts.
+//! the example will poll the sensor and write the data over the USB serial interface. The table below
+//! describes the I2C sensor pinouts.
 //!
 //! | Teensy 4 Pin | Teensy 4 Function |  Connection  |
 //! | ------------ | ----------------- | ------------ |
-//! |      14      |     UART2 TX      | Host UART RX |
-//! |      15      |     UART2 RX      | Host UART TX |
 //! |      16      |     I2C3 SCL      |   MPU SCL    |
 //! |      17      |     I2C3 SDA      |   MPU SDA    |
 //!
@@ -70,6 +69,21 @@
 //!
 //! IMU readings represent a COBS-encoded slice of one ore more `motion_sensor::Reading` measurements. You
 //! may deserialize them using `postcard`.
+//!
+//! # Debugging
+//!
+//! To debug the embedded system,
+//!
+//! - use a serial connection attached to pins 14 and 15, baud rate 115200
+//! - look for an S.O.S. morse code pattern blinking on the LED, which signals a catastrophic failure
+//!
+//! The table below describes the physical connections for debugging.
+//!
+//! | Teensy 4 Pin | Teensy 4 Function |  Connection  |
+//! | ------------ | ----------------- | ------------ |
+//! |      13      |       LED         |     N/A      |
+//! |      14      |     UART2 TX      | Host UART RX |
+//! |      15      |     UART2 RX      | Host UART TX |
 
 #![no_std]
 #![no_main]
@@ -97,6 +111,9 @@ use esc_imxrt1062::{Esc as imxrtEsc, Protocol};
 const ESC_PROTOCOL: Protocol = Protocol::OneShot125;
 const I2C_CLOCK_SPEED: ClockSpeed = ClockSpeed::KHz400;
 const UART_BAUD: u32 = 115_200;
+
+/// Change me to select a new sensor datapath
+type Datapath = datapath::usb::Datapath;
 
 #[entry]
 fn main() -> ! {
@@ -161,7 +178,7 @@ fn main() -> ! {
     let mut esc = imxrtEsc::new(ESC_PROTOCOL, pwm1.handle, sm3, pwm2.handle, sm2);
 
     // Set up the USB stack, and use the USB reader for parsing commands
-    let usb_reader = bsp::usb::init(&systick, Default::default()).unwrap();
+    let (usb_reader, usb_writer) = bsp::usb::split(&systick).unwrap();
     let mut parser = Parser::new(usb_reader);
 
     let blink_period = pwm_to_blink_period(&esc);
@@ -184,10 +201,15 @@ fn main() -> ! {
     let mut dma_channels = peripherals.dma.clock(&mut peripherals.ccm.handle);
     let channel_7 = dma_channels[7].take().unwrap();
 
+    // -------------
+    // Logging setup
+    // -------------
+    imxrt_uart_log::dma::init(tx, channel_7, Default::default()).unwrap();
+
     // --------------
     // Datapath setup
     // --------------
-    let datapath = match datapath::Datapath::new(tx, channel_7) {
+    let datapath = match Datapath::new(usb_writer) {
         Ok(datapath) => datapath,
         Err(err) => {
             log::error!("Unable to establish datapath: {:?}", err);
@@ -235,7 +257,10 @@ fn main() -> ! {
 
         match parser.parse() {
             // Parser has not found any command; it needs more inputs
-            Ok(None) => sensor.poll(),
+            Ok(None) => {
+                sensor.poll();
+                imxrt_uart_log::dma::poll();
+            }
             // User wants to reset all duty cycles
             Ok(Some(Command::ResetThrottle)) => {
                 esc.set_throttle_group(&[

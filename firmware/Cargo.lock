@@ -103,6 +103,7 @@ dependencies = [
  "embedded-hal",
  "esc",
  "esc-imxrt1062",
+ "imxrt-uart-log",
  "invensense-mpu",
  "log",
  "motion-sensor",
@@ -216,6 +217,18 @@ checksum = "d1c184a0e9a27dcdd06c2455bf2764227cf86e6106dcf4127878b1768fb4acb5"
 dependencies = [
  "bare-metal",
  "cortex-m 0.6.7",
+]
+
+[[package]]
+name = "imxrt-uart-log"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b15584d564fd917e2d70deab23ad9458f072f62ed74abd7bc1ae6e811f1f54b"
+dependencies = [
+ "cortex-m 0.6.7",
+ "embedded-hal",
+ "imxrt-hal",
+ "log",
 ]
 
 [[package]]
