@@ -120,7 +120,7 @@ fn main() -> ! {
     let mut peripherals = bsp::Peripherals::take().unwrap();
     let core_peripherals = cortex_m::Peripherals::take().unwrap();
     let mut systick = bsp::SysTick::new(core_peripherals.SYST);
-    let mut pins = bsp::t40::into_pins(peripherals.iomuxc);
+    let pins = bsp::t40::into_pins(peripherals.iomuxc);
 
     let mut led = bsp::configure_led(pins.p13);
 
@@ -146,8 +146,6 @@ fn main() -> ! {
     let switching_period = Duration::from_micros(5_000);
 
     // Configure pins 6 and 9 as PWM outputs
-    esc_imxrt1062::prepare_pin(&mut pins.p6);
-    esc_imxrt1062::prepare_pin(&mut pins.p9);
     let sm2 = pwm2
         .sm2
         .outputs(
@@ -163,8 +161,6 @@ fn main() -> ! {
         .unwrap();
 
     // Configure pins 7 and 8 as PWM outputs
-    esc_imxrt1062::prepare_pin(&mut pins.p8);
-    esc_imxrt1062::prepare_pin(&mut pins.p7);
     let sm3 = pwm1
         .sm3
         .outputs(

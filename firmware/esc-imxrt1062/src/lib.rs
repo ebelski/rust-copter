@@ -83,11 +83,6 @@ impl Protocol {
     }
 }
 
-/// Call this on your i.MX RT pads before constructing your ESC
-///
-/// TODO remove with 0.4.4 imxrt-hal release.
-pub use pwm::prepare as prepare_pin;
-
 /// i.MX RT-specific ESC implementation
 struct Module<A, B, C, D> {
     handle_ab: Handle<XMod>,
