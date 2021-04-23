@@ -175,9 +175,9 @@ checksum = "3991722c78672e5006f670da9a374a2af5c944a2a25fa2652346bf74aa1acf57"
 
 [[package]]
 name = "imxrt-hal"
-version = "0.4.2"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a79bcf18e1471b050e7d381882beb850f1deb96b74236f41cb25a729d79990f4"
+checksum = "7a43e2180a585b3be4d6255ee620c9c20758db32fa27019b45f62e965f305cc8"
 dependencies = [
  "as-slice",
  "bitflags",
