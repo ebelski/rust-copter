@@ -24,12 +24,12 @@ jobs:
     - uses: actions-rs/clippy-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        args: --verbose --target thumbv7em-none-eabihf --workspace --manifest-path firmware/Cargo.toml -- -D warnings
+        args: --verbose --target thumbv7em-none-eabihf --workspace --exclude pymotion-sensor -- -D warnings
         name: Run clippy for firmware
     - uses: actions-rs/clippy-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        args: --verbose --workspace --manifest-path host/Cargo.toml -- -D warnings
+        args: --verbose --workspace --exclude demos-teensy4 -- -D warnings
         name: Run clippy for host
 
   # Ensure code is formatted
@@ -38,16 +38,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: rustup component add rustfmt
-    - name: Check firmware code formatting
+    - name: Check Rust code formatting
       uses: actions-rs/cargo@v1
       with:
         command: fmt
-        args: --verbose --all --manifest-path firmware/Cargo.toml -- --check
-    - name: Check host code formatting
-      uses: actions-rs/cargo@v1
-      with:
-        command: fmt
-        args: --verbose --all --manifest-path host/Cargo.toml -- --check
+        args: --verbose --all -- --check
 
   # Run unit, integration, documentation tests for common code
   test:
@@ -58,7 +53,7 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --verbose --workspace --manifest-path common/Cargo.toml
+        args: --verbose --workspace --exclude demos-teensy4 --exclude pymotion-sensor
 
   # Build all Rust code on macOS, Ubuntu, and Windows
   xplat:
@@ -77,9 +72,9 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --verbose --workspace --target thumbv7em-none-eabihf --manifest-path firmware/Cargo.toml
+        args: --verbose --workspace --target thumbv7em-none-eabihf --exclude pymotion-sensor
     - name: Build host
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --verbose --workspace --manifest-path host/Cargo.toml
+        args: --verbose --workspace --exclude demos-teensy4
