@@ -75,24 +75,23 @@ def _bin2hex(binary: pathlib.Path) -> pathlib.Path:
     return hex_file
 
 
-def _cargo_build(workspace: str, binary: Optional[str], release: bool) -> pathlib.Path:
+def _cargo_build(package: str, binary: Optional[str], release: bool) -> pathlib.Path:
     """Run cargo build, building the provided crate
 
-    You must provide a Cargo workspace. You may optionally provide a binary
-    in that workspace. If `release` is True, build a release build.
+    You must provide a package. You may optionally provide a binary
+    in that package. If `release` is True, build a release build.
     """
 
     mode = ""
     if release:
         mode = "--release"
 
-    cmd = f"cargo build {mode} --manifest-path {workspace}/Cargo.toml"
+    cmd = f"cargo build {mode} --package {package}"
 
     env = os.environ.copy()
-    if "firmware" == workspace:
-        env["RUSTFLAGS"] = RUSTFLAGS
-        cmd += f" --target {TARGET}"
-        logging.debug("Extended environment with RUSTFLAGS='%s'", RUSTFLAGS)
+    env["RUSTFLAGS"] = RUSTFLAGS
+    cmd += f" --target {TARGET}"
+    logging.debug("Extended environment with RUSTFLAGS='%s'", RUSTFLAGS)
 
     if binary:
         cmd += f" --bin {binary}"
@@ -100,12 +99,7 @@ def _cargo_build(workspace: str, binary: Optional[str], release: bool) -> pathli
     logging.debug("Running '%s'", cmd)
     subprocess.run(cmd, shell=True, check=True, env=env)
 
-    target_dir = (
-        pathlib.Path(workspace)
-        / "target"
-        / TARGET
-        / ("release" if release else "debug")
-    )
+    target_dir = pathlib.Path("target") / TARGET / ("release" if release else "debug")
 
     return target_dir / binary if binary else target_dir
 
@@ -116,7 +110,7 @@ def demo(args):
 
     logging.debug("Using demo crate '%s'", args.crate)
 
-    target = _cargo_build("firmware", args.crate, args.release)
+    target = _cargo_build("demos-teensy4", args.crate, args.release)
     hex_file = _bin2hex(target)
     if not args.flash or not _flash(hex_file):
         print(str(hex_file))
@@ -126,7 +120,7 @@ def release(args):
     """Handler for the "release" task
     """
     logging.debug("Building workspace...")
-    target = _cargo_build("firmware", None, True)
+    target = _cargo_build("demos-teensy4", None, True)
     logging.debug("Converting all demos %s to hex files...", DEMOS)
     hex_files = [_bin2hex(target / demo) for demo in DEMOS]
     demos_name = target / "demos.zip"
