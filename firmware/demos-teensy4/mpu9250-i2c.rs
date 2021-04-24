@@ -21,9 +21,9 @@
 // -------
 // Imports
 // -------
-extern crate teensy4_panic;
 use bsp::hal::i2c::ClockSpeed;
 use motion_sensor::*;
+use shared as _;
 use teensy4_bsp as bsp; // Aliasing teensy4_bsp as bsp for convenience
 
 const I2C_CLOCK_SPEED: ClockSpeed = ClockSpeed::KHz400;

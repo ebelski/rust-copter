@@ -14,7 +14,7 @@ imxrt-uart-log = "0.2"
 invensense-mpu = { path = "../../common/invensense-mpu" }
 motion-sensor = { path = "../../common/motion-sensor", features = ["use-serde"] }
 postcard = { version = "0.5", default-features = false }
-teensy4-panic = "0.1.0"
+teensy4-panic = { version = "0.2", default-features = false }
 void = { version = "1.0.2", default-features = false }
 
 [dependencies.esc]
@@ -30,6 +30,10 @@ features = ["release_max_level_debug"]
 [dependencies.teensy4-bsp]
 version = "0.1"
 features = ["rt"]
+
+[lib]
+name = "shared"
+path = "shared/lib.rs"
 
 [[bin]]
 name = "mpu9250-i2c"
