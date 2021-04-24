@@ -1,0 +1,17 @@
+[workspace]
+members = [
+    "common/esc",
+    "common/invensense-mpu",
+    "common/motion-sensor",
+    "common/mpu9250-regs",
+
+    "firmware/demos-teensy4",
+    "firmware/esc-imxrt1062",
+
+    "host/pymotion-sensor",
+]
+
+# Don't optimize build dependencies, like proc macros.
+# Helps with build times.
+[profile.release.build-override]
+opt-level = 0
