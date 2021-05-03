@@ -95,7 +95,7 @@ mod datapath;
 mod parser;
 mod sensor;
 
-extern crate teensy4_panic;
+use shared as _;
 
 use bsp::hal::i2c::ClockSpeed;
 use core::time::Duration;
@@ -212,10 +212,7 @@ fn main() -> ! {
     let datapath = match Datapath::new(usb_writer) {
         Ok(datapath) => datapath,
         Err(err) => {
-            log::error!("Unable to establish datapath: {:?}", err);
-            loop {
-                core::hint::spin_loop();
-            }
+            panic!("Unable to establish datapath: {:?}", err);
         }
     };
 
@@ -232,15 +229,10 @@ fn main() -> ! {
     match i2c3.set_clock_speed(I2C_CLOCK_SPEED) {
         Ok(_) => (),
         Err(err) => {
-            log::error!(
+            panic!(
                 "Unable to set I2C clock speed to {:?}: {:?}",
-                I2C_CLOCK_SPEED,
-                err
+                I2C_CLOCK_SPEED, err
             );
-            loop {
-                // Nothing more to do
-                core::hint::spin_loop();
-            }
         }
     }
 
